@@ -14,6 +14,7 @@
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>body{font-family:'Cairo',system-ui,sans-serif;background:#f8fafc;color:#1e293b}</style>
 </head>
@@ -46,12 +47,22 @@
   <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-10">
     <div><h1 id="title" class="text-xl font-extrabold"></h1><p class="text-xs text-slate-500">لوحة التحكم المالية</p></div>
     <div class="flex items-center gap-2">
-      <label class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold cursor-pointer">+ رفع كشف حساب (CSV)<input id="file" type="file" accept=".csv" class="hidden" onchange="upload(this)"></label>
+      <label class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold cursor-pointer">+ رفع كشف حساب (Excel أو CSV)<input id="file" type="file" accept=".csv,.xlsx,.xls" class="hidden" onchange="upload(this)"></label>
       <button onclick="signOut()" class="text-xs text-slate-500 underline">خروج</button>
     </div>
   </header>
   <div class="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
     <p id="msg" class="text-sm font-bold"></p>
+    <div id="mapper" class="hidden bg-white p-5 rounded-2xl border border-indigo-200 space-y-3">
+      <h2 class="font-bold">ربط أعمدة الملف</h2>
+      <p class="text-xs text-slate-500">اختار العمود المناسب لكل خانة. اللي اتعرّفت عليه تلقائياً متحدد، وتقدر تغيّره. كشف الحساب اللي فيه مدين ودائن منفصلين بيشتغل كمان.</p>
+      <div id="mapFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      <label class="block text-xs font-bold text-slate-600">ترتيب التواريخ المكتوبة نص (زي 01/03/2026)
+        <select id="dateOrder" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1"><option value="dmy">يوم/شهر/سنة</option><option value="mdy">شهر/يوم/سنة</option></select></label>
+      <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead id="mapHead"></thead><tbody id="mapBody"></tbody></table></div>
+      <p id="mapStat" class="text-sm font-bold"></p>
+      <div class="flex gap-2"><button id="mapGo" onclick="mapUpload()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40">رفع</button><button onclick="mapCancel()" class="bg-slate-100 px-4 py-2 rounded-xl text-sm font-bold">إلغاء</button></div>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">النقدية المتاحة</p><h3 id="kCash" class="text-2xl font-extrabold">-</h3></div>
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">العمر النقدي (Runway)</p><h3 id="kRun" class="text-2xl font-extrabold">-</h3></div>
@@ -94,7 +105,7 @@
 const SB_URL = 'https://oorsnupcxmdqimuancsz.supabase.co';
 const SB_KEY = 'sb_publishable_nvrHdiBa-OmGnPHAXk0L1w_ZjkA8d5f';
 const sb = supabase.createClient(SB_URL, SB_KEY);
-const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold':'تكلفة البضاعة (COGS)','Operating Expenses':'مصاريف تشغيلية','Salaries & Wages':'رواتب وأجور','Marketing':'تسويق','Taxes & Fees':'ضرائب ورسوم','Other':'أخرى','Uncategorized':'غير مصنف'};
+const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold':'تكلفة البضاعة (COGS)','Operating Expenses':'مصاريف تشغيلية','Salaries & Wages':'رواتب وأجور','Marketing':'تسويق','Taxes & Fees':'ضرائب ورسوم','Other':'أخرى','Rent & Utilities':'إيجار ومرافق','Bank Fees':'رسوم بنكية','Loans & Installments':'قروض وأقساط','Other Income':'إيرادات أخرى','Meals & Hospitality':'ضيافة وأكل','Uncategorized':'غير مصنف'};
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
 let companyId = null, chart = null, allTx = [], chartIE = null, chartCat = null;
@@ -120,7 +131,8 @@ function drawCat(){
   const ent = Object.entries(tot).sort((a, b) => b[1] - a[1]), sum = ent.reduce((s, e) => s + e[1], 0);
   if (chartCat) chartCat.destroy();
   chartCat = new Chart($('chartCat'), {type:'doughnut', data:{labels: ent.map(e => e[0]), datasets:[{data: ent.map(e => e[1]), backgroundColor: ent.map((_, i) => COLORS[i % COLORS.length])}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}});
-  $('catNote').textContent = ent.length ? 'أكبر بند: ' + ent[0][0] + ' (' + Math.round(ent[0][1] / sum * 100) + '% من المصروفات)' : 'مفيش مصروفات في الفترة دي';
+  const oth = ent.find(e => e[0] === AR['Other']), othPct = oth && sum ? Math.round(oth[1] / sum * 100) : 0;
+  $('catNote').textContent = ent.length ? 'أكبر بند: ' + ent[0][0] + ' (' + Math.round(ent[0][1] / sum * 100) + '% من المصروفات)' + (othPct >= 20 ? ' — تنبيه: بند "أخرى" ' + othPct + '% من المصروفات، راجع التصنيف' : '') : 'مفيش مصروفات في الفترة دي';
 }
 const FIXES = [
  [/failed to fetch|networkerror|load failed/i,'مفيش اتصال بالخدمة','النت ضعيف، أو الدالة على Supabase مش منشورة أو فيها خطأ.','حدّث الصفحة وتأكد من النت. لو لسه، افتح Supabase ← Edge Functions ← الدالة ← Logs وصوّر آخر خطأ.'],
@@ -129,6 +141,7 @@ const FIXES = [
  [/already registered|already been registered/i,'الإيميل ده متسجل قبل كده','فيه حساب بنفس الإيميل.','اضغط دخول بدل إنشاء حساب جديد.'],
  [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قصير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
  [/at least 6|password should|weak password/i,'كلمة السر ضعيفة','لازم 6 أحرف على الأقل.','اختار كلمة سر أطول فيها حروف وأرقام.'],
+ [/excel|xlsx|sheet/i,'مشكلة في قراءة ملف Excel','الملف ممكن يكون تالف، أو البيانات مش في الصفحة الأولى، أو المكتبة ما اتحمّلتش.','تأكد إن البيانات في أول Sheet وأول صف فيه أسماء الأعمدة (Date, Description, Amount). أو احفظ الملف كـ CSV من Excel وارفعه.'],
  [/ai rate limit/i,'المساعد وصل للحد المجاني','الخطة المجانية لها حد على عدد الأسئلة في الدقيقة واليوم.','استنى دقيقة وجرّب تاني، ولو اتكرر جرّب بعد ساعات.'],
  [/ai_not_configured/i,'المساعد الذكي لسه ما اتفعلش','مفتاح Gemini مش مضاف على Supabase.','أضف GEMINI_API_KEY في Supabase ← Edge Functions ← Secrets، وبعدين جرّب تاني.'],
  [/unauthorized|invalid jwt|jwt|not authenticated/i,'الجلسة خلصت','لازم تسجّل دخول من جديد.','اضغط خروج وادخل تاني.'],
@@ -226,20 +239,139 @@ async function loadInner(){
   });
 }
 
+const MAPF = [
+ ['date','التاريخ *',/^(date|التاريخ|تاريخ|value date|posting date|تاريخ العملية|تاريخ المعاملة)$/i],
+ ['desc','البيان / الوصف *',/(description|desc|narrat|details|البيان|الوصف|تفاصيل|شرح|ملاحظات)/i],
+ ['amount','المبلغ (عمود واحد)',/^(amount|المبلغ|القيمة|value|net amount)$/i],
+ ['debit','مدين / سحب',/(debit|مدين|سحب|withdraw|صادر|مصروف)/i],
+ ['credit','دائن / إيداع',/(credit|دائن|إيداع|ايداع|deposit|وارد|إيراد)/i],
+ ['type','النوع (اختياري)',/^(type|النوع|نوع)/i],
+ ['cat','التصنيف (اختياري)',/(ai_category|category|التصنيف|تصنيف|البند)/i],
+ ['ref','الرقم المرجعي (اختياري)',/(reference|ref|المرجع|مرجع|رقم العملية)/i]
+];
+let mapRows = [], mapBad = 0, mapKey = '';
+const pad = n => String(n).padStart(2, '0');
+function digits(s){ return String(s).replace(/[٠-٩]/g, d => d.charCodeAt(0) - 1632).replace(/[۰-۹]/g, d => d.charCodeAt(0) - 1776); }
+function toNum(v){
+  if (typeof v === 'number') return isFinite(v) ? v : NaN;
+  let s = digits(v === null || v === undefined ? '' : v).replace(/٫/g, '.').trim(); if (!s) return NaN;
+  let neg = false;
+  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  if (/-$/.test(s)) { neg = true; s = s.slice(0, -1); }
+  s = s.replace(/[,٬\s]/g, '').replace(/[^\d.+-]/g, '');
+  if (!/\d/.test(s)) return NaN;
+  const n = Number(s); if (!isFinite(n)) return NaN;
+  return neg ? -Math.abs(n) : n;
+}
+function toDate(v, order){
+  let y, mo, d, m;
+  if (v instanceof Date) { const x = new Date(v.getTime() + 12 * 3600e3); y = x.getFullYear(); mo = x.getMonth() + 1; d = x.getDate(); }
+  else {
+    const s = digits(v === null || v === undefined ? '' : v).trim();
+    if ((m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/))) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else if ((m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/))) { y = +m[3]; if (order === 'dmy') { d = +m[1]; mo = +m[2]; } else { mo = +m[1]; d = +m[2]; } }
+    else return '';
+  }
+  if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31 && y >= 1990 && y <= 2100)) return '';
+  return y + '-' + pad(mo) + '-' + pad(d);
+}
+const RULES = [
+ ['Salaries & Wages', false, /(رواتب|مرتبات|راتب|مرتب|اجور|أجور|salary|salaries|payroll|wages)/i],
+ ['Rent & Utilities', false, /(كهرباء|كهربا|مياه|غاز|ايجار|إيجار|انترنت|إنترنت|تليفون|اتصالات|فودافون|اورنج|rent|electric|water|utility|vodafone|orange|etisalat)/i],
+ ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات|\btax\b|\bvat\b|customs)/i],
+ ['Bank Fees', false, /(عمولة|عمولات|مصاريف بنكية|رسوم بنكية|رسوم بنك|bank charge|commission|bank fee)/i],
+ ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads|\bads\b|marketing)/i],
+ ['Loans & Installments', false, /(قسط|اقساط|أقساط|قرض|تمويل|loan|installment)/i],
+ ['Meals & Hospitality', false, /(اكل|أكل|مطعم|مطاعم|قهوة|كافيه|بوفيه|ضيافة|وجبات|restaurant|cafe|coffee|meal|catering)/i],
+ ['Cost of Goods Sold', false, /(توريد|بضاعة|بضائع|مورد|موردين|مشتريات|خامات|شراء|supplier|purchase|inventory|goods)/i],
+ ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع|\bpos\b|تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
+];
+function autoCat(desc, isIncome){
+  const d = String(desc).toLowerCase();
+  for (const [cat, inc, re] of RULES) if (inc === isIncome && re.test(d)) return cat;
+  return isIncome ? 'Other Income' : 'Other';
+}
+function normRow(r, m, order){
+  const g = i => (i < 0 ? '' : r[i]);
+  const date = toDate(g(m.date), order), desc = String(g(m.desc) === undefined ? '' : g(m.desc)).trim();
+  let amount = NaN;
+  if (m.amount >= 0) amount = toNum(g(m.amount));
+  else if (m.debit >= 0 || m.credit >= 0) {
+    const d = toNum(g(m.debit)), c = toNum(g(m.credit));
+    if (!isNaN(d) || !isNaN(c)) amount = (isNaN(c) ? 0 : Math.abs(c)) - (isNaN(d) ? 0 : Math.abs(d));
+  }
+  const tv = String(g(m.type) === undefined ? '' : g(m.type)).trim();
+  const type = /expense|مصروف|مدين|سحب/i.test(tv) ? 'Expense' : (/income|إيراد|ايراد|دائن|إيداع|ايداع/i.test(tv) ? 'Income' : '');
+  if (!date || !desc || !isFinite(amount)) return null;
+  return {date: date, desc: desc, amount: Math.round(amount * 100) / 100, type: type, cat: String(g(m.cat) === undefined ? '' : g(m.cat)).trim() || autoCat(desc, type === 'Income' ? true : (type === 'Expense' ? false : amount > 0)), ref: String(g(m.ref) === undefined ? '' : g(m.ref)).trim()};
+}
+async function readRows(f){
+  const isCsv = /\.csv$/i.test(f.name);
+  const wb = isCsv ? XLSX.read(await f.text(), {type: 'string', raw: true}) : XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  if (!ws) throw new Error('Excel sheet is empty');
+  return XLSX.utils.sheet_to_json(ws, {header: 1, raw: true, defval: ''}).filter(r => r.some(c => String(c).trim() !== ''));
+}
+function colLabel(h, i){ const t = String(h === null || h === undefined ? '' : h).trim(); return t || 'عمود ' + (i + 1); }
+function openMapper(){
+  const head = mapRows[0], box = $('mapFields'), used = new Set(); box.textContent = '';
+  MAPF.forEach(([key, label, re]) => {
+    const wrap = document.createElement('label'); wrap.className = 'block';
+    const t = document.createElement('div'); t.className = 'text-xs font-bold text-slate-600 mb-1'; t.textContent = label;
+    const sel = document.createElement('select'); sel.id = 'map_' + key; sel.className = 'w-full border border-slate-300 rounded-xl px-2 py-2 text-sm'; sel.onchange = renderPreview;
+    const o0 = document.createElement('option'); o0.value = '-1'; o0.textContent = '— بدون —'; sel.appendChild(o0);
+    head.forEach((h, i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = colLabel(h, i); sel.appendChild(o); });
+    const hit = head.findIndex((h, i) => !used.has(i) && re.test(String(h).trim()));
+    if (hit >= 0) { sel.value = String(hit); used.add(hit); }
+    wrap.append(t, sel); box.appendChild(wrap);
+  });
+  mapKey = 'tdq_map:' + head.map(h => String(h).trim()).join('|');
+  try { const sv = JSON.parse(localStorage.getItem(mapKey) || 'null'); if (sv) { MAPF.forEach(([k]) => { if (sv[k] !== undefined && sv[k] < head.length) $('map_' + k).value = String(sv[k]); }); if (sv._order) $('dateOrder').value = sv._order; } } catch (e) {}
+  $('mapper').classList.remove('hidden'); renderPreview(); $('mapper').scrollIntoView({behavior: 'smooth'});
+}
+function curMap(){ const m = {}; MAPF.forEach(([k]) => { m[k] = Number($('map_' + k).value); }); return m; }
+function collectRows(){ const m = curMap(), order = $('dateOrder').value, out = []; let bad = 0; mapRows.slice(1).forEach(r => { const n = normRow(r, m, order); if (n) out.push(n); else bad++; }); return {out: out, bad: bad}; }
+function renderPreview(){
+  const m = curMap(), st = $('mapStat'), hd = $('mapHead'), bd = $('mapBody'); hd.textContent = ''; bd.textContent = '';
+  if (m.date < 0 || m.desc < 0 || (m.amount < 0 && m.debit < 0 && m.credit < 0)) { st.className = 'text-sm font-bold text-amber-600'; st.textContent = 'اختار على الأقل: التاريخ والبيان والمبلغ (أو مدين/دائن).'; $('mapGo').disabled = true; return; }
+  const res = collectRows(); mapBad = res.bad;
+  const tr = document.createElement('tr'); ['التاريخ', 'البيان', 'المبلغ', 'النوع', 'التصنيف', 'المرجع'].forEach(h => { const th = document.createElement('th'); th.className = 'p-2 bg-slate-50'; th.textContent = h; tr.appendChild(th); }); hd.appendChild(tr);
+  res.out.slice(0, 5).forEach(r => { const row = document.createElement('tr'); [r.date, r.desc, r.amount, r.type, r.cat, r.ref].forEach(v => { const td = document.createElement('td'); td.className = 'p-2 border-t border-slate-100'; td.textContent = v; row.appendChild(td); }); bd.appendChild(row); });
+  st.className = 'text-sm font-bold ' + (res.out.length ? 'text-emerald-600' : 'text-rose-600');
+  const unk = res.out.filter(r => r.cat === 'Other' || r.cat === 'Other Income').length;
+  st.textContent = 'صفوف صالحة: ' + res.out.length + (res.bad ? ' | هتتخطى: ' + res.bad : '') + (unk ? ' | تصنيفها "أخرى": ' + unk : '') + (res.out.length ? ' (المعاينة: أول 5 صفوف)' : '');
+  $('mapGo').disabled = !res.out.length;
+}
+function mapCancel(){ $('mapper').classList.add('hidden'); mapRows = []; }
+const q = v => { v = String(v === null || v === undefined ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
 async function upload(inp){
   const f = inp.files[0]; if (!f) return;
-  const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري المعالجة...';
-  const {data:{session}} = await sb.auth.getSession();
-  const fd = new FormData(); fd.append('company_id', companyId); fd.append('file', f);
+  const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري قراءة الملف...';
   try {
+    if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded');
+    if (f.size > 5000000) throw new Error('File too large (2MB max)');
+    mapRows = await readRows(f);
+    if (mapRows.length < 2) throw new Error('Excel sheet is empty');
+    msg.textContent = ''; openMapper();
+  } catch (e) { problem(msg, e.message); }
+  inp.value = '';
+}
+async function mapUpload(){
+  const res = collectRows(); if (!res.out.length) return;
+  const csv = ['Date,Description,Amount,Type,AI_Category,Reference'].concat(res.out.map(r => [r.date, r.desc, r.amount, r.type, r.cat, r.ref].map(q).join(','))).join('\n');
+  const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري المعالجة...'; $('mapGo').disabled = true;
+  try {
+    const {data:{session}} = await sb.auth.getSession();
+    const fd = new FormData(); fd.append('company_id', companyId); fd.append('file', new File([csv], 'mapped.csv', {type: 'text/csv'}));
     const r = await fetch(SB_URL + '/functions/v1/analyze-csv', {method:'POST', headers:{Authorization:'Bearer ' + session.access_token, apikey: SB_KEY}, body: fd});
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || j.message || 'خطأ');
     msg.className = 'text-sm font-bold text-emerald-600';
-    msg.textContent = 'تم رفع ' + j.inserted + ' حركة' + (j.skipped ? ' (تجاهلت ' + j.skipped + ' صف غير صالح)' : '');
-    load();
-  } catch (e) { problem(msg, e.message); }
-  inp.value = '';
+    const skipped = (j.skipped || 0) + res.bad;
+    msg.textContent = 'تم رفع ' + j.inserted + ' حركة' + (skipped ? ' (تجاهلت ' + skipped + ' صف غير صالح)' : '');
+    try { const mm = curMap(); mm._order = $('dateOrder').value; localStorage.setItem(mapKey, JSON.stringify(mm)); } catch (e) {}
+    mapCancel(); load();
+  } catch (e) { problem(msg, e.message); $('mapGo').disabled = false; }
 }
 if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
 boot();
