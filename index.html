@@ -56,10 +56,19 @@
     <div id="mapper" class="hidden bg-white p-5 rounded-2xl border border-indigo-200 space-y-3">
       <h2 class="font-bold">ربط أعمدة الملف</h2>
       <p class="text-xs text-slate-500">اختار العمود المناسب لكل خانة. اللي اتعرّفت عليه تلقائياً متحدد، وتقدر تغيّره. كشف الحساب اللي فيه مدين ودائن منفصلين بيشتغل كمان.</p>
+      <label class="block text-xs font-bold text-slate-600">نوع الملف
+        <select id="fileKind" onchange="openMapper()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="tx">حركات فلوس (كشف حساب بنك / خزينة)</option><option value="obl">مستحقات والتزامات (لينا / علينا / ضرائب)</option></select></label>
+      <div id="modeBox" class="text-xs space-y-2 bg-slate-50 rounded-xl p-3">
+        <label class="flex gap-2 items-start"><input type="radio" name="upMode" value="replace" checked onchange="refreshImpact()" class="mt-1"><span><b>تحديث كامل (الأنسب):</b> يستبدل حركات نفس الفترة بالملف الجديد، فالتعديل والمسح في الملف بيظهروا.</span></label>
+        <label class="flex gap-2 items-start"><input type="radio" name="upMode" value="merge" onchange="refreshImpact()" class="mt-1"><span><b>إضافة وتحديث بس:</b> يضيف الجديد ويحدّث اللي ليه نفس الرقم المرجعي، ومابيمسحش حاجة.</span></label>
+      </div>
+      <label id="defKindBox" class="hidden block text-xs font-bold text-slate-600">لو الملف مفيهوش عمود نوع، كل الصفوف تبقى
+        <select id="defKind" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="receivable">لينا فلوس (عملاء)</option><option value="payable">علينا فلوس (موردين)</option><option value="tax">ضرائب</option><option value="upcoming">التزامات جاية</option></select></label>
       <div id="mapFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       <label class="block text-xs font-bold text-slate-600">ترتيب التواريخ المكتوبة نص (زي 01/03/2026)
         <select id="dateOrder" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1"><option value="dmy">يوم/شهر/سنة</option><option value="mdy">شهر/يوم/سنة</option></select></label>
       <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead id="mapHead"></thead><tbody id="mapBody"></tbody></table></div>
+      <p id="mapImpact" class="text-xs font-bold text-indigo-700"></p>
       <p id="mapStat" class="text-sm font-bold"></p>
       <div class="flex gap-2"><button id="mapGo" onclick="mapUpload()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40">رفع</button><button onclick="mapCancel()" class="bg-slate-100 px-4 py-2 rounded-xl text-sm font-bold">إلغاء</button></div>
     </div>
@@ -126,7 +135,21 @@
       <h2 class="font-bold p-5 border-b border-slate-200">أحدث الحركات</h2>
       <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-3">التاريخ</th><th class="p-3">البيان</th><th class="p-3">التصنيف</th><th class="p-3">المبلغ</th></tr></thead><tbody id="rows" class="divide-y divide-slate-100"></tbody></table></div>
     </div>
-  <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
+  <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+      <div><h2 class="font-bold">ربط شيت أونلاين (تحديث تلقائي)</h2><p class="text-xs text-slate-500">اربط شيت Google Sheets مرة واحدة، والمنصة تقراه وتتحدّث لوحدها كل كام دقيقة، حتى لو حد غيّر فيه وإنت مش فاتح المنصة.</p></div>
+      <div id="srcMsg" class="text-xs"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <input id="srcUrl" dir="ltr" placeholder="لينك الشيت (نشر على الويب بصيغة CSV)" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        <select id="srcKind" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="tx">حركات فلوس</option><option value="obl">مستحقات والتزامات</option></select>
+      </div>
+      <button onclick="srcPreview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold">قراءة الشيت وربط الأعمدة</button>
+      <details class="text-xs text-slate-600"><summary class="font-bold cursor-pointer">إزاي أجيب اللينك؟</summary>
+        <ol class="list-decimal pr-5 mt-2 space-y-1"><li>افتح الشيت في Google Sheets.</li><li>File (ملف) ← Share (مشاركة) ← Publish to web (نشر على الويب).</li><li>اختار الصفحة (Sheet) اللي فيها البيانات، مش Entire Document.</li><li>اختار صيغة CSV (Comma-separated values) واضغط Publish.</li><li>انسخ اللينك والصقه هنا.</li></ol>
+        <p class="mt-2 text-amber-700 font-bold">تحذير: أي حد معاه اللينك يقدر يشوف الشيت. استخدم شيت تجريبي أو من غير بيانات حساسة لحد ما نأمّن الربط.</p></details>
+      <ul id="srcList" class="space-y-2"></ul>
+      <button onclick="srcSyncAll()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold">اتزامن دلوقتي</button>
+    </div>
+    <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
       <summary class="font-bold cursor-pointer">مشكلة؟ أشهر المشاكل وحلولها</summary>
       <ul id="helpList" class="mt-3 space-y-3"></ul>
     </details>
@@ -174,6 +197,18 @@ const FIXES = [
  [/already registered|already been registered/i,'الإيميل ده متسجل قبل كده','فيه حساب بنفس الإيميل.','اضغط دخول بدل إنشاء حساب جديد.'],
  [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قصير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
  [/at least 6|password should|weak password/i,'كلمة السر ضعيفة','لازم 6 أحرف على الأقل.','اختار كلمة سر أطول فيها حروف وأرقام.'],
+ [/data_sources/i,'جدول ربط الشيت لسه ما اتعملش','الجدول مش موجود في قاعدة البيانات.','شغّل كود SQL بتاع ربط الشيت في Supabase ← SQL Editor، وبعدين حدّث الصفحة.'],
+ [/SHEET_NOT_CSV/,'اللينك مش CSV','اللينك ده مش لشيت منشور بصيغة CSV، أو الشيت مش منشور.','في Google Sheets: File ← Share ← Publish to web، اختار الصفحة وصيغة CSV، وانسخ اللينك الجديد.'],
+ [/SHEET_HOST/,'اللينك مش من Google Sheets','المسموح لينكات docs.google.com/spreadsheets بس.','انسخ لينك النشر على الويب من Google Sheets.'],
+ [/SHEET_HTTP_/,'جوجل رفضت الوصول للشيت','اللينك غلط أو الشيت اتشال من النشر.','افتح اللينك في Chrome وتأكد إنه بينزّل ملف CSV، أو انشر الشيت تاني.'],
+ [/SHEET_HEADER_MISSING/,'عمود اختفى من الشيت','اسم عمود من اللي اتربطوا اتغيّر أو اتمسح في الشيت.','رجّع اسم العمود زي ما كان، أو افصل الشيت واربطه من جديد.'],
+ [/SHEET_SHRUNK/,'الشيت نقص بشكل كبير','المنصة وقفت التحديث عشان ما تمسحش بياناتك بالغلط.','راجع الشيت لو اتمسح منه صفوف بالغلط. لو النقص مقصود، افصل الشيت واربطه من جديد.'],
+ [/SHEET_FORMAT/,'شكل الشيت اتغيّر','أغلب الصفوف مبقتش مفهومة (تواريخ أو مبالغ غلط).','راجع تنسيق التاريخ والمبلغ في الشيت.'],
+ [/SHEET_NO_ROWS/,'الشيت فاضي أو مفيهوش صفوف مفهومة','مفيش صفوف صالحة.','تأكد إن أول صف فيه أسماء الأعمدة وتحته بيانات.'],
+ [/SHEET_TOO_BIG/,'الشيت كبير','حد الشيت حوالي 5000 حركة أو 2000 مستحق.','قسّم الشيت أو احذف الصفوف القديمة.'],
+ [/duplicate column|SHEET_HEADER_EMPTY/i,'أسماء الأعمدة لازم تكون مكتوبة ومش مكررة','فيه عمود اسمه فاضي أو مكرر.','سمّي الأعمدة في أول صف باسم مختلف لكل عمود.'],
+ [/SERVER_CONFIG/,'إعداد السيرفر ناقص','مفتاح الخدمة مش متاح للدالة.','ابعت لي الرسالة دي وأظبطها.'],
+ [/replace_period|replace_obligations|recalc_metrics|could not find the function|column .*source|source.*does not exist/i,'دالة التحديث لسه ما اتعملتش في Supabase','كود SQL بتاع التحديث ما اتشغّلش.','افتح Supabase ← SQL Editor وشغّل أكواد التحديث (الأجزاء الثلاثة) واحد واحد، وبعدين حدّث الصفحة.'],
  [/obligations|schema cache|does not exist/i,'جدول المستحقات لسه ما اتعملش','الجدول مش موجود في قاعدة البيانات.','شغّل كود SQL بتاع المستحقات في Supabase ← SQL Editor، وبعدين حدّث الصفحة.'],
  [/excel|xlsx|sheet/i,'مشكلة في قراءة ملف Excel','الملف ممكن يكون تالف، أو البيانات مش في الصفحة الأولى، أو المكتبة ما اتحمّلتش.','تأكد إن البيانات في أول Sheet وأول صف فيه أسماء الأعمدة (Date, Description, Amount). أو احفظ الملف كـ CSV من Excel وارفعه.'],
  [/ai rate limit/i,'المساعد وصل للحد المجاني','الخطة المجانية لها حد على عدد الأسئلة في الدقيقة واليوم.','استنى دقيقة وجرّب تاني، ولو اتكرر جرّب بعد ساعات.'],
@@ -262,6 +297,7 @@ async function loadInner(){
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}}}});
   allTx = tx || []; drawIE(); drawCat();
   loadObl().catch(e => problem($('oblMsg'), e.message));
+  loadSources().catch(e => problem($('srcMsg'), e.message));
   const body = $('rows'); body.textContent = '';
   (tx || []).slice(-10).reverse().forEach(t => {
     const tr = document.createElement('tr');
@@ -284,7 +320,7 @@ const MAPF = [
  ['cat','التصنيف (اختياري)',/(ai_category|category|التصنيف|تصنيف|البند)/i],
  ['ref','الرقم المرجعي (اختياري)',/(reference|ref|المرجع|مرجع|رقم العملية)/i]
 ];
-let mapRows = [], mapBad = 0, mapKey = '';
+let mapRows = [], mapBad = 0, mapKey = '', mapSource = null;
 const pad = n => String(n).padStart(2, '0');
 function digits(s){ return String(s).replace(/[٠-٩]/g, d => d.charCodeAt(0) - 1632).replace(/[۰-۹]/g, d => d.charCodeAt(0) - 1776); }
 function toNum(v){
@@ -394,10 +430,38 @@ async function readRows(f){
   if (!ws) throw new Error('Excel sheet is empty');
   return XLSX.utils.sheet_to_json(ws, {header: 1, raw: true, defval: ''}).filter(r => r.some(c => String(c).trim() !== ''));
 }
+const MAPO = [
+ ['party','الاسم / الجهة *',/(party|name|customer|supplier|client|vendor|الاسم|العميل|المورد|الجهة|البيان|الوصف)/i],
+ ['amount','المبلغ *',/(amount|المبلغ|القيمة|المستحق|balance|الرصيد)/i],
+ ['due','تاريخ الاستحقاق',/(due|استحقاق|الاستحقاق|تاريخ)/i],
+ ['kind','النوع (لينا / علينا / ضريبة / التزام)',/^(type|kind|النوع|نوع|التصنيف)/i],
+ ['status','الحالة (مدفوع؟)',/(status|الحالة|حالة)/i],
+ ['note','ملاحظة',/(note|ملاحظ|تفاصيل|remarks)/i]
+];
+function normKind(v, def){
+  const t = String(v === undefined || v === null ? '' : v).trim(); if (!t) return def;
+  if (/tax|ضريب|ضرائب/i.test(t)) return 'tax';
+  if (/pay|علينا|مورد|موردين|دائن/i.test(t)) return 'payable';
+  if (/receiv|لينا|لنا|عميل|عملاء|محصل/i.test(t)) return 'receivable';
+  if (/upcoming|التزام|قسط|ايجار|إيجار|راتب|مصروف/i.test(t)) return 'upcoming';
+  return def;
+}
+function normObl(r, m, order, def){
+  const g = i => (i < 0 ? '' : r[i]), str = v => String(v === undefined || v === null ? '' : v).trim();
+  const party = str(g(m.party)), a = toNum(g(m.amount));
+  if (!party || !isFinite(a) || a === 0) return null;
+  const due = m.due >= 0 ? toDate(g(m.due), order) : '';
+  return {k: normKind(g(m.kind), def), p: party.slice(0, 80), a: Math.abs(Math.round(a * 100) / 100), d: due, s: /paid|settled|مدفوع|مسدد|اتسدد|اتحصل|محصل|تم/i.test(str(g(m.status))) ? 'paid' : 'open', n: str(g(m.note)).slice(0, 120)};
+}
+async function sha(t){ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return Array.from(new Uint8Array(b)).slice(0, 8).map(x => x.toString(16).padStart(2, '0')).join(''); }
 function colLabel(h, i){ const t = String(h === null || h === undefined ? '' : h).trim(); return t || 'عمود ' + (i + 1); }
+const kindNow = () => $('fileKind').value;
+const fieldsNow = () => (kindNow() === 'obl' ? MAPO : MAPF);
+const modeNow = () => ((document.querySelector('input[name=upMode]:checked') || {}).value || 'replace');
 function openMapper(){
-  const head = mapRows[0], box = $('mapFields'), used = new Set(); box.textContent = '';
-  MAPF.forEach(([key, label, re]) => {
+  const kind = kindNow(), F = fieldsNow(), head = mapRows[0], box = $('mapFields'), used = new Set(); box.textContent = '';
+  $('modeBox').classList.toggle('hidden', kind === 'obl'); $('defKindBox').classList.toggle('hidden', kind !== 'obl');
+  F.forEach(([key, label, re]) => {
     const wrap = document.createElement('label'); wrap.className = 'block';
     const t = document.createElement('div'); t.className = 'text-xs font-bold text-slate-600 mb-1'; t.textContent = label;
     const sel = document.createElement('select'); sel.id = 'map_' + key; sel.className = 'w-full border border-slate-300 rounded-xl px-2 py-2 text-sm'; sel.onchange = renderPreview;
@@ -407,25 +471,49 @@ function openMapper(){
     if (hit >= 0) { sel.value = String(hit); used.add(hit); }
     wrap.append(t, sel); box.appendChild(wrap);
   });
-  mapKey = 'tdq_map:' + head.map(h => String(h).trim()).join('|');
-  try { const sv = JSON.parse(localStorage.getItem(mapKey) || 'null'); if (sv) { MAPF.forEach(([k]) => { if (sv[k] !== undefined && sv[k] < head.length) $('map_' + k).value = String(sv[k]); }); if (sv._order) $('dateOrder').value = sv._order; } } catch (e) {}
+  mapKey = 'tdq_map2:' + kind + ':' + head.map(h => String(h).trim()).join('|');
+  try { const sv = JSON.parse(localStorage.getItem(mapKey) || 'null'); if (sv) { F.forEach(([k]) => { if (sv[k] !== undefined && sv[k] < head.length) $('map_' + k).value = String(sv[k]); }); if (sv._order) $('dateOrder').value = sv._order; } } catch (e) {}
   $('mapper').classList.remove('hidden'); renderPreview(); $('mapper').scrollIntoView({behavior: 'smooth'});
 }
-function curMap(){ const m = {}; MAPF.forEach(([k]) => { m[k] = Number($('map_' + k).value); }); return m; }
-function collectRows(){ const m = curMap(), order = $('dateOrder').value, out = []; let bad = 0; mapRows.slice(1).forEach(r => { const n = normRow(r, m, order); if (n) out.push(n); else bad++; }); return {out: out, bad: bad}; }
-function renderPreview(){
-  const m = curMap(), st = $('mapStat'), hd = $('mapHead'), bd = $('mapBody'); hd.textContent = ''; bd.textContent = '';
-  if (m.date < 0 || m.desc < 0 || (m.amount < 0 && m.debit < 0 && m.credit < 0)) { st.className = 'text-sm font-bold text-amber-600'; st.textContent = 'اختار على الأقل: التاريخ والبيان والمبلغ (أو مدين/دائن).'; $('mapGo').disabled = true; return; }
-  const res = collectRows(); mapBad = res.bad;
-  const tr = document.createElement('tr'); ['التاريخ', 'البيان', 'المبلغ', 'النوع', 'التصنيف', 'المرجع'].forEach(h => { const th = document.createElement('th'); th.className = 'p-2 bg-slate-50'; th.textContent = h; tr.appendChild(th); }); hd.appendChild(tr);
-  res.out.slice(0, 5).forEach(r => { const row = document.createElement('tr'); [r.date, r.desc, r.amount, r.type, r.cat, r.ref].forEach(v => { const td = document.createElement('td'); td.className = 'p-2 border-t border-slate-100'; td.textContent = v; row.appendChild(td); }); bd.appendChild(row); });
-  st.className = 'text-sm font-bold ' + (res.out.length ? 'text-emerald-600' : 'text-rose-600');
-  const unk = res.out.filter(r => r.cat === 'Other' || r.cat === 'Other Income').length;
-  st.textContent = 'صفوف صالحة: ' + res.out.length + (res.bad ? ' | هتتخطى: ' + res.bad : '') + (unk ? ' | تصنيفها "أخرى": ' + unk : '') + (res.out.length ? ' (المعاينة: أول 5 صفوف)' : '');
-  $('mapGo').disabled = !res.out.length;
+function curMap(){ const m = {}; fieldsNow().forEach(([k]) => { m[k] = Number($('map_' + k).value); }); return m; }
+function collectRows(){
+  const m = curMap(), order = $('dateOrder').value, obl = kindNow() === 'obl', out = []; let bad = 0;
+  mapRows.slice(1).forEach(r => { const n = obl ? normObl(r, m, order, $('defKind').value) : normRow(r, m, order); if (n) out.push(n); else bad++; });
+  return {out: out, bad: bad};
 }
-function mapCancel(){ $('mapper').classList.add('hidden'); mapRows = []; }
-const q = v => { v = String(v === null || v === undefined ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+function renderPreview(){
+  const m = curMap(), st = $('mapStat'), hd = $('mapHead'), bd = $('mapBody'), obl = kindNow() === 'obl'; hd.textContent = ''; bd.textContent = '';
+  const missing = obl ? (m.party < 0 || m.amount < 0) : (m.date < 0 || m.desc < 0 || (m.amount < 0 && m.debit < 0 && m.credit < 0));
+  if (missing) { st.className = 'text-sm font-bold text-amber-600'; st.textContent = obl ? 'اختار على الأقل: الاسم والمبلغ.' : 'اختار على الأقل: التاريخ والبيان والمبلغ (أو مدين/دائن).'; $('mapGo').disabled = true; $('mapImpact').textContent = ''; return; }
+  const res = collectRows(); mapBad = res.bad;
+  const tr = document.createElement('tr');
+  (obl ? ['النوع', 'الاسم', 'المبلغ', 'الاستحقاق', 'الحالة'] : ['التاريخ', 'البيان', 'المبلغ', 'النوع', 'التصنيف', 'المرجع']).forEach(h => { const th = document.createElement('th'); th.className = 'p-2 bg-slate-50'; th.textContent = h; tr.appendChild(th); }); hd.appendChild(tr);
+  res.out.slice(0, 5).forEach(r => { const row = document.createElement('tr'); (obl ? [OBL[r.k][0], r.p, r.a, r.d, r.s === 'paid' ? 'مدفوع' : 'مفتوح'] : [r.date, r.desc, r.amount, r.type, r.cat, r.ref]).forEach(v => { const td = document.createElement('td'); td.className = 'p-2 border-t border-slate-100'; td.textContent = v; row.appendChild(td); }); bd.appendChild(row); });
+  const unk = obl ? 0 : res.out.filter(r => r.cat === 'Other' || r.cat === 'Other Income').length;
+  st.className = 'text-sm font-bold ' + (res.out.length ? 'text-emerald-600' : 'text-rose-600');
+  st.textContent = 'صفوف صالحة: ' + res.out.length + (res.bad ? ' | هتتخطى: ' + res.bad : '') + (unk ? ' | تصنيفها "أخرى": ' + unk : '') + (res.out.length ? ' (المعاينة: أول 5 صفوف)' : '');
+  $('mapGo').disabled = !res.out.length; refreshImpact();
+}
+async function refreshImpact(){
+  const el = $('mapImpact'); el.textContent = ''; if ($('mapper').classList.contains('hidden')) return;
+  const res = collectRows(); if (!res.out.length) return;
+  if (mapSource) { el.textContent = 'الشيت هيتقرا تلقائياً كل كام دقيقة، وبنفس طريقة التحديث الكامل (المعاينة من أول 60 صف بس).'; return; }
+  try {
+    if (kindNow() === 'obl') {
+      const r = await sb.from('obligations').select('id', {count: 'exact', head: true}).eq('company_id', companyId).eq('source', 'sheet');
+      if (r.error) throw new Error(r.error.message);
+      el.textContent = 'هيتمسح ' + (r.count || 0) + ' بند اتسجّل من شيت قبل كده، ويتحط ' + res.out.length + ' بند من الملف. البنود اللي أضفتها بإيدك من زر "+ إضافة" ما بتتمسحش.';
+    } else if (modeNow() === 'merge') {
+      el.textContent = 'هيتضاف أو يتحدّث ' + res.out.length + ' حركة، ومفيش حاجة هتتمسح.';
+    } else {
+      const ds = res.out.map(x => x.date).sort(), from = ds[0], to = ds[ds.length - 1];
+      const r = await sb.from('transactions').select('id', {count: 'exact', head: true}).eq('company_id', companyId).gte('tx_date', from).lte('tx_date', to);
+      if (r.error) throw new Error(r.error.message);
+      el.textContent = 'الفترة من ' + from + ' إلى ' + to + ': هيتمسح ' + (r.count || 0) + ' حركة موجودة، ويتحط مكانها ' + res.out.length + ' حركة من الملف.';
+    }
+  } catch (e) { el.textContent = ''; }
+}
+function mapCancel(){ $('mapper').classList.add('hidden'); mapRows = []; mapSource = null; $('mapGo').textContent = 'رفع'; $('mapImpact').textContent = ''; }
 async function upload(inp){
   const f = inp.files[0]; if (!f) return;
   const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري قراءة الملف...';
@@ -434,27 +522,102 @@ async function upload(inp){
     if (f.size > 5000000) throw new Error('File too large (2MB max)');
     mapRows = await readRows(f);
     if (mapRows.length < 2) throw new Error('Excel sheet is empty');
-    msg.textContent = ''; openMapper();
+    msg.textContent = ''; mapSource = null; $('mapGo').textContent = 'رفع'; $('fileKind').value = 'tx'; openMapper();
   } catch (e) { problem(msg, e.message); }
   inp.value = '';
 }
 async function mapUpload(){
   const res = collectRows(); if (!res.out.length) return;
-  const csv = ['Date,Description,Amount,Type,AI_Category,Reference'].concat(res.out.map(r => [r.date, r.desc, r.amount, r.type, r.cat, r.ref].map(q).join(','))).join('\n');
-  const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري المعالجة...'; $('mapGo').disabled = true;
+  if (mapSource) { await saveSource(); return; }
+  const msg = $('msg'), obl = kindNow() === 'obl'; msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري التحديث...'; $('mapGo').disabled = true;
   try {
-    const {data:{session}} = await sb.auth.getSession();
-    const fd = new FormData(); fd.append('company_id', companyId); fd.append('file', new File([csv], 'mapped.csv', {type: 'text/csv'}));
-    const r = await fetch(SB_URL + '/functions/v1/analyze-csv', {method:'POST', headers:{Authorization:'Bearer ' + session.access_token, apikey: SB_KEY}, body: fd});
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || j.message || 'خطأ');
-    msg.className = 'text-sm font-bold text-emerald-600';
-    const skipped = (j.skipped || 0) + res.bad;
-    msg.textContent = 'تم رفع ' + j.inserted + ' حركة' + (skipped ? ' (تجاهلت ' + skipped + ' صف غير صالح)' : '');
+    let data, text;
+    if (obl) {
+      if (res.out.length > 2000) throw new Error('Max 2000 rows');
+      if (!confirm('هيتبدّل اللي اتسجّل من شيت قبل كده بـ ' + res.out.length + ' بند من الملف. تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
+      const r = await sb.rpc('replace_obligations', {p_company: companyId, p_rows: res.out}); if (r.error) throw new Error(r.error.message); data = r.data;
+      text = 'تم تحديث المستحقات: اتمسح ' + data.deleted + ' واتضاف ' + data.inserted;
+    } else {
+      if (res.out.length > 5000) throw new Error('Max 5000 rows');
+      const replace = modeNow() === 'replace', seen = {}, occ = {}, rows = [];
+      for (const r of res.out) {
+        let a = r.amount; if (r.type === 'Expense') a = -Math.abs(a); else if (r.type === 'Income') a = Math.abs(a);
+        let ref = r.ref;
+        if (!ref) { const k = r.date + '|' + r.desc + '|' + a; occ[k] = (occ[k] || 0) + 1; ref = 'auto-' + await sha(k + '|' + occ[k]); }
+        else { seen[ref] = (seen[ref] || 0) + 1; if (seen[ref] > 1) ref += '#' + seen[ref]; }
+        rows.push({d: r.date, s: r.desc, a: a, t: a < 0 ? 'Expense' : 'Income', c: r.cat || 'Uncategorized', r: ref});
+      }
+      const ds = rows.map(x => x.d).sort(), from = ds[0], to = ds[ds.length - 1];
+      if (replace && !confirm('هيتحدّث كل ما في الفترة من ' + from + ' إلى ' + to + ' بالملف الجديد (' + rows.length + ' حركة). تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
+      const r = await sb.rpc('replace_period', {p_company: companyId, p_from: from, p_to: to, p_rows: rows, p_replace: replace}); if (r.error) throw new Error(r.error.message); data = r.data;
+      text = 'تم التحديث: اتمسح ' + data.deleted + '، واتضاف أو اتحدّث ' + data.inserted + ' حركة';
+    }
+    msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = text;
     try { const mm = curMap(); mm._order = $('dateOrder').value; localStorage.setItem(mapKey, JSON.stringify(mm)); } catch (e) {}
     mapCancel(); load();
   } catch (e) { problem(msg, e.message); $('mapGo').disabled = false; }
 }
+
+async function callSync(body){
+  const {data:{session}} = await sb.auth.getSession();
+  const r = await fetch(SB_URL + '/functions/v1/sync-sheets', {method:'POST', headers:{Authorization:'Bearer ' + session.access_token, apikey: SB_KEY, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || j.message || 'خطأ'); return j;
+}
+async function srcPreview(){
+  const url = $('srcUrl').value.trim(), msg = $('srcMsg'); if (!url) return;
+  msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري قراءة الشيت...';
+  try {
+    const j = await callSync({action: 'preview', url: url});
+    if (!j.rows || j.rows.length < 2) throw new Error('SHEET_NO_ROWS');
+    mapRows = j.rows; mapSource = {url: url}; msg.textContent = '';
+    $('fileKind').value = $('srcKind').value; openMapper(); $('mapGo').textContent = 'حفظ وربط الشيت';
+  } catch (e) { problem(msg, e.message); }
+}
+async function saveSource(){
+  const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري ربط الشيت...'; $('mapGo').disabled = true;
+  try {
+    const F = fieldsNow(), head = mapRows[0].map(h => String(h).trim()), m = curMap(), names = {};
+    F.forEach(([k]) => { names[k] = m[k] >= 0 ? head[m[k]] : null; });
+    Object.keys(names).forEach(k => {
+      if (names[k] === '') throw new Error('SHEET_HEADER_EMPTY');
+      if (names[k] && head.filter(h => h === names[k]).length > 1) throw new Error('Duplicate column name: ' + names[k]);
+    });
+    const mode = kindNow() === 'tx' ? modeNow() : 'replace';
+    if (mode === 'replace' && !confirm('الشيت هيبقى هو المصدر الأساسي. كل تحديث هيستبدل حركات نفس الفترة (أو بنود الشيت). تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
+    const ins = await sb.from('data_sources').insert({company_id: companyId, kind: kindNow(), url: mapSource.url, mapping: names, date_order: $('dateOrder').value, def_kind: $('defKind').value, mode: mode}).select().single();
+    if (ins.error) throw new Error(ins.error.message);
+    let note = '';
+    try { const j = await callSync({action: 'sync', source_id: ins.data.id}); note = ' وأول تحديث تم (' + j.rows + ' صف).'; } catch (e) { note = ' (أول تحديث فشل، شوف الحالة تحت)'; }
+    msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تم ربط الشيت.' + note;
+    $('srcUrl').value = ''; mapCancel(); load();
+  } catch (e) { problem(msg, e.message); $('mapGo').disabled = false; }
+}
+async function loadSources(){
+  const r = await sb.from('data_sources').select('*').eq('company_id', companyId).order('created_at'); if (r.error) throw new Error(r.error.message);
+  $('srcMsg').className = 'text-xs'; $('srcMsg').textContent = '';
+  const ul = $('srcList'); ul.textContent = '';
+  (r.data || []).forEach(x => {
+    const li = document.createElement('li'); li.className = 'border border-slate-200 rounded-xl p-3 text-xs space-y-1';
+    const t = document.createElement('div'); t.className = 'font-bold'; t.textContent = (x.kind === 'tx' ? 'حركات فلوس' : 'مستحقات والتزامات') + ' | ' + x.url.slice(0, 48) + '...';
+    const d = document.createElement('div'); d.className = 'text-slate-500'; d.textContent = x.last_sync ? 'آخر تحديث ناجح: ' + new Date(x.last_sync).toLocaleString('ar-EG') + ' (' + (x.last_rows || 0) + ' صف)' : 'لسه ما اتحدّثش';
+    li.append(t, d);
+    if (x.last_status && x.last_status.indexOf('error:') === 0) { const e = document.createElement('div'); problem(e, x.last_status.slice(6).trim()); li.appendChild(e); }
+    const del = document.createElement('button'); del.className = 'bg-slate-200 px-2 py-1 rounded-lg'; del.textContent = 'فصل الشيت'; del.onclick = () => srcDel(x.id);
+    li.appendChild(del); ul.appendChild(li);
+  });
+}
+async function srcDel(id){
+  if (!confirm('تفصل الشيت ده؟ البيانات اللي اتزامنت قبل كده هتفضل في المنصة.')) return;
+  const r = await sb.from('data_sources').delete().eq('id', id); if (r.error) { problem($('srcMsg'), r.error.message); return; }
+  loadSources().catch(e => problem($('srcMsg'), e.message));
+}
+async function srcSyncAll(){
+  const msg = $('srcMsg'); msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري التزامن...';
+  try { await callSync({action: 'sync_all'}); msg.textContent = 'تم التزامن.'; await load(); } catch (e) { problem(msg, e.message); }
+}
+function quietRefresh(){ if (document.visibilityState === 'visible' && companyId && $('mapper').classList.contains('hidden')) load(); }
+setInterval(quietRefresh, 120000);
+document.addEventListener('visibilitychange', quietRefresh);
 if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
 boot();
 </script>
