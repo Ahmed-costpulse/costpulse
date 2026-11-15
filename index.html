@@ -69,6 +69,38 @@
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">معدل الحرق الشهري</p><h3 id="kBurn" class="text-2xl font-extrabold">-</h3></div>
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">صافي الربح (آخر شهر)</p><h3 id="kProfit" class="text-2xl font-extrabold">-</h3><p id="kProfitSub" class="text-xs text-slate-400 mt-1"></p></div>
     </div>
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+      <div class="flex justify-between items-center gap-2 flex-wrap">
+        <div><h2 class="font-bold">المستحقات والالتزامات</h2><p class="text-xs text-slate-500">فلوس لينا بره، وفلوس علينا، والضرائب، والالتزامات الجاية. بتدخلها بإيدك من أوراقك أو من محاسبك.</p></div>
+        <button onclick="oblToggle()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold">+ إضافة</button>
+      </div>
+      <div id="oblMsg" class="text-xs"></div>
+      <div id="oblForm" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl">
+        <label class="block text-xs font-bold text-slate-600">النوع
+          <select id="oKind" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="receivable">لينا فلوس عند حد (عميل)</option><option value="payable">علينا فلوس لحد (مورد أو غيره)</option><option value="tax">ضريبة عليا</option><option value="upcoming">التزام جاي (إيجار، قسط، راتب...)</option></select></label>
+        <label class="block text-xs font-bold text-slate-600">الاسم أو البيان
+          <input id="oParty" maxlength="80" placeholder="مثلاً: شركة النور أو ضريبة القيمة المضافة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
+        <label class="block text-xs font-bold text-slate-600">المبلغ (ج.م)
+          <input id="oAmount" type="number" min="0" step="0.01" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
+        <label class="block text-xs font-bold text-slate-600">تاريخ الاستحقاق (اختياري)
+          <input id="oDue" type="date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
+        <label class="block text-xs font-bold text-slate-600 sm:col-span-2">ملاحظة (اختياري)
+          <input id="oNote" maxlength="120" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
+        <div class="sm:col-span-2 flex gap-2"><button id="oSave" onclick="oblSave()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40">حفظ</button><button onclick="oblToggle()" class="bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold">إلغاء</button></div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="border border-emerald-200 bg-emerald-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">لينا بره</p><p id="oRec" class="text-xl font-extrabold text-emerald-700">-</p><p id="oRecSub" class="text-xs text-slate-500"></p></div>
+        <div class="border border-rose-200 bg-rose-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">علينا بره</p><p id="oPay" class="text-xl font-extrabold text-rose-700">-</p><p id="oPaySub" class="text-xs text-slate-500"></p></div>
+        <div class="border border-amber-200 bg-amber-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">ضرائب عليك</p><p id="oTax" class="text-xl font-extrabold text-amber-700">-</p><p id="oTaxSub" class="text-xs text-slate-500"></p></div>
+        <div class="border border-orange-200 bg-orange-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">التزامات خلال 30 يوم</p><p id="oUp" class="text-xl font-extrabold text-orange-700">-</p><p id="oUpSub" class="text-xs text-slate-500"></p></div>
+      </div>
+      <div class="rounded-xl bg-slate-900 text-white p-4">
+        <p class="text-xs text-slate-300">صافي وضعك بعد المستحقات</p>
+        <p id="oNet" class="text-2xl font-extrabold">-</p>
+        <p class="text-xs text-slate-400 mt-1">= النقدية المتاحة + اللي لينا − اللي علينا − الضرائب − التزامات الـ 30 يوم. يعني لو كل اللي لينا اتحصّل وكل اللي عليك اتسدد. لو دخلت نفس المبلغ في أكتر من بند، هيتحسب مرتين.</p>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-2">النوع</th><th class="p-2">الاسم</th><th class="p-2">المبلغ</th><th class="p-2">الاستحقاق</th><th class="p-2"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
+    </div>
     <div class="bg-white p-5 rounded-2xl border border-slate-200"><h2 class="font-bold mb-3">تطور الرصيد النقدي</h2><div class="h-64"><canvas id="chart"></canvas></div></div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="bg-white p-5 rounded-2xl border border-slate-200">
@@ -108,6 +140,7 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold':'تكلفة البضاعة (COGS)','Operating Expenses':'مصاريف تشغيلية','Salaries & Wages':'رواتب وأجور','Marketing':'تسويق','Taxes & Fees':'ضرائب ورسوم','Other':'أخرى','Rent & Utilities':'إيجار ومرافق','Bank Fees':'رسوم بنكية','Loans & Installments':'قروض وأقساط','Other Income':'إيرادات أخرى','Meals & Hospitality':'ضيافة وأكل','Uncategorized':'غير مصنف'};
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
+let curCash = 0, obl = [];
 let companyId = null, chart = null, allTx = [], chartIE = null, chartCat = null;
 Chart.defaults.font.family = 'Cairo, system-ui, sans-serif';
 const COLORS = ['#4f46e5','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#ec4899','#64748b'];
@@ -141,6 +174,7 @@ const FIXES = [
  [/already registered|already been registered/i,'الإيميل ده متسجل قبل كده','فيه حساب بنفس الإيميل.','اضغط دخول بدل إنشاء حساب جديد.'],
  [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قصير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
  [/at least 6|password should|weak password/i,'كلمة السر ضعيفة','لازم 6 أحرف على الأقل.','اختار كلمة سر أطول فيها حروف وأرقام.'],
+ [/obligations|schema cache|does not exist/i,'جدول المستحقات لسه ما اتعملش','الجدول مش موجود في قاعدة البيانات.','شغّل كود SQL بتاع المستحقات في Supabase ← SQL Editor، وبعدين حدّث الصفحة.'],
  [/excel|xlsx|sheet/i,'مشكلة في قراءة ملف Excel','الملف ممكن يكون تالف، أو البيانات مش في الصفحة الأولى، أو المكتبة ما اتحمّلتش.','تأكد إن البيانات في أول Sheet وأول صف فيه أسماء الأعمدة (Date, Description, Amount). أو احفظ الملف كـ CSV من Excel وارفعه.'],
  [/ai rate limit/i,'المساعد وصل للحد المجاني','الخطة المجانية لها حد على عدد الأسئلة في الدقيقة واليوم.','استنى دقيقة وجرّب تاني، ولو اتكرر جرّب بعد ساعات.'],
  [/ai_not_configured/i,'المساعد الذكي لسه ما اتفعلش','مفتاح Gemini مش مضاف على Supabase.','أضف GEMINI_API_KEY في Supabase ← Edge Functions ← Secrets، وبعدين جرّب تاني.'],
@@ -212,7 +246,7 @@ async function loadInner(){
   $('title').textContent = 'نظرة عامة على السيولة - ' + (co ? co.name : '');
   const {data: m} = await sb.from('company_metrics').select('*').eq('company_id', companyId).single();
   const {data: tx} = await sb.from('transactions').select('tx_date,description,category,amount').eq('company_id', companyId).order('tx_date', {ascending: true}).limit(5000);
-  const cash = Number(m.cash_on_hand), burn = Number(m.burn_rate);
+  const cash = Number(m.cash_on_hand), burn = Number(m.burn_rate); curCash = cash;
   $('kCash').textContent = fmt(cash) + ' ج.م';
   $('kBurn').textContent = fmt(burn) + ' ج.م';
   $('kRun').textContent = m.runway_months === null ? 'لا يوجد حرق' : m.runway_months + ' شهر';
@@ -227,6 +261,7 @@ async function loadInner(){
   chart = new Chart($('chart'), {type:'line', data:{labels: keys, datasets:[{data: vals, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.08)', borderWidth:3, fill:true, tension:.35}]},
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}}}});
   allTx = tx || []; drawIE(); drawCat();
+  loadObl().catch(e => problem($('oblMsg'), e.message));
   const body = $('rows'); body.textContent = '';
   (tx || []).slice(-10).reverse().forEach(t => {
     const tr = document.createElement('tr');
@@ -305,6 +340,53 @@ function normRow(r, m, order){
   if (!date || !desc || !isFinite(amount)) return null;
   return {date: date, desc: desc, amount: Math.round(amount * 100) / 100, type: type, cat: String(g(m.cat) === undefined ? '' : g(m.cat)).trim() || autoCat(desc, type === 'Income' ? true : (type === 'Expense' ? false : amount > 0)), ref: String(g(m.ref) === undefined ? '' : g(m.ref)).trim()};
 }
+const OBL = {receivable: ['لينا عند', 'bg-emerald-100 text-emerald-700'], payable: ['علينا لـ', 'bg-rose-100 text-rose-700'], tax: ['ضريبة', 'bg-amber-100 text-amber-700'], upcoming: ['التزام جاي', 'bg-orange-100 text-orange-700']};
+function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dayDiff(due){ return Math.round((Date.parse(due) - Date.parse(todayStr())) / 864e5); }
+async function loadObl(){
+  const r = await sb.from('obligations').select('*').eq('company_id', companyId).eq('status', 'open').order('due_date', {ascending: true, nullsFirst: false}).limit(1000);
+  if (r.error) throw new Error(r.error.message);
+  obl = r.data || []; $('oblMsg').className = 'text-xs'; $('oblMsg').textContent = ''; renderObl();
+}
+function renderObl(){
+  const sum = k => obl.filter(o => o.kind === k).reduce((a, o) => a + Number(o.amount), 0);
+  const late = k => { const l = obl.filter(o => o.kind === k && o.due_date && dayDiff(o.due_date) < 0); return {n: l.length, v: l.reduce((a, o) => a + Number(o.amount), 0)}; };
+  const rec = sum('receivable'), pay = sum('payable'), tax = sum('tax');
+  const up30 = obl.filter(o => o.kind === 'upcoming' && o.due_date && dayDiff(o.due_date) <= 30).reduce((a, o) => a + Number(o.amount), 0);
+  $('oRec').textContent = fmt(rec) + ' ج.م'; $('oPay').textContent = fmt(pay) + ' ج.م'; $('oTax').textContent = fmt(tax) + ' ج.م'; $('oUp').textContent = fmt(up30) + ' ج.م';
+  const sub = (id, k) => { const l = late(k); $(id).textContent = l.n ? 'متأخر: ' + l.n + ' بند (' + fmt(l.v) + ')' : ''; };
+  sub('oRecSub', 'receivable'); sub('oPaySub', 'payable'); sub('oTaxSub', 'tax');
+  const upAll = sum('upcoming'); $('oUpSub').textContent = upAll > up30 ? 'إجمالي الالتزامات الجاية: ' + fmt(upAll) : '';
+  const net = curCash + rec - pay - tax - up30, n = $('oNet');
+  n.textContent = (net > 0 ? '+' : '') + fmt(net) + ' ج.م'; n.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-400' : 'text-rose-400');
+  const body = $('oblRows'); body.textContent = '';
+  if (!obl.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400 text-xs'; td.textContent = 'مفيش مستحقات مسجّلة. اضغط "+ إضافة".'; tr.appendChild(td); body.appendChild(tr); return; }
+  obl.forEach(o => {
+    const tr = document.createElement('tr');
+    const c1 = document.createElement('td'); c1.className = 'p-2'; const b = document.createElement('span'); b.className = 'px-2 py-1 rounded-lg text-xs font-bold ' + OBL[o.kind][1]; b.textContent = OBL[o.kind][0]; c1.appendChild(b);
+    const c2 = document.createElement('td'); c2.className = 'p-2'; c2.textContent = o.party + (o.note ? ' - ' + o.note : '');
+    const c3 = document.createElement('td'); c3.className = 'p-2 font-bold whitespace-nowrap'; c3.textContent = fmt(o.amount) + ' ج.م';
+    const c4 = document.createElement('td'); c4.className = 'p-2 text-xs whitespace-nowrap';
+    if (o.due_date) { const d = dayDiff(o.due_date); c4.textContent = o.due_date + (d < 0 ? ' (متأخر ' + (-d) + ' يوم)' : d === 0 ? ' (النهاردة)' : ' (بعد ' + d + ' يوم)'); if (d < 0) c4.className += ' text-rose-600 font-bold'; } else c4.textContent = 'من غير تاريخ';
+    const c5 = document.createElement('td'); c5.className = 'p-2 whitespace-nowrap';
+    const paid = document.createElement('button'); paid.className = 'text-xs bg-emerald-600 text-white px-2 py-1 rounded-lg ml-1'; paid.textContent = o.kind === 'receivable' ? 'اتحصّل' : 'اتسدد'; paid.onclick = () => oblPaid(o.id);
+    const del = document.createElement('button'); del.className = 'text-xs bg-slate-200 px-2 py-1 rounded-lg'; del.textContent = 'حذف'; del.onclick = () => oblDel(o.id);
+    c5.append(paid, del); tr.append(c1, c2, c3, c4, c5); body.appendChild(tr);
+  });
+}
+function oblToggle(){ $('oblForm').classList.toggle('hidden'); }
+async function oblSave(){
+  const party = $('oParty').value.trim(), amount = Number($('oAmount').value), msg = $('oblMsg');
+  if (!party || !(amount > 0)) { msg.className = 'text-xs text-amber-600 font-bold'; msg.textContent = 'اكتب الاسم ومبلغ أكبر من صفر.'; return; }
+  $('oSave').disabled = true;
+  const r = await sb.from('obligations').insert({company_id: companyId, kind: $('oKind').value, party: party, amount: amount, due_date: $('oDue').value || null, note: $('oNote').value.trim() || null});
+  $('oSave').disabled = false;
+  if (r.error) { problem(msg, r.error.message); return; }
+  ['oParty', 'oAmount', 'oDue', 'oNote'].forEach(i => { $(i).value = ''; }); $('oblForm').classList.add('hidden');
+  loadObl().catch(e => problem(msg, e.message));
+}
+async function oblPaid(id){ const r = await sb.from('obligations').update({status: 'paid'}).eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message)); }
+async function oblDel(id){ if (!confirm('تحذف البند ده؟')) return; const r = await sb.from('obligations').delete().eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message)); }
 async function readRows(f){
   const isCsv = /\.csv$/i.test(f.name);
   const wb = isCsv ? XLSX.read(await f.text(), {type: 'string', raw: true}) : XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true});
