@@ -145,7 +145,7 @@
       <input id="srcSheet" placeholder="اسم الصفحة (Sheet) لو ملف Excel فيه أكتر من صفحة، واتركه فاضي لأول صفحة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
       <button onclick="srcPreview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold">قراءة الشيت وربط الأعمدة</button>
       <details class="text-xs text-slate-600"><summary class="font-bold cursor-pointer">إزاي أجيب اللينك؟</summary>
-        <ol class="list-decimal pr-5 mt-2 space-y-1"><li>افتح الشيت في Google Sheets.</li><li>File (ملف) ← Share (مشاركة) ← Publish to web (نشر على الويب).</li><li>اختار الصفحة (Sheet) اللي فيها البيانات، مش Entire Document.</li><li>اختار صيغة CSV (Comma-separated values) واضغط Publish.</li><li>انسخ اللينك والصقه هنا.</li></ol>
+        <ol class="list-decimal pr-5 mt-2 space-y-1"><li>افتح الشيت في Google Sheets.</li><li>اضغط Share (مشاركة) ← General access ← Anyone with the link (أي حد معاه اللينك) ← Viewer (عرض فقط).</li><li>اضغط Copy link والصق اللينك هنا كما هو. المنصة بتحوّله لـ CSV لوحدها.</li><li>لو الشيت فيه أكتر من صفحة، افتح الصفحة المطلوبة قبل نسخ اللينك، وتأكد إن الرقم بعد gid= ظاهر في اللينك.</li></ol>
         <p class="mt-2 font-bold">ملف Excel على OneDrive أو SharePoint:</p>
         <ol class="list-decimal pr-5 mt-1 space-y-1"><li>الملف لازم يكون بصيغة .xlsx.</li><li>اضغط Share (مشاركة) على الملف.</li><li>اختار "Anyone with the link" (أي حد معاه اللينك) و"Can view" (عرض فقط).</li><li>Copy link والصقه هنا.</li></ol>
         <p class="mt-1 text-slate-500">لو خيار "Anyone" مقفول، يبقى مسؤول الـ IT في الشركة مانعه. ساعتها محتاجين ربط آخر بموافقته.</p>
@@ -202,6 +202,7 @@ const FIXES = [
  [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قصير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
  [/at least 6|password should|weak password/i,'كلمة السر ضعيفة','لازم 6 أحرف على الأقل.','اختار كلمة سر أطول فيها حروف وأرقام.'],
  [/data_sources/i,'جدول ربط الشيت لسه ما اتعملش','الجدول مش موجود في قاعدة البيانات.','شغّل كود SQL بتاع ربط الشيت في Supabase ← SQL Editor، وبعدين حدّث الصفحة.'],
+ [/SHEET_NOT_SHARED/,'الشيت مش مشارك','الشيت لسه "Restricted"، فالمنصة مش بتقدر تفتحه.','في Google Sheets: Share ← General access ← Anyone with the link (Viewer)، وبعدين جرّب تاني.'],
  [/SHEET_NOT_CSV/,'اللينك مش CSV','اللينك ده مش لشيت منشور بصيغة CSV، أو الشيت مش منشور.','في Google Sheets: File ← Share ← Publish to web، اختار الصفحة وصيغة CSV، وانسخ اللينك الجديد.'],
  [/SHEET_HOST/,'اللينك مش مدعوم','المسموح لينكات Google Sheets المنشورة أو ملفات OneDrive / SharePoint بس.','انسخ لينك النشر من Google Sheets أو لينك المشاركة من OneDrive.'],
  [/ONEDRIVE_FAIL/,'مقدرتش أنزّل الملف من OneDrive','مايكروسوفت بتطلب تسجيل دخول لما السيرفر يفتح اللينك، حتى لو بيتفتح عندك في المتصفح.','جرّب لينك Embed من OneDrive على موقع الكمبيوتر (Share ← Embed، وانسخ اللينك اللي بعد src=). أو حوّل الملف لـ Google Sheets. ولو ماشتغلش، ابعت لي كود الخطأ.'],
