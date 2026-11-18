@@ -57,7 +57,7 @@
       <h2 class="font-bold">ربط أعمدة الملف</h2>
       <p class="text-xs text-slate-500">اختار العمود المناسب لكل خانة. اللي اتعرّفت عليه تلقائياً متحدد، وتقدر تغيّره. كشف الحساب اللي فيه مدين ودائن منفصلين بيشتغل كمان.</p>
       <label class="block text-xs font-bold text-slate-600">نوع الملف
-        <select id="fileKind" onchange="openMapper()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="tx">حركات فلوس (كشف حساب بنك / خزينة)</option><option value="obl">مستحقات والتزامات (لينا / علينا / ضرائب)</option></select></label>
+        <select id="fileKind" onchange="openMapper()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="tx">حركات فلوس (كشف حساب بنك / خزينة)</option><option value="obl">مستحقات والتزامات (لينا / علينا / ضرائب)</option><option value="inv">المخزون</option></select></label>
       <div id="modeBox" class="text-xs space-y-2 bg-slate-50 rounded-xl p-3">
         <label class="flex gap-2 items-start"><input type="radio" name="upMode" value="replace" checked onchange="refreshImpact()" class="mt-1"><span><b>تحديث كامل (الأنسب):</b> يستبدل حركات نفس الفترة بالملف الجديد، فالتعديل والمسح في الملف بيظهروا.</span></label>
         <label class="flex gap-2 items-start"><input type="radio" name="upMode" value="merge" onchange="refreshImpact()" class="mt-1"><span><b>إضافة وتحديث بس:</b> يضيف الجديد ويحدّث اللي ليه نفس الرقم المرجعي، ومابيمسحش حاجة.</span></label>
@@ -110,6 +110,25 @@
       </div>
       <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-2">النوع</th><th class="p-2">الاسم</th><th class="p-2">المبلغ</th><th class="p-2">الاستحقاق</th><th class="p-2"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
     </div>
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+      <div class="flex justify-between items-start gap-2 flex-wrap">
+        <div><h2 class="font-bold">المخزون</h2><p class="text-xs text-slate-500">ارفع ملف المخزون بزر "+ رفع كشف حساب" فوق، والمنصة بتتعرّف عليه لوحدها. أو اربطه كشيت أونلاين من الأسفل. القيمة = الكمية × تكلفة الوحدة بطريقة التقييم اللي في نظامك.</p></div>
+        <button onclick="invTemplate()" class="bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold">تحميل قالب المخزون</button>
+      </div>
+      <div id="invMsg" class="text-xs"></div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">قيمة المخزون</p><p id="invVal" class="text-xl font-extrabold">-</p></div>
+        <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">عدد الأصناف</p><p id="invCnt" class="text-xl font-extrabold">-</p><p id="invCntSub" class="text-xs text-slate-500"></p></div>
+        <div class="border border-amber-200 bg-amber-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">تحت حد الطلب</p><p id="invLow" class="text-xl font-extrabold text-amber-700">-</p></div>
+        <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">المخزون يكفي (تقدير)</p><p id="invDays" class="text-xl font-extrabold">-</p><p id="invDaysSub" class="text-xs text-slate-500"></p></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <input id="invSearch" oninput="renderInventory()" placeholder="ابحث عن صنف" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        <select id="invFilter" onchange="renderInventory()" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="all">كل الأصناف</option><option value="low">تحت حد الطلب</option><option value="zero">خلصانة (كمية صفر)</option></select>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">الصنف</th><th class="p-2">الكمية</th><th class="p-2">حد الطلب</th><th class="p-2">القيمة</th><th class="p-2">الحالة</th></tr></thead><tbody id="invBody" class="divide-y divide-slate-100"></tbody></table></div>
+      <button id="invMore" onclick="invShowAll()" class="hidden bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold">عرض الكل</button>
+    </div>
     <div class="bg-white p-5 rounded-2xl border border-slate-200"><h2 class="font-bold mb-3">تطور الرصيد النقدي</h2><div class="h-64"><canvas id="chart"></canvas></div></div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="bg-white p-5 rounded-2xl border border-slate-200">
@@ -140,7 +159,7 @@
       <div id="srcMsg" class="text-xs"></div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <input id="srcUrl" dir="ltr" placeholder="لينك Google Sheets (CSV منشور) أو ملف Excel من OneDrive / SharePoint" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
-        <select id="srcKind" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="tx">حركات فلوس</option><option value="obl">مستحقات والتزامات</option></select>
+        <select id="srcKind" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="tx">حركات فلوس</option><option value="obl">مستحقات والتزامات</option><option value="inv">المخزون</option></select>
       </div>
       <input id="srcSheet" placeholder="اسم الصفحة (Sheet) لو ملف Excel فيه أكتر من صفحة، واتركه فاضي لأول صفحة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
       <button onclick="srcPreview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold">قراءة الشيت وربط الأعمدة</button>
@@ -201,6 +220,7 @@ const FIXES = [
  [/already registered|already been registered/i,'الإيميل ده متسجل قبل كده','فيه حساب بنفس الإيميل.','اضغط دخول بدل إنشاء حساب جديد.'],
  [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قصير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
  [/at least 6|password should|weak password/i,'كلمة السر ضعيفة','لازم 6 أحرف على الأقل.','اختار كلمة سر أطول فيها حروف وأرقام.'],
+ [/inventory_items|replace_inventory|data_sources_kind_check/i,'جدول المخزون لسه ما اتعملش','كود SQL بتاع المخزون ما اتشغّلش في Supabase.','افتح Supabase ← SQL Editor وشغّل أكواد المخزون واحد واحد، وبعدين حدّث الصفحة.'],
  [/data_sources/i,'جدول ربط الشيت لسه ما اتعملش','الجدول مش موجود في قاعدة البيانات.','شغّل كود SQL بتاع ربط الشيت في Supabase ← SQL Editor، وبعدين حدّث الصفحة.'],
  [/SHEET_NOT_SHARED/,'الشيت مش مشارك','الشيت لسه "Restricted"، فالمنصة مش بتقدر تفتحه.','في Google Sheets: Share ← General access ← Anyone with the link (Viewer)، وبعدين جرّب تاني.'],
  [/SHEET_NOT_CSV/,'اللينك مش CSV','اللينك ده مش لشيت منشور بصيغة CSV، أو الشيت مش منشور.','في Google Sheets: File ← Share ← Publish to web، اختار الصفحة وصيغة CSV، وانسخ اللينك الجديد.'],
@@ -305,6 +325,7 @@ async function loadInner(){
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}}}});
   allTx = tx || []; drawIE(); drawCat();
   loadObl().catch(e => problem($('oblMsg'), e.message));
+  loadInventory().catch(e => problem($('invMsg'), e.message));
   loadSources().catch(e => problem($('srcMsg'), e.message));
   const body = $('rows'); body.textContent = '';
   (tx || []).slice(-10).reverse().forEach(t => {
@@ -431,6 +452,64 @@ async function oblSave(){
 }
 async function oblPaid(id){ const r = await sb.from('obligations').update({status: 'paid'}).eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message)); }
 async function oblDel(id){ if (!confirm('تحذف البند ده؟')) return; const r = await sb.from('obligations').delete().eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message)); }
+const MAPV = [
+ ['item','الصنف *',/(item|product|name|الصنف|المنتج|الاسم|البيان)/i],
+ ['qty','الكمية *',/(qty|quantity|الكمية|كمية|الرصيد|stock)/i],
+ ['cost','تكلفة الوحدة *',/(unit\s*cost|cost|التكلفة|تكلفة|سعر الشراء|سعر التكلفة)/i],
+ ['price','سعر البيع (اختياري)',/(price|سعر البيع|السعر|البيع)/i],
+ ['min','حد الطلب (اختياري)',/(min|reorder|حد الطلب|الحد الأدنى|حد أدنى)/i]
+];
+const KIND_NAMES = {tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون'};
+function guessKind(head){
+  const h = head.map(x => String(x === null || x === undefined ? '' : x).trim()), has = re => h.some(x => re.test(x));
+  if (has(/(الصنف|المنتج|item|product|sku)/i) && has(/(الكمية|كمية|qty|quantity|stock|الرصيد|on hand)/i)) return 'inv';
+  if (has(/(استحقاق|due)/i) && has(/(الجهة|العميل|المورد|party|customer|supplier|vendor)/i)) return 'obl';
+  return 'tx';
+}
+function normInv(r, m){
+  const g = i => (i < 0 ? '' : r[i]), str = v => String(v === undefined || v === null ? '' : v).trim();
+  const i = str(g(m.item)).slice(0, 80), q = toNum(g(m.qty)), c = toNum(g(m.cost));
+  if (!i || !isFinite(q) || !isFinite(c) || q < 0 || c < 0) return null;
+  const p = m.price >= 0 ? toNum(g(m.price)) : NaN, mn = m.min >= 0 ? toNum(g(m.min)) : NaN;
+  return {i: i, q: q, c: c, p: isFinite(p) ? p : null, m: isFinite(mn) ? mn : null};
+}
+let invItems = [], invAll = false;
+function invTemplate(){
+  const csv = '\uFEFFالصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب\nمثال: زيت عباد الشمس 1 لتر,120,38,45,40\nمثال: سكر 1 كيلو,60,22,27,30\n';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'})); a.download = 'inventory-template.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+function invShowAll(){ invAll = true; renderInventory(); }
+async function loadInventory(){
+  const r = await sb.from('inventory_items').select('*').eq('company_id', companyId).limit(5000); if (r.error) throw new Error(r.error.message);
+  invItems = r.data || []; $('invMsg').className = 'text-xs'; $('invMsg').textContent = ''; renderInventory();
+}
+function renderInventory(){
+  const body = $('invBody'); body.textContent = '';
+  if (!invItems.length) {
+    ['invVal', 'invCnt', 'invLow', 'invDays'].forEach(i => { $(i).textContent = '-'; }); $('invDaysSub').textContent = ''; $('invCntSub').textContent = ''; $('invMore').classList.add('hidden');
+    const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش مخزون لسه. نزّل القالب، املاه، وارفعه.'; tr.appendChild(td); body.appendChild(tr); return;
+  }
+  const val = x => Number(x.qty) * Number(x.unit_cost), total = invItems.reduce((a, x) => a + val(x), 0);
+  const isLow = x => x.min_qty !== null && x.min_qty !== undefined && Number(x.qty) <= Number(x.min_qty);
+  const low = invItems.filter(isLow), zero = invItems.filter(x => Number(x.qty) === 0);
+  $('invVal').textContent = fmt(total) + ' ج.م'; $('invCnt').textContent = invItems.length; $('invCntSub').textContent = zero.length ? zero.length + ' خلصانة' : ''; $('invLow').textContent = low.length;
+  const by = {}; allTx.forEach(t => { if (t.category === 'Cost of Goods Sold' && Number(t.amount) < 0) { const k = t.tx_date.slice(0, 7); by[k] = (by[k] || 0) - Number(t.amount); } });
+  const ks = Object.keys(by).sort().slice(-3), cogs = ks.length ? ks.reduce((a, k) => a + by[k], 0) / ks.length : 0;
+  if (cogs > 0) { $('invDays').textContent = Math.round(total / (cogs / 30)) + ' يوم'; $('invDaysSub').textContent = 'تقدير من متوسط مشتريات البضاعة في كشف الحساب (آخر 3 شهور)'; }
+  else { $('invDays').textContent = '-'; $('invDaysSub').textContent = 'محتاج حركات "تكلفة البضاعة" في كشف الحساب'; }
+  const q = ($('invSearch').value || '').trim().toLowerCase(), f = $('invFilter').value;
+  let list = invItems.filter(x => !q || String(x.item).toLowerCase().indexOf(q) >= 0);
+  if (f === 'low') list = list.filter(isLow); else if (f === 'zero') list = list.filter(x => Number(x.qty) === 0);
+  list.sort((a, b) => (isLow(b) - isLow(a)) || (val(b) - val(a)));
+  const cap = invAll ? list.length : 15;
+  list.slice(0, cap).forEach(x => {
+    const lowX = isLow(x), tr = document.createElement('tr');
+    [x.item, Number(x.qty), x.min_qty === null || x.min_qty === undefined ? '-' : Number(x.min_qty), fmt(val(x)), Number(x.qty) === 0 ? 'خلصان' : (lowX ? 'تحت حد الطلب' : 'تمام')].forEach((v, i) => { const td = document.createElement('td'); td.className = 'p-2' + (i === 4 && (lowX || Number(x.qty) === 0) ? ' text-amber-700 font-bold' : ''); td.textContent = v; tr.appendChild(td); });
+    body.appendChild(tr);
+  });
+  if (!list.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش أصناف مطابقة.'; tr.appendChild(td); body.appendChild(tr); }
+  $('invMore').classList.toggle('hidden', invAll || list.length <= cap); $('invMore').textContent = 'عرض الكل (' + list.length + ')';
+}
 async function readRows(f){
   const isCsv = /\.csv$/i.test(f.name);
   const wb = isCsv ? XLSX.read(await f.text(), {type: 'string', raw: true}) : XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true});
@@ -464,11 +543,11 @@ function normObl(r, m, order, def){
 async function sha(t){ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return Array.from(new Uint8Array(b)).slice(0, 8).map(x => x.toString(16).padStart(2, '0')).join(''); }
 function colLabel(h, i){ const t = String(h === null || h === undefined ? '' : h).trim(); return t || 'عمود ' + (i + 1); }
 const kindNow = () => $('fileKind').value;
-const fieldsNow = () => (kindNow() === 'obl' ? MAPO : MAPF);
+const fieldsNow = () => ({obl: MAPO, inv: MAPV}[kindNow()] || MAPF);
 const modeNow = () => ((document.querySelector('input[name=upMode]:checked') || {}).value || 'replace');
 function openMapper(){
   const kind = kindNow(), F = fieldsNow(), head = mapRows[0], box = $('mapFields'), used = new Set(); box.textContent = '';
-  $('modeBox').classList.toggle('hidden', kind === 'obl'); $('defKindBox').classList.toggle('hidden', kind !== 'obl');
+  $('modeBox').classList.toggle('hidden', kind !== 'tx'); $('defKindBox').classList.toggle('hidden', kind !== 'obl');
   F.forEach(([key, label, re]) => {
     const wrap = document.createElement('label'); wrap.className = 'block';
     const t = document.createElement('div'); t.className = 'text-xs font-bold text-slate-600 mb-1'; t.textContent = label;
@@ -485,19 +564,29 @@ function openMapper(){
 }
 function curMap(){ const m = {}; fieldsNow().forEach(([k]) => { m[k] = Number($('map_' + k).value); }); return m; }
 function collectRows(){
-  const m = curMap(), order = $('dateOrder').value, obl = kindNow() === 'obl', out = []; let bad = 0;
-  mapRows.slice(1).forEach(r => { const n = obl ? normObl(r, m, order, $('defKind').value) : normRow(r, m, order); if (n) out.push(n); else bad++; });
+  const m = curMap(), order = $('dateOrder').value, kind = kindNow(), out = []; let bad = 0;
+  mapRows.slice(1).forEach(r => {
+    let n;
+    if (kind === 'obl') n = normObl(r, m, order, $('defKind').value);
+    else if (kind === 'inv') n = normInv(r, m);
+    else n = normRow(r, m, order);
+    if (n) out.push(n); else bad++;
+  });
   return {out: out, bad: bad};
 }
+const PREV = {
+  tx: {need: m => m.date < 0 || m.desc < 0 || (m.amount < 0 && m.debit < 0 && m.credit < 0), msg: 'اختار على الأقل: التاريخ والبيان والمبلغ (أو مدين/دائن).', head: ['التاريخ', 'البيان', 'المبلغ', 'النوع', 'التصنيف', 'المرجع'], row: r => [r.date, r.desc, r.amount, r.type, r.cat, r.ref]},
+  obl: {need: m => m.party < 0 || m.amount < 0, msg: 'اختار على الأقل: الاسم والمبلغ.', head: ['النوع', 'الاسم', 'المبلغ', 'الاستحقاق', 'الحالة'], row: r => [OBL[r.k][0], r.p, r.a, r.d, r.s === 'paid' ? 'مدفوع' : 'مفتوح']},
+  inv: {need: m => m.item < 0 || m.qty < 0 || m.cost < 0, msg: 'اختار على الأقل: الصنف والكمية وتكلفة الوحدة.', head: ['الصنف', 'الكمية', 'تكلفة الوحدة', 'سعر البيع', 'حد الطلب'], row: r => [r.i, r.q, r.c, r.p === null ? '' : r.p, r.m === null ? '' : r.m]}
+};
 function renderPreview(){
-  const m = curMap(), st = $('mapStat'), hd = $('mapHead'), bd = $('mapBody'), obl = kindNow() === 'obl'; hd.textContent = ''; bd.textContent = '';
-  const missing = obl ? (m.party < 0 || m.amount < 0) : (m.date < 0 || m.desc < 0 || (m.amount < 0 && m.debit < 0 && m.credit < 0));
-  if (missing) { st.className = 'text-sm font-bold text-amber-600'; st.textContent = obl ? 'اختار على الأقل: الاسم والمبلغ.' : 'اختار على الأقل: التاريخ والبيان والمبلغ (أو مدين/دائن).'; $('mapGo').disabled = true; $('mapImpact').textContent = ''; return; }
+  const m = curMap(), st = $('mapStat'), hd = $('mapHead'), bd = $('mapBody'), kind = kindNow(), cfg = PREV[kind]; hd.textContent = ''; bd.textContent = '';
+  if (cfg.need(m)) { st.className = 'text-sm font-bold text-amber-600'; st.textContent = cfg.msg; $('mapGo').disabled = true; $('mapImpact').textContent = ''; return; }
   const res = collectRows(); mapBad = res.bad;
   const tr = document.createElement('tr');
-  (obl ? ['النوع', 'الاسم', 'المبلغ', 'الاستحقاق', 'الحالة'] : ['التاريخ', 'البيان', 'المبلغ', 'النوع', 'التصنيف', 'المرجع']).forEach(h => { const th = document.createElement('th'); th.className = 'p-2 bg-slate-50'; th.textContent = h; tr.appendChild(th); }); hd.appendChild(tr);
-  res.out.slice(0, 5).forEach(r => { const row = document.createElement('tr'); (obl ? [OBL[r.k][0], r.p, r.a, r.d, r.s === 'paid' ? 'مدفوع' : 'مفتوح'] : [r.date, r.desc, r.amount, r.type, r.cat, r.ref]).forEach(v => { const td = document.createElement('td'); td.className = 'p-2 border-t border-slate-100'; td.textContent = v; row.appendChild(td); }); bd.appendChild(row); });
-  const unk = obl ? 0 : res.out.filter(r => r.cat === 'Other' || r.cat === 'Other Income').length;
+  cfg.head.forEach(h => { const th = document.createElement('th'); th.className = 'p-2 bg-slate-50'; th.textContent = h; tr.appendChild(th); }); hd.appendChild(tr);
+  res.out.slice(0, 5).forEach(r => { const row = document.createElement('tr'); cfg.row(r).forEach(v => { const td = document.createElement('td'); td.className = 'p-2 border-t border-slate-100'; td.textContent = v; row.appendChild(td); }); bd.appendChild(row); });
+  const unk = kind === 'tx' ? res.out.filter(r => r.cat === 'Other' || r.cat === 'Other Income').length : 0;
   st.className = 'text-sm font-bold ' + (res.out.length ? 'text-emerald-600' : 'text-rose-600');
   st.textContent = 'صفوف صالحة: ' + res.out.length + (res.bad ? ' | هتتخطى: ' + res.bad : '') + (unk ? ' | تصنيفها "أخرى": ' + unk : '') + (res.out.length ? ' (المعاينة: أول 5 صفوف)' : '');
   $('mapGo').disabled = !res.out.length; refreshImpact();
@@ -511,6 +600,10 @@ async function refreshImpact(){
       const r = await sb.from('obligations').select('id', {count: 'exact', head: true}).eq('company_id', companyId).eq('source', 'sheet');
       if (r.error) throw new Error(r.error.message);
       el.textContent = 'هيتمسح ' + (r.count || 0) + ' بند اتسجّل من شيت قبل كده، ويتحط ' + res.out.length + ' بند من الملف. البنود اللي أضفتها بإيدك من زر "+ إضافة" ما بتتمسحش.';
+    } else if (kindNow() === 'inv') {
+      const r = await sb.from('inventory_items').select('id', {count: 'exact', head: true}).eq('company_id', companyId);
+      if (r.error) throw new Error(r.error.message);
+      el.textContent = 'هيتمسح ' + (r.count || 0) + ' صنف قديم، ويتحط ' + res.out.length + ' صنف من الملف.';
     } else if (modeNow() === 'merge') {
       el.textContent = 'هيتضاف أو يتحدّث ' + res.out.length + ' حركة، ومفيش حاجة هتتمسح.';
     } else {
@@ -530,7 +623,7 @@ async function upload(inp){
     if (f.size > 5000000) throw new Error('File too large (2MB max)');
     mapRows = await readRows(f);
     if (mapRows.length < 2) throw new Error('Excel sheet is empty');
-    msg.textContent = ''; mapSource = null; $('mapGo').textContent = 'رفع'; $('fileKind').value = 'tx'; openMapper();
+    const gk = guessKind(mapRows[0]); mapSource = null; $('mapGo').textContent = 'رفع'; $('fileKind').value = gk; openMapper(); msg.textContent = 'اتعرّفت على الملف كـ: ' + KIND_NAMES[gk] + ' (تقدر تغيّره من قايمة نوع الملف).';
   } catch (e) { problem(msg, e.message); }
   inp.value = '';
 }
@@ -540,7 +633,12 @@ async function mapUpload(){
   const msg = $('msg'), obl = kindNow() === 'obl'; msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري التحديث...'; $('mapGo').disabled = true;
   try {
     let data, text;
-    if (obl) {
+    if (kindNow() === 'inv') {
+      if (res.out.length > 5000) throw new Error('Max 5000 rows');
+      if (!confirm('هيتبدّل كل أصناف المخزون الحالية بـ ' + res.out.length + ' صنف من الملف. تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
+      const r = await sb.rpc('replace_inventory', {p_company: companyId, p_rows: res.out}); if (r.error) throw new Error(r.error.message); data = r.data;
+      text = 'تم تحديث المخزون: اتمسح ' + data.deleted + ' واتضاف ' + data.inserted + ' صنف';
+    } else if (obl) {
       if (res.out.length > 2000) throw new Error('Max 2000 rows');
       if (!confirm('هيتبدّل اللي اتسجّل من شيت قبل كده بـ ' + res.out.length + ' بند من الملف. تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
       const r = await sb.rpc('replace_obligations', {p_company: companyId, p_rows: res.out}); if (r.error) throw new Error(r.error.message); data = r.data;
@@ -578,7 +676,7 @@ async function srcPreview(){
     const sheet = $('srcSheet').value.trim(), j = await callSync({action: 'preview', url: url, sheet: sheet});
     if (!j.rows || j.rows.length < 2) throw new Error('SHEET_NO_ROWS');
     mapRows = j.rows; mapSource = {url: url, sheet: sheet}; msg.textContent = (j.sheets && j.sheets.length > 1) ? 'الصفحات في الملف: ' + j.sheets.join('، ') + (sheet ? '' : ' (اتقرت أول صفحة)') : '';
-    $('fileKind').value = $('srcKind').value; openMapper(); $('mapGo').textContent = 'حفظ وربط الشيت';
+    const gk = guessKind(mapRows[0]); $('fileKind').value = ($('srcKind').value === 'tx' && gk !== 'tx') ? gk : $('srcKind').value; openMapper(); $('mapGo').textContent = 'حفظ وربط الشيت';
   } catch (e) { problem(msg, e.message); }
 }
 async function saveSource(){
@@ -607,7 +705,7 @@ async function loadSources(){
   const ul = $('srcList'); ul.textContent = '';
   (r.data || []).forEach(x => {
     const li = document.createElement('li'); li.className = 'border border-slate-200 rounded-xl p-3 text-xs space-y-1';
-    const t = document.createElement('div'); t.className = 'font-bold'; t.textContent = (x.kind === 'tx' ? 'حركات فلوس' : 'مستحقات والتزامات') + ' | ' + x.url.slice(0, 48) + '...';
+    const t = document.createElement('div'); t.className = 'font-bold'; t.textContent = ({tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون'}[x.kind] || x.kind) + ' | ' + x.url.slice(0, 48) + '...';
     const d = document.createElement('div'); d.className = 'text-slate-500'; d.textContent = x.last_sync ? 'آخر تحديث ناجح: ' + new Date(x.last_sync).toLocaleString('ar-EG') + ' (' + (x.last_rows || 0) + ' صف)' : 'لسه ما اتحدّثش';
     li.append(t, d);
     if (x.last_status && x.last_status.indexOf('error:') === 0) { const e = document.createElement('div'); problem(e, x.last_status.slice(6).trim()); li.appendChild(e); }
