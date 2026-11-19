@@ -95,6 +95,16 @@
       <button onclick="srcSyncAll()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold">اتزامن دلوقتي</button>
       </div>
     </details>
+    <div id="execAlertsCard" class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <h2 class="font-bold">تنبيهات الإدارة التنفيذية</h2>
+          <p class="text-xs text-slate-500">مؤشرات إنذار مبكر للسيولة، المستحقات المتأخرة، وهامش الربح</p>
+        </div>
+        <span id="execAlertsBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">0 نشط</span>
+      </div>
+      <div id="execAlertsList" class="space-y-2"></div>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">النقدية المتاحة</p><h3 id="kCash" class="text-2xl font-extrabold">-</h3></div>
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">العمر النقدي (Runway)</p><h3 id="kRun" class="text-2xl font-extrabold">-</h3></div>
@@ -218,6 +228,71 @@ function drawCat(){
   const oth = ent.find(e => e[0] === AR['Other']), othPct = oth && sum ? Math.round(oth[1] / sum * 100) : 0;
   $('catNote').textContent = ent.length ? 'أكبر بند: ' + ent[0][0] + ' (' + Math.round(ent[0][1] / sum * 100) + '% من المصروفات)' + (othPct >= 20 ? ' — تنبيه: بند "أخرى" ' + othPct + '% من المصروفات، راجع التصنيف' : '') : 'مفيش مصروفات في الفترة دي';
 }
+const TARGET_PROFIT_MARGIN = 20;
+function renderExecutiveAlerts(lastMonthNet, lastMonthInc){
+  const box = $('execAlertsList'), badge = $('execAlertsBadge');
+  if (!box || !badge) return;
+  const alerts = [];
+
+  // 1. إنذار فجوة السيولة: الالتزامات المستحقة خلال 7 أيام > الرصيد النقدي المتاح
+  const due7d = (obl || [])
+    .filter(o => o.kind !== 'receivable' && o.due_date && dayDiff(o.due_date) >= 0 && dayDiff(o.due_date) <= 7)
+    .reduce((s, o) => s + Number(o.amount), 0);
+  if (due7d > 0 && curCash < due7d) {
+    const gapPct = curCash > 0 ? (((due7d - curCash) / curCash) * 100).toFixed(1) : '100.0';
+    alerts.push({
+      cls: 'border-rose-200 bg-rose-50 text-rose-900',
+      title: 'إنذار فجوة السيولة (خلال 7 أيام)',
+      msg: 'الالتزامات المستحقة خلال 7 أيام (' + fmt(due7d) + ' ج.م) تتجاوز الرصيد النقدي المتاح (' + fmt(curCash) + ' ج.م) بنسبة ' + gapPct + '%.'
+    });
+  }
+
+  // 2. تنبيه تأخر تحصيل مستحقات العملاء (> 30 يوم)
+  const overdueRec = (obl || []).filter(o => o.kind === 'receivable' && o.due_date && dayDiff(o.due_date) < -30);
+  if (overdueRec.length > 0) {
+    const recTotal = overdueRec.reduce((s, o) => s + Number(o.amount), 0);
+    const top = [...overdueRec].sort((a, b) => Number(b.amount) - Number(a.amount))[0];
+    alerts.push({
+      cls: 'border-amber-200 bg-amber-50 text-amber-900',
+      title: 'تأخر تحصيل مستحقات العملاء (+30 يوم)',
+      msg: 'توجد ' + overdueRec.length + ' فواتير متأخرة لأكثر من 30 يوماً بإجمالي ' + fmt(recTotal) + ' ج.م — أكبرها: ' + top.party + ' (' + fmt(top.amount) + ' ج.م).'
+    });
+  }
+
+  // 3. تنبيه انخفاض هامش الربح عن المستهدف (بأكثر من 2%)
+  if (typeof lastMonthInc === 'number' && lastMonthInc > 0 && typeof lastMonthNet === 'number') {
+    const actualMargin = (lastMonthNet / lastMonthInc) * 100;
+    const diff = TARGET_PROFIT_MARGIN - actualMargin;
+    if (diff > 2) {
+      alerts.push({
+        cls: 'border-orange-200 bg-orange-50 text-orange-900',
+        title: 'انخفاض هامش الربح عن المستهدف',
+        msg: 'هامش صافي الربح الفعلي (' + actualMargin.toFixed(1) + '%) أقل من المستهدف (' + TARGET_PROFIT_MARGIN + '%) بفارق ' + diff.toFixed(1) + '%.'
+      });
+    }
+  }
+
+  badge.textContent = alerts.length + ' نشط';
+  badge.className = 'text-xs font-bold px-2.5 py-1 rounded-full ' + (alerts.length ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700');
+  box.textContent = '';
+
+  if (!alerts.length) {
+    const p = document.createElement('p');
+    p.className = 'text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5 font-bold';
+    p.textContent = 'الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.';
+    box.appendChild(p);
+    return;
+  }
+
+  alerts.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'rounded-xl border p-3 ' + a.cls;
+    const t = document.createElement('div'); t.className = 'text-xs font-extrabold'; t.textContent = a.title;
+    const m = document.createElement('p'); m.className = 'text-xs mt-1 leading-relaxed'; m.textContent = a.msg;
+    item.append(t, m);
+    box.appendChild(item);
+  });
+}
 const FIXES = [
  [/failed to fetch|networkerror|load failed/i,'مفيش اتصال بالخدمة','النت ضعيف، أو الدالة على Supabase مش منشورة أو فيها خطأ.','حدّث الصفحة وتأكد من النت. لو لسه، افتح Supabase ← Edge Functions ← الدالة ← Logs وصوّر آخر خطأ.'],
  [/invalid login|invalid credentials/i,'الإيميل أو كلمة السر غلط','اتأكد من الإيميل وكلمة السر. لو لسه ما عملتش حساب اضغط إنشاء حساب جديد.','اكتب البيانات تاني بحذر. لو نسيت كلمة السر اطلب إعادة تعيينها من Supabase ← Authentication ← Users.'],
@@ -329,6 +404,9 @@ async function loadInner(){
   chart = new Chart($('chart'), {type:'line', data:{labels: keys, datasets:[{data: vals, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.08)', borderWidth:3, fill:true, tension:.35}]},
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}}}});
   allTx = tx || []; drawIE(); drawCat();
+  const lastInc = last ? allTx.filter(t => t.tx_date.startsWith(last) && Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0) : 0;
+  window._lastMonthStats = { net: net, inc: lastInc };
+  renderExecutiveAlerts(net, lastInc);
   loadObl().catch(e => problem($('oblMsg'), e.message));
   loadInventory().catch(e => problem($('invMsg'), e.message));
   loadSources().catch(e => problem($('srcMsg'), e.message));
@@ -430,7 +508,7 @@ function renderObl(){
   const net = curCash + rec - pay - tax - up30, n = $('oNet');
   n.textContent = (net > 0 ? '+' : '') + fmt(net) + ' ج.م'; n.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-400' : 'text-rose-400');
   const body = $('oblRows'); body.textContent = '';
-  if (!obl.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400 text-xs'; td.textContent = 'مفيش مستحقات مسجّلة. اضغط "+ إضافة".'; tr.appendChild(td); body.appendChild(tr); return; }
+  if (!obl.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400 text-xs'; td.textContent = 'مفيش مستحقات مسجّلة. اضغط "+ إضافة".'; tr.appendChild(td); body.appendChild(tr); if (window._lastMonthStats) renderExecutiveAlerts(window._lastMonthStats.net, window._lastMonthStats.inc); return; }
   obl.forEach(o => {
     const tr = document.createElement('tr');
     const c1 = document.createElement('td'); c1.className = 'p-2'; const b = document.createElement('span'); b.className = 'px-2 py-1 rounded-lg text-xs font-bold ' + OBL[o.kind][1]; b.textContent = OBL[o.kind][0]; c1.appendChild(b);
@@ -443,6 +521,7 @@ function renderObl(){
     const del = document.createElement('button'); del.className = 'text-xs bg-slate-200 px-2 py-1 rounded-lg'; del.textContent = 'حذف'; del.onclick = () => oblDel(o.id);
     c5.append(paid, del); tr.append(c1, c2, c3, c4, c5); body.appendChild(tr);
   });
+  if (window._lastMonthStats) renderExecutiveAlerts(window._lastMonthStats.net, window._lastMonthStats.inc);
 }
 function oblToggle(){ $('oblForm').classList.toggle('hidden'); }
 async function oblSave(){
