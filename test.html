@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظرة عامة على السيولة - امريكانا</title>
+  <style>
+    :root {
+      --bg: #eef2f6;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --pill-bg: #dcfce7;
+      --pill-text: #15803d;
+      --banner-bg: #eefaf2;
+      --banner-border: #bbf7d0;
+      --banner-text: #14532d;
+      --warn-bg: #fef9c3;
+      --warn-text: #854d0e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px 12px 40px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .app-shell {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .header-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .page-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .chip-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chip-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .sync-banner {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .exec-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      margin-bottom: 12px;
+    }
+
+    .exec-trigger {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      text-align: right;
+      cursor: pointer;
+      display: block;
+      color: var(--text);
+    }
+
+    .exec-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .exec-subtitle {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .exec-pill-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .count-pill {
+      display: inline-block;
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .expand-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .status-banner {
+      margin-top: 14px;
+      background: var(--banner-bg);
+      border: 1px solid var(--banner-border);
+      color: var(--banner-text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .exec-drawer {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .exec-card.open .exec-drawer {
+      display: block;
+    }
+
+    .rec-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .rec-box:last-child {
+      margin-bottom: 0;
+    }
+
+    .rec-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .rec-line {
+      font-size: 12.5px;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .rec-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .metric-val {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .metric-val.green {
+      color: #16a34a;
+    }
+
+    .metric-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .edit-field input {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="header-card">
+      <h1 class="page-title">نظرة عامة على السيولة - امريكانا</h1>
+      <div class="page-sub">لوحة التحكم المالية</div>
+      <div class="top-actions">
+        <button type="button" class="chip-btn" id="open-editor-btn">رفع يدوي (بديل)</button>
+        <button type="button" class="chip-btn" id="reset-btn">خروج / استعادة</button>
+      </div>
+    </div>
+
+    <div class="sync-banner">
+      آخر تحديث تلقائي: منذ 20 دقيقة - التحديث التلقائي متأخر (الجدولة ممكن تكون مش شغالة).
+    </div>
+
+    <div class="exec-card" id="card-alerts">
+      <button type="button" class="exec-trigger" data-card="card-alerts">
+        <h2 class="exec-title">تنبيهات الإدارة التنفيذية</h2>
+        <div class="exec-subtitle">مؤشرات إنذار مبكر للسيولة، المستحقات المتأخرة، وهامش الربح</div>
+        <div class="exec-pill-row">
+          <span class="count-pill" id="alerts-badge">0 نشط</span>
+          <span class="expand-hint" id="alerts-hint">اضغط لعرض التفاصيل</span>
+        </div>
+        <div class="status-banner" id="alerts-banner">
+          الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.
+        </div>
+      </button>
+      <div class="exec-drawer" id="alerts-drawer"></div>
+    </div>
+
+    <div class="exec-card" id="card-rec">
+      <button type="button" class="exec-trigger" data-card="card-rec">
+        <h2 class="exec-title">توصيات زيادة السيولة وصافي الربح</h2>
+        <div class="exec-subtitle">قرارات تنفيذية للسيولة، المستحقات، وتحسين صافي الربح</div>
+        <div class="exec-pill-row">
+          <span class="count-pill" id="rec-badge">3 نشط</span>
+          <span class="expand-hint" id="rec-hint">اضغط لعرض التفاصيل</span>
+        </div>
+        <div class="status-banner" id="rec-banner">
+          صافي السيولة 6,658,700 ج.م — اضغط لعرض بطاقات زيادة السيولة وصافي الربح.
+        </div>
+      </button>
+      <div class="exec-drawer" id="rec-drawer"></div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">النقدية المتاحة</div>
+      <div class="metric-val" id="m-cash">6,658,700 ج.م</div>
+      <div class="metric-meta" id="m-net-cash">صافي السيولة بعد الالتزامات: 6,658,700 ج.م</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">العمر النقدي (Runway)</div>
+      <div class="metric-val" id="m-runway">لا يوجد حرق</div>
+      <div class="metric-meta" id="m-burn">معدل الحرق الشهري: 0 ج.م</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">صافي الربح (آخر شهر)</div>
+      <div class="metric-val green" id="m-profit-09">+5,803,000 ج.م</div>
+      <div class="metric-meta" id="m-profit-cum">شهر 09-2026 | الإجمالي كله: +5,658,700 ج.م</div>
+    </div>
+
+    <div class="exec-card" id="card-edit">
+      <button type="button" class="exec-trigger" data-card="card-edit">
+        <h2 class="exec-title">تحديث الأرقام والمستحقات</h2>
+        <div class="exec-subtitle">إدخال أو تعديل القيم لتحديث المؤشرات والبطاقات تلقائياً</div>
+        <div class="exec-pill-row">
+          <span class="count-pill" id="edit-badge">مربوط بالأرقام</span>
+          <span class="expand-hint" id="edit-hint">اضغط لفتح الحقول</span>
+        </div>
+        <div class="status-banner" id="edit-banner">
+          النقدية المتاحة 6,658,700 ج.م — اضغط لفتح حقول التعديل والمستحقات.
+        </div>
+      </button>
+
+      <div class="exec-drawer">
+        <div class="edit-grid">
+          <label class="edit-field">
+            النقدية المتاحة (ج.م)
+            <input type="number" id="in-cash" value="6658700" step="1000" />
+          </label>
+          <label class="edit-field">
+            معدل الحرق الشهري (ج.م)
+            <input type="number" id="in-burn" value="0" min="0" step="1000" />
+          </label>
+          <label class="edit-field">
+            صافي ربح 09-2026 (ج.م)
+            <input type="number" id="in-profit-09" value="5803000" step="1000" />
+          </label>
+          <label class="edit-field">
+            الإجمالي التراكمي (ج.م)
+            <input type="number" id="in-profit-cum" value="5658700" step="1000" />
+          </label>
+          <label class="edit-field">
+            مستحقات لنا (ج.م)
+            <input type="number" id="in-receivables" value="0" min="0" step="1000" />
+          </label>
+          <label class="edit-field">
+            التزامات وضرائب علينا (ج.م)
+            <input type="number" id="in-payables" value="0" min="0" step="1000" />
+          </label>
+          <label class="edit-field">
+            حد الأمان النقدي (ج.م)
+            <input type="number" id="in-buffer" value="1000000" min="0" step="1000" />
+          </label>
+          <label class="edit-field">
+            خصم سداد مبكر افتراضي (%)
+            <input type="number" id="in-discount" value="5" min="0" max="100" step="0.5" />
+          </label>
+          <label class="edit-field">
+            هامش الربح الفعلي (%)
+            <input type="number" id="in-margin" value="-1544.1" step="0.1" />
+          </label>
+          <label class="edit-field">
+            هامش الربح المستهدف (%)
+            <input type="number" id="in-target-margin" value="20" step="0.5" />
+          </label>
+        </div>
+        <button type="button" class="btn-primary" id="sample-btn">تجربة مستحقات والتزامات</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const DEFAULTS = {
+        cash: 6658700,
+        burn: 0,
+        profit09: 5803000,
+        profitCum: 5658700,
+        receivables: 0,
+        payables: 0,
+        buffer: 1000000,
+        discount: 5,
+        margin: -1544.1,
+        targetMargin: 20
+      };
+
+      const els = {
+        cash: document.getElementById("in-cash"),
+        burn: document.getElementById("in-burn"),
+        profit09: document.getElementById("in-profit-09"),
+        profitCum: document.getElementById("in-profit-cum"),
+        receivables: document.getElementById("in-receivables"),
+        payables: document.getElementById("in-payables"),
+        buffer: document.getElementById("in-buffer"),
+        discount: document.getElementById("in-discount"),
+        margin: document.getElementById("in-margin"),
+        targetMargin: document.getElementById("in-target-margin"),
+        openEditorBtn: document.getElementById("open-editor-btn"),
+        resetBtn: document.getElementById("reset-btn"),
+        sampleBtn: document.getElementById("sample-btn"),
+        cardRec: document.getElementById("card-rec"),
+        cardAlerts: document.getElementById("card-alerts"),
+        cardEdit: document.getElementById("card-edit"),
+        recBadge: document.getElementById("rec-badge"),
+        recHint: document.getElementById("rec-hint"),
+        recBanner: document.getElementById("rec-banner"),
+        recDrawer: document.getElementById("rec-drawer"),
+        alertsBadge: document.getElementById("alerts-badge"),
+        alertsHint: document.getElementById("alerts-hint"),
+        alertsBanner: document.getElementById("alerts-banner"),
+        alertsDrawer: document.getElementById("alerts-drawer"),
+        editHint: document.getElementById("edit-hint"),
+        editBanner: document.getElementById("edit-banner"),
+        mCash: document.getElementById("m-cash"),
+        mNetCash: document.getElementById("m-net-cash"),
+        mRunway: document.getElementById("m-runway"),
+        mBurn: document.getElementById("m-burn"),
+        mProfit09: document.getElementById("m-profit-09"),
+        mProfitCum: document.getElementById("m-profit-cum")
+      };
+
+      function syncHints() {
+        els.recHint.textContent = els.cardRec.classList.contains("open") ? "اضغط للإغلاق" : "اضغط لعرض التفاصيل";
+        els.alertsHint.textContent = els.cardAlerts.classList.contains("open") ? "اضغط للإغلاق" : "اضغط لعرض التفاصيل";
+        els.editHint.textContent = els.cardEdit.classList.contains("open") ? "اضغط للإغلاق" : "اضغط لفتح الحقول";
+      }
+
+      document.querySelectorAll(".exec-trigger").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-card");
+          const target = document.getElementById(id);
+          if (target) {
+            target.classList.toggle("open");
+            syncHints();
+          }
+        });
+      });
+
+      els.openEditorBtn.addEventListener("click", () => {
+        els.cardEdit.classList.add("open");
+        syncHints();
+        els.cardEdit.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      function fmt(n) {
+        const v = Number.isFinite(n) ? Math.round(n) : 0;
+        return v.toLocaleString("en-US") + " ج.م";
+      }
+
+      function fmtSigned(n) {
+        const v = Number.isFinite(n) ? Math.round(n) : 0;
+        return (v > 0 ? "+" : "") + v.toLocaleString("en-US") + " ج.م";
+      }
+
+      function num(input) {
+        const v = parseFloat(input.value);
+        return Number.isFinite(v) ? v : 0;
+      }
+
+      function render() {
+        const cash = num(els.cash);
+        const burn = Math.max(0, num(els.burn));
+        const profit09 = num(els.profit09);
+        const profitCum = num(els.profitCum);
+        const receivables = Math.max(0, num(els.receivables));
+        const payables = Math.max(0, num(els.payables));
+        const buffer = Math.max(0, num(els.buffer));
+        const discount = Math.max(0, num(els.discount));
+        const margin = num(els.margin);
+        const targetMargin = num(els.targetMargin);
+
+        const netCash = cash - payables;
+        const cashWithReceivables = netCash + receivables;
+        const diffCumVs09 = profitCum - profit09;
+        const surplus = Math.max(0, netCash - buffer);
+
+        const discountBase = payables > 0 ? Math.min(payables, surplus) : Math.min(2000000, surplus);
+        const discountGain = discountBase * (discount / 100);
+        const cashAfterDiscount = cash - (discountBase - discountGain);
+
+        els.mCash.textContent = fmt(cash);
+        els.mNetCash.textContent = "صافي السيولة بعد الالتزامات: " + fmt(netCash);
+        els.mBurn.textContent = "معدل الحرق الشهري: " + fmt(burn);
+        els.mRunway.textContent = burn <= 0 ? "لا يوجد حرق" : (cash / burn).toFixed(1) + " شهر";
+        els.mProfit09.textContent = fmtSigned(profit09);
+        els.mProfitCum.textContent = "شهر 09-2026 | الإجمالي كله: " + fmtSigned(profitCum);
+
+        els.recBadge.textContent = "3 نشط";
+        els.recBanner.textContent =
+          "صافي السيولة " + fmt(netCash) + " — اضغط لعرض بطاقات زيادة السيولة وصافي الربح.";
+        els.editBanner.textContent =
+          "النقدية المتاحة " + fmt(cash) + " — اضغط لفتح حقول التعديل والمستحقات.";
+
+        const diffText = diffCumVs09 === 0
+          ? "لا يوجد فرق بين الإجمالي التراكمي وصافي ربح 09-2026."
+          : "فرق الإجمالي التراكمي عن صافي ربح 09-2026 يبلغ " + fmtSigned(diffCumVs09) + ".";
+        const discountTargetText = payables > 0 ? "على التزامات موردين بقيمة " : "على شريحة استرشادية بقيمة ";
+
+        els.recDrawer.innerHTML =
+          '<div class="rec-box">' +
+            '<div class="rec-title">1. صافي السيولة وتحصيل المستحقات</div>' +
+            '<div class="rec-line"><strong>القرار:</strong> تحصيل المستحقات (' + fmt(receivables) + ') وتغطية الالتزامات والضرائب (' + fmt(payables) + ') من نقدية متاحة ' + fmt(cash) + '.</div>' +
+            '<div class="rec-line"><strong>أثر السيولة:</strong> صافي السيولة بعد الالتزامات ' + fmt(netCash) + '، وبعد التحصيل يصبح ' + fmt(cashWithReceivables) + '.</div>' +
+            '<div class="rec-line"><strong>أثر صافي الربح:</strong> تقليل مخاطر تعثر التحصيل أو تكلفة تمويل عجز الكاش.</div>' +
+            '<div class="rec-line"><strong>شرط التنفيذ:</strong> عدم كسر حد الأمان النقدي (' + fmt(buffer) + ').</div>' +
+          '</div>' +
+          '<div class="rec-box">' +
+            '<div class="rec-title">2. دقة الربح ومراجعة الفروق</div>' +
+            '<div class="rec-line"><strong>القرار:</strong> مراجعة صافي ربح 09-2026 (' + fmtSigned(profit09) + ') مقابل الإجمالي التراكمي (' + fmtSigned(profitCum) + '). ' + diffText + '</div>' +
+            '<div class="rec-line"><strong>أثر السيولة:</strong> منع مفاجآت المصروفات غير المرحلة أو المتأخرة.</div>' +
+            '<div class="rec-line"><strong>أثر صافي الربح:</strong> تحسين دقة الربح الصافي ودعم رفع الهامش نحو المستهدف.</div>' +
+            '<div class="rec-line"><strong>شرط التنفيذ:</strong> التأكد من اكتمال ترحيل الإيرادات والمصروفات للفترة.</div>' +
+          '</div>' +
+          '<div class="rec-box">' +
+            '<div class="rec-title">3. تدوير الفائض لرفع الربح والسيولة</div>' +
+            '<div class="rec-line"><strong>القرار:</strong> توجيه جزء من الفائض القابل للتدوير (' + fmt(surplus) + ') لخصم سداد مبكر ' + discount + '% ' + discountTargetText + fmt(discountBase) + ' أو أصناف سريعة الدوران.</div>' +
+            '<div class="rec-line"><strong>أثر السيولة:</strong> نقدية متاحة تقديرية بعد الخصم: ' + fmt(cashAfterDiscount) + '.</div>' +
+            '<div class="rec-line"><strong>أثر صافي الربح:</strong> توفير تكلفة شراء تقديري ' + fmt(discountGain) + ' أو زيادة دوران الربح.</div>' +
+            '<div class="rec-line"><strong>شرط التنفيذ:</strong> الإبقاء على حد أمان نقدي لا يقل عن ' + fmt(buffer) + '.</div>' +
+          '</div>';
+
+        const alerts = [];
+        if (margin < targetMargin) {
+          alerts.push("هامش الربح الفعلي (" + margin.toFixed(1) + "%) أقل من المستهدف (" + targetMargin.toFixed(1) + "%).");
+        }
+        if (receivables === 0 && payables === 0) {
+          alerts.push("المستحقات والالتزامات غير مُدخلة بعد — أدخلها لتحديث صافي السيولة بدقة.");
+        }
+        if (diffCumVs09 !== 0) {
+          alerts.push("فرق بين صافي ربح 09-2026 (" + fmtSigned(profit09) + ") والإجمالي التراكمي (" + fmtSigned(profitCum) + ") قدره " + fmtSigned(diffCumVs09) + ".");
+        }
+
+        els.alertsBadge.textContent = alerts.length + " نشط";
+        if (alerts.length === 0) {
+          els.alertsBanner.textContent = "الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.";
+          els.alertsDrawer.innerHTML = '<div class="rec-line">لا توجد تنبيهات نشطة على الأرقام الحالية.</div>';
+        } else {
+          els.alertsBanner.textContent = "يوجد " + alerts.length + " تنبيه للمراجعة — اضغط لعرض التفاصيل.";
+          els.alertsDrawer.innerHTML = alerts.map((a) => '<div class="rec-box"><div class="rec-line">• ' + a + '</div></div>').join("");
+        }
+
+        syncHints();
+      }
+
+      [
+        els.cash, els.burn, els.profit09, els.profitCum,
+        els.receivables, els.payables, els.buffer, els.discount,
+        els.margin, els.targetMargin
+      ].forEach((input) => input.addEventListener("input", render));
+
+      els.resetBtn.addEventListener("click", () => {
+        els.cash.value = DEFAULTS.cash;
+        els.burn.value = DEFAULTS.burn;
+        els.profit09.value = DEFAULTS.profit09;
+        els.profitCum.value = DEFAULTS.profitCum;
+        els.receivables.value = DEFAULTS.receivables;
+        els.payables.value = DEFAULTS.payables;
+        els.buffer.value = DEFAULTS.buffer;
+        els.discount.value = DEFAULTS.discount;
+        els.margin.value = DEFAULTS.margin;
+        els.targetMargin.value = DEFAULTS.targetMargin;
+        render();
+      });
+
+      els.sampleBtn.addEventListener("click", () => {
+        els.receivables.value = 1200000;
+        els.payables.value = 1500000;
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
