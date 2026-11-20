@@ -162,7 +162,11 @@
         <p id="oNet" class="text-2xl font-extrabold">-</p>
         <p class="text-xs text-slate-400 mt-1">= النقدية المتاحة + اللي لينا − اللي علينا − الضرائب − التزامات الـ 30 يوم. يعني لو كل اللي لينا اتحصّل وكل اللي عليك اتسدد. لو دخلت نفس المبلغ في أكتر من بند، هيتحسب مرتين.</p>
       </div>
-      <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-2">النوع</th><th class="p-2">الاسم</th><th class="p-2">المبلغ</th><th class="p-2">الاستحقاق</th><th class="p-2"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
+            <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
+        <button id="oblToggleBtn" type="button" onclick="toggleOblDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold">عرض التفاصيل</button>
+        <span id="oblDetailsHint" class="text-xs text-slate-400">جدول بنود المستحقات والالتزامات مخفي افتراضياً — اضغط لعرضه</span>
+      </div>
+      <div id="oblDetailsBox" class="hidden overflow-x-auto pt-2 border-t border-slate-100"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-2">النوع</th><th class="p-2">الاسم</th><th class="p-2">المبلغ</th><th class="p-2">الاستحقاق</th><th class="p-2"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
     </div>
     <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
       <div class="flex justify-between items-start gap-2 flex-wrap">
@@ -176,12 +180,18 @@
         <div class="border border-amber-200 bg-amber-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">تحت حد الطلب</p><p id="invLow" class="text-xl font-extrabold text-amber-700">-</p></div>
         <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">المخزون يكفي (تقدير)</p><p id="invDays" class="text-xl font-extrabold">-</p><p id="invDaysSub" class="text-xs text-slate-500"></p></div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <input id="invSearch" oninput="renderInventory()" placeholder="ابحث عن صنف" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
-        <select id="invFilter" onchange="renderInventory()" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="all">كل الأصناف</option><option value="low">تحت حد الطلب</option><option value="zero">خلصانة (كمية صفر)</option></select>
+      <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
+        <button id="invToggleBtn" type="button" onclick="toggleInvDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold">عرض التفاصيل</button>
+        <span id="invDetailsHint" class="text-xs text-slate-400">التفاصيل مخفية للحفاظ على ترتيب الواجهة — اضغط لعرضها</span>
       </div>
-      <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">الصنف</th><th class="p-2">الكمية</th><th class="p-2">حد الطلب</th><th class="p-2">القيمة</th><th class="p-2">الحالة</th></tr></thead><tbody id="invBody" class="divide-y divide-slate-100"></tbody></table></div>
-      <button id="invMore" onclick="invShowAll()" class="hidden bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold">عرض الكل</button>
+      <div id="invDetailsBox" class="hidden space-y-3 pt-2 border-t border-slate-100">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input id="invSearch" oninput="renderInventory()" placeholder="ابحث عن صنف" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <select id="invFilter" onchange="renderInventory()" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="all">كل الأصناف</option><option value="low">تحت حد الطلب</option><option value="zero">خلصانة (كمية صفر)</option></select>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">الصنف</th><th class="p-2">الكمية</th><th class="p-2">حد الطلب</th><th class="p-2">القيمة</th><th class="p-2">الحالة</th></tr></thead><tbody id="invBody" class="divide-y divide-slate-100"></tbody></table></div>
+        <button id="invMore" onclick="invShowAll()" class="hidden bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold">عرض الكل</button>
+      </div>
     </div>
     <div class="bg-white p-5 rounded-2xl border border-slate-200"><h2 class="font-bold mb-3">تطور الرصيد النقدي</h2><div class="h-64"><canvas id="chart"></canvas></div></div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -204,9 +214,17 @@
       <div class="flex gap-2"><input id="q" maxlength="300" placeholder="اكتب سؤالك" class="flex-1 rounded-xl px-3 py-2 text-sm text-slate-900"><button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-4 rounded-xl font-bold text-sm">اسأل</button></div>
       <div id="answer" class="text-sm leading-relaxed whitespace-pre-wrap"></div>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-      <h2 class="font-bold p-5 border-b border-slate-200">أحدث الحركات</h2>
-      <div class="overflow-x-auto"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-3">التاريخ</th><th class="p-3">البيان</th><th class="p-3">التصنيف</th><th class="p-3">المبلغ</th></tr></thead><tbody id="rows" class="divide-y divide-slate-100"></tbody></table></div>
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <h2 class="font-bold">أحدث الحركات</h2>
+          <p id="txSummaryText" class="text-xs text-slate-500 mt-0.5">آخر الحركات المسجّلة في المنصة جاهزة للعرض عند الطلب.</p>
+        </div>
+        <button id="txToggleBtn" type="button" onclick="toggleTxDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold">عرض التفاصيل</button>
+      </div>
+      <div id="txDetailsBox" class="hidden overflow-x-auto pt-2 border-t border-slate-100">
+        <table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-3">التاريخ</th><th class="p-3">البيان</th><th class="p-3">التصنيف</th><th class="p-3">المبلغ</th></tr></thead><tbody id="rows" class="divide-y divide-slate-100"></tbody></table>
+      </div>
     </div>
   <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
       <summary class="font-bold cursor-pointer">مشكلة؟ أشهر المشاكل وحلولها</summary>
@@ -365,16 +383,7 @@ async function loadInner(){
   loadObl().catch(e => problem($('oblMsg'), e.message));
   loadInventory().catch(e => problem($('invMsg'), e.message));
   loadSources().catch(e => problem($('srcMsg'), e.message));
-  const body = $('rows'); body.textContent = '';
-  (tx || []).slice(-10).reverse().forEach(t => {
-    const tr = document.createElement('tr');
-    const a = Number(t.amount);
-    [t.tx_date, t.description, AR[t.category] || t.category, (a > 0 ? '+' : '') + a.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م'].forEach((v, i) => {
-      const td = document.createElement('td'); td.className = 'p-3' + (i === 3 ? (a > 0 ? ' font-bold text-emerald-600' : ' font-bold text-rose-600') : '');
-      td.textContent = v; tr.appendChild(td);
-    });
-    body.appendChild(tr);
-  });
+  renderLatestTx();
 }
 
 const MAPF = [
@@ -463,6 +472,21 @@ function renderObl(){
   const net = curCash + rec - pay - tax - up30, n = $('oNet');
   n.textContent = (net > 0 ? '+' : '') + fmt(net) + ' ج.م'; n.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-400' : 'text-rose-400');
   updateExecutiveInsights();
+  renderOblRows();
+}
+let oblDetailsOpen = false;
+function toggleOblDetails(){
+  oblDetailsOpen = !oblDetailsOpen;
+  $('oblDetailsBox').classList.toggle('hidden', !oblDetailsOpen);
+  $('oblToggleBtn').textContent = oblDetailsOpen ? 'إخفاء التفاصيل' : 'عرض التفاصيل';
+  $('oblDetailsHint').textContent = oblDetailsOpen ? 'عرض تفاصيل بنود المستحقات والالتزامات' : 'جدول بنود المستحقات والالتزامات مخفي افتراضياً — اضغط لعرضه';
+  if (oblDetailsOpen) renderOblRows();
+}
+function renderOblRows(){
+  $('oblDetailsHint').textContent = oblDetailsOpen
+    ? (obl.length ? 'عرض ' + obl.length + ' بند من المستحقات والالتزامات' : 'لا توجد بنود مسجلة حالياً')
+    : (obl.length ? 'يوجد ' + obl.length + ' بند — اضغط "عرض التفاصيل" لعرض الجدول' : 'جدول بنود المستحقات والالتزامات مخفي افتراضياً — اضغط لعرضه');
+  if (!oblDetailsOpen) return;
   const body = $('oblRows'); body.textContent = '';
   if (!obl.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400 text-xs'; td.textContent = 'مفيش مستحقات مسجّلة. اضغط "+ إضافة".'; tr.appendChild(td); body.appendChild(tr); return; }
   obl.forEach(o => {
@@ -522,11 +546,23 @@ async function loadInventory(){
   const r = await sb.from('inventory_items').select('*').eq('company_id', companyId).limit(5000); if (r.error) throw new Error(r.error.message);
   invItems = r.data || []; $('invMsg').className = 'text-xs'; $('invMsg').textContent = ''; renderInventory();
 }
+let invDetailsOpen = false;
+function toggleInvDetails(){
+  invDetailsOpen = !invDetailsOpen;
+  $('invDetailsBox').classList.toggle('hidden', !invDetailsOpen);
+  $('invToggleBtn').textContent = invDetailsOpen ? 'إخفاء التفاصيل' : 'عرض التفاصيل';
+  $('invDetailsHint').textContent = invDetailsOpen ? 'عرض تفاصيل المخزون والبحث والفلترة' : 'التفاصيل مخفية للحفاظ على ترتيب الواجهة — اضغط لعرضها';
+  if (invDetailsOpen) renderInventory();
+}
 function renderInventory(){
-  const body = $('invBody'); body.textContent = '';
   if (!invItems.length) {
-    ['invVal', 'invCnt', 'invLow', 'invDays'].forEach(i => { $(i).textContent = '-'; }); $('invDaysSub').textContent = ''; $('invCntSub').textContent = ''; $('invMore').classList.add('hidden');
-    const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش مخزون لسه. نزّل القالب، املاه، وارفعه.'; tr.appendChild(td); body.appendChild(tr); return;
+    ['invVal', 'invCnt', 'invLow', 'invDays'].forEach(i => { $(i).textContent = '-'; }); $('invDaysSub').textContent = ''; $('invCntSub').textContent = '';
+    if (invDetailsOpen) {
+      const body = $('invBody'); body.textContent = ''; $('invMore').classList.add('hidden');
+      const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش مخزون لسه. نزّل القالب، املاه، وارفعه.'; tr.appendChild(td); body.appendChild(tr);
+    }
+    updateExecutiveInsights();
+    return;
   }
   const val = x => Number(x.qty) * Number(x.unit_cost), total = invItems.reduce((a, x) => a + val(x), 0);
   const isLow = x => x.min_qty !== null && x.min_qty !== undefined && Number(x.qty) <= Number(x.min_qty);
@@ -536,18 +572,21 @@ function renderInventory(){
   const ks = Object.keys(by).sort().slice(-3), cogs = ks.length ? ks.reduce((a, k) => a + by[k], 0) / ks.length : 0;
   if (cogs > 0) { $('invDays').textContent = Math.round(total / (cogs / 30)) + ' يوم'; $('invDaysSub').textContent = 'تقدير من متوسط مشتريات البضاعة في كشف الحساب (آخر 3 شهور)'; }
   else { $('invDays').textContent = '-'; $('invDaysSub').textContent = 'محتاج حركات "تكلفة البضاعة" في كشف الحساب'; }
-  const q = ($('invSearch').value || '').trim().toLowerCase(), f = $('invFilter').value;
-  let list = invItems.filter(x => !q || String(x.item).toLowerCase().indexOf(q) >= 0);
-  if (f === 'low') list = list.filter(isLow); else if (f === 'zero') list = list.filter(x => Number(x.qty) === 0);
-  list.sort((a, b) => (isLow(b) - isLow(a)) || (val(b) - val(a)));
-  const cap = invAll ? list.length : 15;
-  list.slice(0, cap).forEach(x => {
-    const lowX = isLow(x), tr = document.createElement('tr');
-    [x.item, Number(x.qty), x.min_qty === null || x.min_qty === undefined ? '-' : Number(x.min_qty), fmt(val(x)), Number(x.qty) === 0 ? 'خلصان' : (lowX ? 'تحت حد الطلب' : 'تمام')].forEach((v, i) => { const td = document.createElement('td'); td.className = 'p-2' + (i === 4 && (lowX || Number(x.qty) === 0) ? ' text-amber-700 font-bold' : ''); td.textContent = v; tr.appendChild(td); });
-    body.appendChild(tr);
-  });
-  if (!list.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش أصناف مطابقة.'; tr.appendChild(td); body.appendChild(tr); }
-  $('invMore').classList.toggle('hidden', invAll || list.length <= cap); $('invMore').textContent = 'عرض الكل (' + list.length + ')';
+  if (invDetailsOpen) {
+    const body = $('invBody'); body.textContent = '';
+    const q = ($('invSearch').value || '').trim().toLowerCase(), f = $('invFilter').value;
+    let list = invItems.filter(x => !q || String(x.item).toLowerCase().indexOf(q) >= 0);
+    if (f === 'low') list = list.filter(isLow); else if (f === 'zero') list = list.filter(x => Number(x.qty) === 0);
+    list.sort((a, b) => (isLow(b) - isLow(a)) || (val(b) - val(a)));
+    const cap = invAll ? list.length : 15;
+    list.slice(0, cap).forEach(x => {
+      const lowX = isLow(x), tr = document.createElement('tr');
+      [x.item, Number(x.qty), x.min_qty === null || x.min_qty === undefined ? '-' : Number(x.min_qty), fmt(val(x)), Number(x.qty) === 0 ? 'خلصان' : (lowX ? 'تحت حد الطلب' : 'تمام')].forEach((v, i) => { const td = document.createElement('td'); td.className = 'p-2' + (i === 4 && (lowX || Number(x.qty) === 0) ? ' text-amber-700 font-bold' : ''); td.textContent = v; tr.appendChild(td); });
+      body.appendChild(tr);
+    });
+    if (!list.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش أصناف مطابقة.'; tr.appendChild(td); body.appendChild(tr); }
+    $('invMore').classList.toggle('hidden', invAll || list.length <= cap); $('invMore').textContent = 'عرض الكل (' + list.length + ')';
+  }
   updateExecutiveInsights();
 }
 async function readRows(f){
@@ -915,6 +954,29 @@ function updateExecutiveInsights(){
     const l3 = document.createElement('div'); l3.className = 'text-slate-700'; l3.innerHTML = '<b>أثر صافي الربح:</b> ' + rc.profitImpact;
     const l4 = document.createElement('div'); l4.className = 'text-slate-500'; l4.innerHTML = '<b>شرط التنفيذ:</b> ' + rc.rule;
     box.append(t, l1, l2, l3, l4); rList.appendChild(box);
+  });
+}
+
+let txDetailsOpen = false;
+function toggleTxDetails(){
+  txDetailsOpen = !txDetailsOpen;
+  $('txDetailsBox').classList.toggle('hidden', !txDetailsOpen);
+  $('txToggleBtn').textContent = txDetailsOpen ? 'إخفاء التفاصيل' : 'عرض التفاصيل';
+  if (txDetailsOpen) renderLatestTx();
+}
+function renderLatestTx(){
+  const recent = (allTx || []).slice(-10).reverse();
+  $('txSummaryText').textContent = recent.length ? 'متاح ' + recent.length + ' من أحدث الحركات — اضغط "عرض التفاصيل" للاطلاع عليها.' : 'لا توجد حركات مسجلة حالياً.';
+  if (!txDetailsOpen) return;
+  const body = $('rows'); body.textContent = '';
+  recent.forEach(t => {
+    const tr = document.createElement('tr');
+    const a = Number(t.amount);
+    [t.tx_date, t.description, AR[t.category] || t.category, (a > 0 ? '+' : '') + a.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م'].forEach((v, i) => {
+      const td = document.createElement('td'); td.className = 'p-3' + (i === 3 ? (a > 0 ? ' font-bold text-emerald-600' : ' font-bold text-rose-600') : '');
+      td.textContent = v; tr.appendChild(td);
+    });
+    body.appendChild(tr);
   });
 }
 
