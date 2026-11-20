@@ -95,6 +95,37 @@
       <button onclick="srcSyncAll()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold">اتزامن دلوقتي</button>
       </div>
     </details>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <details id="execAlertsCard" class="bg-white p-5 rounded-2xl border border-slate-200">
+        <summary class="list-none cursor-pointer select-none">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h2 class="font-bold text-base text-slate-900">تنبيهات الإدارة التنفيذية</h2>
+              <p class="text-xs text-slate-500 mt-0.5">مؤشرات إنذار مبكر للسيولة، المستحقات المتأخرة، وهامش الربح</p>
+            </div>
+            <span id="execAlertsBadge" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700">0 نشط</span>
+          </div>
+          <div id="execAlertsBanner" class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-2.5 text-xs font-bold text-center">الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.</div>
+          <p class="text-[11px] text-slate-400 font-bold mt-2">اضغط لعرض التفاصيل</p>
+        </summary>
+        <div id="execAlertsList" class="mt-3 pt-3 border-t border-slate-100 space-y-2"></div>
+      </details>
+
+      <details id="execRecCard" class="bg-white p-5 rounded-2xl border border-slate-200">
+        <summary class="list-none cursor-pointer select-none">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h2 class="font-bold text-base text-slate-900">توصيات زيادة السيولة وصافي الربح</h2>
+              <p class="text-xs text-slate-500 mt-0.5">قرارات تنفيذية للسيولة، المستحقات، وتحسين صافي الربح</p>
+            </div>
+            <span id="execRecBadge" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700">3 نشط</span>
+          </div>
+          <div id="execRecBanner" class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-2.5 text-xs font-bold text-center">جاري تحليل السيولة وصافي الربح...</div>
+          <p class="text-[11px] text-slate-400 font-bold mt-2">اضغط لعرض التفاصيل</p>
+        </summary>
+        <div id="execRecList" class="mt-3 pt-3 border-t border-slate-100 space-y-2.5"></div>
+      </details>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">النقدية المتاحة</p><h3 id="kCash" class="text-2xl font-extrabold">-</h3></div>
       <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">العمر النقدي (Runway)</p><h3 id="kRun" class="text-2xl font-extrabold">-</h3></div>
@@ -191,7 +222,7 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold':'تكلفة البضاعة (COGS)','Operating Expenses':'مصاريف تشغيلية','Salaries & Wages':'رواتب وأجور','Marketing':'تسويق','Taxes & Fees':'ضرائب ورسوم','Other':'أخرى','Rent & Utilities':'إيجار ومرافق','Bank Fees':'رسوم بنكية','Loans & Installments':'قروض وأقساط','Other Income':'إيرادات أخرى','Meals & Hospitality':'ضيافة وأكل','Uncategorized':'غير مصنف'};
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
-let curCash = 0, obl = [];
+let curCash = 0, curBurn = 0, curRunway = null, lastMonthKey = '', lastMonthNet = 0, totalNetProfit = 0, obl = [];
 let companyId = null, chart = null, allTx = [], chartIE = null, chartCat = null;
 Chart.defaults.font.family = 'Cairo, system-ui, sans-serif';
 const COLORS = ['#4f46e5','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#ec4899','#64748b'];
@@ -323,12 +354,14 @@ async function loadInner(){
   let run = Number(m.opening_cash);
   const keys = Object.keys(monthly).sort(), vals = keys.map(k => (run += monthly[k]));
   const last = keys[keys.length - 1], net = last ? monthly[last] : 0, total = keys.reduce((a, k) => a + monthly[k], 0);
+  curBurn = burn; curRunway = m.runway_months; lastMonthKey = last || ''; lastMonthNet = net; totalNetProfit = total;
   const kp = $('kProfit'); kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-'; kp.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
   $('kProfitSub').textContent = last ? 'شهر ' + last + ' | الإجمالي كله: ' + (total > 0 ? '+' : '') + fmt(total) : 'ارفع ملف لحساب الربح';
   if (chart) chart.destroy();
   chart = new Chart($('chart'), {type:'line', data:{labels: keys, datasets:[{data: vals, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.08)', borderWidth:3, fill:true, tension:.35}]},
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}}}});
   allTx = tx || []; drawIE(); drawCat();
+  updateExecutiveInsights();
   loadObl().catch(e => problem($('oblMsg'), e.message));
   loadInventory().catch(e => problem($('invMsg'), e.message));
   loadSources().catch(e => problem($('srcMsg'), e.message));
@@ -429,6 +462,7 @@ function renderObl(){
   const upAll = sum('upcoming'); $('oUpSub').textContent = upAll > up30 ? 'إجمالي الالتزامات الجاية: ' + fmt(upAll) : '';
   const net = curCash + rec - pay - tax - up30, n = $('oNet');
   n.textContent = (net > 0 ? '+' : '') + fmt(net) + ' ج.م'; n.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-400' : 'text-rose-400');
+  updateExecutiveInsights();
   const body = $('oblRows'); body.textContent = '';
   if (!obl.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400 text-xs'; td.textContent = 'مفيش مستحقات مسجّلة. اضغط "+ إضافة".'; tr.appendChild(td); body.appendChild(tr); return; }
   obl.forEach(o => {
@@ -514,6 +548,7 @@ function renderInventory(){
   });
   if (!list.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش أصناف مطابقة.'; tr.appendChild(td); body.appendChild(tr); }
   $('invMore').classList.toggle('hidden', invAll || list.length <= cap); $('invMore').textContent = 'عرض الكل (' + list.length + ')';
+  updateExecutiveInsights();
 }
 async function readRows(f){
   const isCsv = /\.csv$/i.test(f.name);
@@ -764,6 +799,125 @@ function quietRefresh(){ if (document.visibilityState === 'visible' && companyId
 setInterval(quietRefresh, 120000);
 document.addEventListener('visibilitychange', quietRefresh);
 if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+function updateExecutiveInsights(){
+  const aBadge = $('execAlertsBadge'), aBanner = $('execAlertsBanner'), aList = $('execAlertsList');
+  const rBadge = $('execRecBadge'), rBanner = $('execRecBanner'), rList = $('execRecList');
+  if (!aBadge || !rBadge) return;
+
+  const sumK = k => obl.filter(o => o.kind === k).reduce((a, o) => a + Number(o.amount), 0);
+  const lateK = k => obl.filter(o => o.kind === k && o.due_date && dayDiff(o.due_date) < 0);
+  const rec = sumK('receivable'), pay = sumK('payable'), tax = sumK('tax');
+  const up30 = obl.filter(o => o.kind === 'upcoming' && o.due_date && dayDiff(o.due_date) <= 30).reduce((a, o) => a + Number(o.amount), 0);
+  const totalObl = pay + tax + up30;
+  const netCash = curCash + rec - totalObl;
+  const cashAfterDue = curCash - totalObl;
+
+  const lateRec = lateK('receivable');
+  const latePay = [...lateK('payable'), ...lateK('tax'), ...lateK('upcoming')];
+  const isLowInv = x => x.min_qty !== null && x.min_qty !== undefined && Number(x.qty) <= Number(x.min_qty);
+  const lowItems = invItems.filter(isLowInv);
+  const zeroItems = invItems.filter(x => Number(x.qty) === 0);
+
+  let lastInc = 0, lastExp = 0;
+  if (lastMonthKey) {
+    allTx.forEach(t => {
+      if (t.tx_date.startsWith(lastMonthKey)) {
+        const a = Number(t.amount);
+        if (a > 0) lastInc += a; else lastExp += Math.abs(a);
+      }
+    });
+  }
+  const marginPct = lastInc > 0 ? ((lastInc - lastExp) / lastInc) * 100 : null;
+
+  const alerts = [];
+  if (cashAfterDue < 0) {
+    alerts.push({lvl:'high', title:'عجز سيولة متوقع بعد سداد الالتزامات', desc:'النقدية المتاحة (' + fmt(curCash) + ' ج.م) أقل من الالتزامات والضرائب المستحقة (' + fmt(totalObl) + ' ج.م) بفارق ' + fmt(Math.abs(cashAfterDue)) + ' ج.م.'});
+  } else if (curRunway !== null && Number(curRunway) < 3) {
+    alerts.push({lvl:'high', title:'العمر النقدي (Runway) أقل من 3 شهور', desc:'الرصيد الحالي يكفي ' + curRunway + ' شهر فقط بمعدل حرق شهري ' + fmt(curBurn) + ' ج.م.'});
+  }
+  if (lateRec.length) {
+    const v = lateRec.reduce((a, o) => a + Number(o.amount), 0);
+    alerts.push({lvl:'warn', title:'مستحقات عملاء متأخرة التحصيل (' + lateRec.length + ')', desc:'إجمالي المتأخر عند العملاء ' + fmt(v) + ' ج.م — متابعة التحصيل ترفع السيولة فوراً.'});
+  }
+  if (latePay.length) {
+    const v = latePay.reduce((a, o) => a + Number(o.amount), 0);
+    alerts.push({lvl:'high', title:'التزامات أو ضرائب متأخرة السداد (' + latePay.length + ')', desc:'إجمالي المتأخر عليك ' + fmt(v) + ' ج.م — يُنصح بجدولتها لتفادي الغرامات.'});
+  }
+  if (!obl.length) {
+    alerts.push({lvl:'info', title:'المستحقات والالتزامات غير مسجلة بعد', desc:'أضف الذمم والضرائب لحساب صافي السيولة الحقيقي بدقة.'});
+  }
+  if (lastMonthKey && totalNetProfit !== lastMonthNet) {
+    const diff = totalNetProfit - lastMonthNet;
+    alerts.push({lvl:'info', title:'فارق بين ربح آخر شهر والإجمالي التراكمي', desc:'صافي ربح ' + lastMonthKey + ' (' + (lastMonthNet > 0 ? '+' : '') + fmt(lastMonthNet) + ' ج.م) يختلف عن الإجمالي التراكمي (' + (totalNetProfit > 0 ? '+' : '') + fmt(totalNetProfit) + ' ج.م) بمقدار ' + (diff > 0 ? '+' : '') + fmt(diff) + ' ج.م.'});
+  }
+  if (marginPct !== null && marginPct < 15) {
+    alerts.push({lvl:'warn', title:'هامش ربح آخر شهر منخفض (' + marginPct.toFixed(1) + '%)', desc:'إيرادات شهر ' + lastMonthKey + ' (' + fmt(lastInc) + ' ج.م) مقابل مصروفات (' + fmt(lastExp) + ' ج.م) تتطلب مراجعة التكاليف.'});
+  }
+  if (lowItems.length || zeroItems.length) {
+    alerts.push({lvl:'warn', title:'تنبيه نواقص المخزون', desc:(zeroItems.length ? zeroItems.length + ' صنف رصيده صفر، و' : '') + lowItems.length + ' صنف وصل أو نزل عن حد الطلب.'});
+  }
+
+  aBadge.textContent = alerts.length + ' نشط';
+  aList.textContent = '';
+  if (!alerts.length) {
+    aBadge.className = 'shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700';
+    aBanner.className = 'mt-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-2.5 text-xs font-bold text-center';
+    aBanner.textContent = 'الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.';
+    const empty = document.createElement('div'); empty.className = 'text-xs text-slate-500'; empty.textContent = 'جميع مؤشرات السيولة والمستحقات ضمن النطاق الآمن.'; aList.appendChild(empty);
+  } else {
+    const hasHigh = alerts.some(x => x.lvl === 'high');
+    aBadge.className = 'shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold ' + (hasHigh ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800');
+    aBanner.className = 'mt-3 rounded-xl border px-3 py-2.5 text-xs font-bold text-center ' + (hasHigh ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-amber-200 bg-amber-50 text-amber-900');
+    aBanner.textContent = 'يوجد ' + alerts.length + ' تنبيه للمراجعة — اضغط لعرض التفاصيل.';
+    alerts.forEach(a => {
+      const box = document.createElement('div');
+      box.className = 'rounded-xl border p-3 text-xs space-y-1 ' + (a.lvl === 'high' ? 'border-rose-200 bg-rose-50/70' : (a.lvl === 'warn' ? 'border-amber-200 bg-amber-50/70' : 'border-slate-200 bg-slate-50'));
+      const t = document.createElement('div'); t.className = 'font-bold text-slate-900'; t.textContent = '• ' + a.title;
+      const d = document.createElement('div'); d.className = 'text-slate-600'; d.textContent = a.desc;
+      box.append(t, d); aList.appendChild(box);
+    });
+  }
+
+  const safetyBuffer = Math.max(curBurn * 2, Math.round(curCash * 0.15));
+  const deployable = Math.max(0, cashAfterDue - safetyBuffer);
+  const recs = [
+    {
+      title: '1. تحصيل المستحقات وتأمين صافي السيولة',
+      decision: 'تحصيل مستحقات بقيمة ' + fmt(rec) + ' ج.م وتغطية التزامات وضرائب بقيمة ' + fmt(totalObl) + ' ج.م من نقدية ' + fmt(curCash) + ' ج.م.',
+      cashImpact: 'صافي السيولة بعد الالتزامات ' + fmt(cashAfterDue) + ' ج.م، وبعد التحصيل يصل إلى ' + fmt(netCash) + ' ج.م.',
+      profitImpact: 'تقليل مخاطر تعثر التحصيل وتجنب تكلفة تمويل عجز الكاش.',
+      rule: 'الحفاظ على حد أمان نقدي لا يقل عن ' + fmt(safetyBuffer) + ' ج.م.'
+    },
+    {
+      title: '2. ضبط المصروفات ورفع هامش صافي الربح',
+      decision: lastMonthKey ? 'مراجعة مصروفات شهر ' + lastMonthKey + ' (' + fmt(lastExp) + ' ج.م) مقابل إيرادات (' + fmt(lastInc) + ' ج.م) وفارق الربح التراكمي.' : 'مراجعة بنود المصروفات الأكبر في كشف الحساب الشهري.',
+      cashImpact: 'وقف التسرب النقدي الشهري وزيادة صافي التدفق الداخل.',
+      profitImpact: marginPct !== null ? 'هامش ربح الفترة الحالية ' + marginPct.toFixed(1) + '% — كل 5% خفض في المصروفات يضيف ' + fmt(lastExp * 0.05) + ' ج.م للربح.' : 'تحسين دقة صافي الربح عند اكتمال ترحيل الحركات.',
+      rule: 'مراجعة البنود المصنفة كـ "أخرى" وتأكيد ترحيل كل الفواتير.'
+    },
+    {
+      title: '3. استثمار الفائض النقدي بخصم السداد المبكر',
+      decision: 'توجيه شريحة من الفائض القابل للتدوير (' + fmt(deployable) + ' ج.م) للحصول على خصم تعجيل دفع 3%–5% من الموردين أو تعزيز الأصناف سريعة الدوران.',
+      cashImpact: 'نقدية متاحة آمنة بعد التوجيه مع إبقاء احتياطي ' + fmt(safetyBuffer) + ' ج.م.',
+      profitImpact: 'توفير مباشر في تكلفة الشراء يصل إلى ' + fmt(deployable * 0.04) + ' ج.م (بمتوسط خصم 4%).',
+      rule: 'عدم المساس بحد الأمان النقدي أو مخصصات الضرائب.'
+    }
+  ];
+
+  rBadge.textContent = recs.length + ' نشط';
+  rBanner.textContent = 'صافي السيولة ' + fmt(netCash) + ' ج.م — اضغط لعرض بطاقات زيادة السيولة وصافي الربح.';
+  rList.textContent = '';
+  recs.forEach(rc => {
+    const box = document.createElement('div'); box.className = 'rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs space-y-1';
+    const t = document.createElement('div'); t.className = 'font-bold text-slate-900'; t.textContent = rc.title;
+    const l1 = document.createElement('div'); l1.className = 'text-slate-700'; l1.innerHTML = '<b>القرار:</b> ' + rc.decision;
+    const l2 = document.createElement('div'); l2.className = 'text-slate-700'; l2.innerHTML = '<b>أثر السيولة:</b> ' + rc.cashImpact;
+    const l3 = document.createElement('div'); l3.className = 'text-slate-700'; l3.innerHTML = '<b>أثر صافي الربح:</b> ' + rc.profitImpact;
+    const l4 = document.createElement('div'); l4.className = 'text-slate-500'; l4.innerHTML = '<b>شرط التنفيذ:</b> ' + rc.rule;
+    box.append(t, l1, l2, l3, l4); rList.appendChild(box);
+  });
+}
+
 boot();
 </script>
 </body>
