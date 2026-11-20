@@ -46,8 +46,9 @@
 <div id="app" class="hidden">
   <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-10">
     <div><h1 id="title" class="text-xl font-extrabold"></h1><p class="text-xs text-slate-500">لوحة التحكم المالية</p></div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap">
       <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold cursor-pointer">رفع يدوي (بديل)<input id="file" type="file" accept=".csv,.xlsx,.xls" class="hidden" onchange="upload(this)"></label>
+      <button type="button" onclick="resetCompanyData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-2.5 rounded-xl text-xs font-bold">مسح بيانات الشركة</button>
       <button onclick="signOut()" class="text-xs text-slate-500 underline">خروج</button>
     </div>
   </header>
@@ -357,6 +358,23 @@ async function createCompany(){
   if (error) problem($('setupMsg'), error.message); else boot();
 }
 
+async function resetCompanyData(){
+  if (!companyId) return;
+  if (!confirm('تحذير: سيتم مسح كل الحركات والمستحقات والمخزون وروابط الشيتات الخاصة بالشركة وإعادة النقدية للرصيد الافتتاحي. هل أنت متأكد؟')) return;
+  const msg = $('msg');
+  msg.className = 'text-sm font-bold text-slate-500';
+  msg.textContent = 'جاري مسح بيانات الشركة...';
+  try {
+    const {error} = await sb.rpc('reset_company_data', {p_company: companyId});
+    if (error) throw new Error(error.message);
+    msg.className = 'text-sm font-bold text-emerald-600';
+    msg.textContent = 'تم مسح بيانات الشركة بنجاح.';
+    await load();
+  } catch (e) {
+    problem(msg, e.message);
+  }
+}
+
 async function load(){ try { await loadInner(); } catch (e) { problem($('msg'), e.message); } }
 async function loadInner(){
   const {data: co} = await sb.from('companies').select('name').eq('id', companyId).single();
@@ -425,13 +443,13 @@ function toDate(v, order){
 const RULES = [
  ['Salaries & Wages', false, /(رواتب|مرتبات|راتب|مرتب|اجور|أجور|salary|salaries|payroll|wages)/i],
  ['Rent & Utilities', false, /(كهرباء|كهربا|مياه|غاز|ايجار|إيجار|انترنت|إنترنت|تليفون|اتصالات|فودافون|اورنج|rent|electric|water|utility|vodafone|orange|etisalat)/i],
- ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات|\btax\b|\bvat\b|customs)/i],
+ ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات|tax|vat|customs)/i],
  ['Bank Fees', false, /(عمولة|عمولات|مصاريف بنكية|رسوم بنكية|رسوم بنك|bank charge|commission|bank fee)/i],
- ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads|\bads\b|marketing)/i],
+ ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads|ads|marketing)/i],
  ['Loans & Installments', false, /(قسط|اقساط|أقساط|قرض|تمويل|loan|installment)/i],
  ['Meals & Hospitality', false, /(اكل|أكل|مطعم|مطاعم|قهوة|كافيه|بوفيه|ضيافة|وجبات|restaurant|cafe|coffee|meal|catering)/i],
  ['Cost of Goods Sold', false, /(توريد|بضاعة|بضائع|مورد|موردين|مشتريات|خامات|شراء|supplier|purchase|inventory|goods)/i],
- ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع|\bpos\b|تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
+ ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع|pos|تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
 ];
 function autoCat(desc, isIncome){
   const d = String(desc).toLowerCase();
@@ -538,7 +556,10 @@ function normInv(r, m){
 }
 let invItems = [], invAll = false;
 function invTemplate(){
-  const csv = '\uFEFFالصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب\nمثال: زيت عباد الشمس 1 لتر,120,38,45,40\nمثال: سكر 1 كيلو,60,22,27,30\n';
+  const csv = '﻿الصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب
+مثال: زيت عباد الشمس 1 لتر,120,38,45,40
+مثال: سكر 1 كيلو,60,22,27,30
+';
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'})); a.download = 'inventory-template.csv'; document.body.appendChild(a); a.click(); a.remove();
 }
 function invShowAll(){ invAll = true; renderInventory(); }
@@ -943,17 +964,27 @@ function updateExecutiveInsights(){
     }
   ];
 
+  const addLine = (parent, boldLabel, textVal, muted = false) => {
+    const div = document.createElement('div');
+    div.className = muted ? 'text-slate-500' : 'text-slate-700';
+    const b = document.createElement('b');
+    b.textContent = boldLabel + ' ';
+    div.append(b, document.createTextNode(textVal));
+    parent.appendChild(div);
+  };
+
   rBadge.textContent = recs.length + ' نشط';
   rBanner.textContent = 'صافي السيولة ' + fmt(netCash) + ' ج.م — اضغط لعرض بطاقات زيادة السيولة وصافي الربح.';
   rList.textContent = '';
   recs.forEach(rc => {
     const box = document.createElement('div'); box.className = 'rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs space-y-1';
     const t = document.createElement('div'); t.className = 'font-bold text-slate-900'; t.textContent = rc.title;
-    const l1 = document.createElement('div'); l1.className = 'text-slate-700'; l1.innerHTML = '<b>القرار:</b> ' + rc.decision;
-    const l2 = document.createElement('div'); l2.className = 'text-slate-700'; l2.innerHTML = '<b>أثر السيولة:</b> ' + rc.cashImpact;
-    const l3 = document.createElement('div'); l3.className = 'text-slate-700'; l3.innerHTML = '<b>أثر صافي الربح:</b> ' + rc.profitImpact;
-    const l4 = document.createElement('div'); l4.className = 'text-slate-500'; l4.innerHTML = '<b>شرط التنفيذ:</b> ' + rc.rule;
-    box.append(t, l1, l2, l3, l4); rList.appendChild(box);
+    box.appendChild(t);
+    addLine(box, 'القرار:', rc.decision);
+    addLine(box, 'أثر السيولة:', rc.cashImpact);
+    addLine(box, 'أثر صافي الربح:', rc.profitImpact);
+    addLine(box, 'شرط التنفيذ:', rc.rule, true);
+    rList.appendChild(box);
   });
 }
 
