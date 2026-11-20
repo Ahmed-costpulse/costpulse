@@ -237,7 +237,9 @@
 <script>
 const SB_URL = 'https://oorsnupcxmdqimuancsz.supabase.co';
 const SB_KEY = 'sb_publishable_nvrHdiBa-OmGnPHAXk0L1w_ZjkA8d5f';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+const sb = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SB_URL, SB_KEY)
+  : null;
 const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold':'تكلفة البضاعة (COGS)','Operating Expenses':'مصاريف تشغيلية','Salaries & Wages':'رواتب وأجور','Marketing':'تسويق','Taxes & Fees':'ضرائب ورسوم','Other':'أخرى','Rent & Utilities':'إيجار ومرافق','Bank Fees':'رسوم بنكية','Loans & Installments':'قروض وأقساط','Other Income':'إيرادات أخرى','Meals & Hospitality':'ضيافة وأكل','Uncategorized':'غير مصنف'};
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
@@ -331,25 +333,61 @@ async function ask(){
 
 function show(id){ ['auth','setup','app'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
 
+function ensureSb(el){
+  if (sb) return true;
+  if (el) {
+    el.className = 'text-xs rounded-xl border border-rose-200 bg-rose-50 text-rose-800 p-3 font-bold';
+    el.textContent = '⚠️ مكتبة الاتصال بـ Supabase لم تتحمل. تأكد من الإنترنت أو أوقف مانع الإعلانات وحدّث الصفحة.';
+  }
+  return false;
+}
 async function signIn(){
-  const {error} = await sb.auth.signInWithPassword({email: $('email').value.trim(), password: $('pass').value});
-  if (error) problem($('authMsg'), error.message); else boot();
+  const msg = $('authMsg');
+  if (!ensureSb(msg)) return;
+  const email = $('email').value.trim(), password = $('pass').value;
+  if (!email || !password) { msg.className = 'text-xs text-amber-700 font-bold'; msg.textContent = 'اكتب البريد الإلكتروني وكلمة السر أولاً.'; return; }
+  msg.className = 'text-xs text-slate-500 font-bold'; msg.textContent = 'جاري تسجيل الدخول...';
+  try {
+    const {error} = await sb.auth.signInWithPassword({email, password});
+    if (error) problem(msg, error.message);
+    else { msg.textContent = ''; await boot(); }
+  } catch (e) {
+    problem(msg, e && e.message ? e.message : String(e));
+  }
 }
 async function signUp(){
-  const {data, error} = await sb.auth.signUp({email: $('email').value.trim(), password: $('pass').value});
-  if (error) { problem($('authMsg'), error.message); return; }
-  if (data.session) boot(); else { $('authMsg').className = 'text-xs text-emerald-600'; $('authMsg').textContent = 'تم. افتح الرابط اللي وصلك على الإيميل، وبعدها اضغط دخول.'; }
+  const msg = $('authMsg');
+  if (!ensureSb(msg)) return;
+  const email = $('email').value.trim(), password = $('pass').value;
+  if (!email || password.length < 6) { msg.className = 'text-xs text-amber-700 font-bold'; msg.textContent = 'اكتب بريد إلكتروني صحيح وكلمة سر 6 أحرف على الأقل.'; return; }
+  msg.className = 'text-xs text-slate-500 font-bold'; msg.textContent = 'جاري إنشاء الحساب...';
+  try {
+    const {data, error} = await sb.auth.signUp({email, password});
+    if (error) { problem(msg, error.message); return; }
+    if (data.session) { msg.textContent = ''; await boot(); }
+    else { msg.className = 'text-xs text-emerald-700 font-bold'; msg.textContent = 'تم إنشاء الحساب. افتح رابط التأكيد على بريدك الإلكتروني، ثم اضغط دخول.'; }
+  } catch (e) {
+    problem(msg, e && e.message ? e.message : String(e));
+  }
 }
-async function signOut(){ await sb.auth.signOut(); show('auth'); }
+async function signOut(){ if (sb) await sb.auth.signOut(); show('auth'); }
 
 async function boot(){
-  const {data:{session}} = await sb.auth.getSession();
-  if (!session) return show('auth');
-  const {data} = await sb.from('company_members').select('company_id').limit(1);
-  if (!data || !data.length) return show('setup');
-  companyId = data[0].company_id;
-  show('app');
-  load();
+  if (!ensureSb($('authMsg'))) return show('auth');
+  try {
+    const {data:{session}, error: sErr} = await sb.auth.getSession();
+    if (sErr) throw new Error(sErr.message);
+    if (!session) return show('auth');
+    const {data, error: mErr} = await sb.from('company_members').select('company_id').limit(1);
+    if (mErr) throw new Error(mErr.message);
+    if (!data || !data.length) return show('setup');
+    companyId = data[0].company_id;
+    show('app');
+    load();
+  } catch (e) {
+    show('auth');
+    problem($('authMsg'), e && e.message ? e.message : String(e));
+  }
 }
 async function createCompany(){
   const name = $('cName').value.trim(), cash = Number($('cCash').value || 0);
