@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tadaffuq</title>
+<title>Tadaffuq — لوحة التحكم المالية التنفيذية</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4f46e5">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -15,219 +15,397 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>body{font-family:'Cairo',system-ui,sans-serif;background:#f8fafc;color:#1e293b}</style>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-canvas: #f1f5f9;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-subtle: #e2e8f0;
+  }
+  body {
+    font-family: 'Cairo', system-ui, sans-serif;
+    background: var(--bg-canvas);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+  }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pro-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .pro-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.08), 0 12px 28px -14px rgba(15, 23, 42, 0.1);
+  }
+  .kpi-accent-blue { border-top: 3px solid #4f46e5; }
+  .kpi-accent-emerald { border-top: 3px solid #10b981; }
+  .kpi-accent-amber { border-top: 3px solid #f59e0b; }
+  .kpi-accent-rose { border-top: 3px solid #e11d48; }
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    background: #eef2ff;
+    color: #4338ca;
+  }
+  details > summary::-webkit-details-marker { display: none; }
+</style>
 </head>
-<body>
+<body class="min-h-screen">
 <!-- Auth -->
-<div id="auth" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 w-full max-w-sm space-y-3">
-    <div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center">TD</div><h1 class="text-xl font-extrabold">Tadaffuq</h1></div>
-    <input id="email" type="email" placeholder="البريد الإلكتروني" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
-    <input id="pass" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
-    <button onclick="signIn()" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm">دخول</button>
-    <button onclick="signUp()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-bold text-sm">إنشاء حساب جديد</button>
+<div id="auth" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 via-indigo-50/40 to-slate-100">
+  <div class="pro-card p-7 w-full max-w-sm space-y-4">
+    <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-extrabold flex items-center justify-center shadow-sm text-base">TD</div>
+      <div>
+        <h1 class="text-xl font-extrabold text-slate-900 leading-tight">Tadaffuq</h1>
+        <p class="text-xs text-slate-500">منصة الرؤية المالية والسيولة</p>
+      </div>
+    </div>
+    <div class="space-y-3">
+      <input id="email" type="email" placeholder="البريد الإلكتروني" dir="ltr" class="w-full border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none rounded-xl px-3.5 py-2.5 text-sm">
+      <input id="pass" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" dir="ltr" class="w-full border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none rounded-xl px-3.5 py-2.5 text-sm">
+    </div>
+    <button onclick="signIn()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm transition">دخول</button>
+    <button onclick="signUp()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-sm transition">إنشاء حساب جديد</button>
+    <button onclick="applyDemoMode()" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 py-2.5 rounded-xl font-bold text-sm transition">معاينة بالبيانات التجريبية</button>
     <p id="authMsg" class="text-xs text-rose-600"></p>
   </div>
 </div>
 
 <!-- Setup -->
-<div id="setup" class="hidden min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 w-full max-w-sm space-y-3">
-    <h2 class="text-lg font-extrabold">إعداد الشركة</h2>
-    <input id="cName" placeholder="اسم الشركة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
-    <input id="cCash" type="number" placeholder="الرصيد النقدي الافتتاحي (ج.م)" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
-    <button onclick="createCompany()" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm">إنشاء</button>
+<div id="setup" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 via-indigo-50/40 to-slate-100">
+  <div class="pro-card p-7 w-full max-w-sm space-y-4">
+    <div>
+      <span class="section-tag mb-2">تهيئة الحساب</span>
+      <h2 class="text-lg font-extrabold text-slate-900">إعداد الشركة</h2>
+      <p class="text-xs text-slate-500 mt-0.5">ابدأ بتسجيل اسم الشركة والرصيد النقدي الافتتاحي</p>
+    </div>
+    <input id="cName" placeholder="اسم الشركة" class="w-full border border-slate-300 focus:border-indigo-500 outline-none rounded-xl px-3.5 py-2.5 text-sm">
+    <input id="cCash" type="number" placeholder="الرصيد النقدي الافتتاحي (ج.م)" class="w-full border border-slate-300 focus:border-indigo-500 outline-none rounded-xl px-3.5 py-2.5 text-sm tabular-nums">
+    <button onclick="createCompany()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm transition">إنشاء</button>
     <p id="setupMsg" class="text-xs text-rose-600"></p>
   </div>
 </div>
 
 <!-- Dashboard -->
 <div id="app" class="hidden">
-  <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-10">
-    <div><h1 id="title" class="text-xl font-extrabold"></h1><p class="text-xs text-slate-500">لوحة التحكم المالية</p></div>
-    <div class="flex items-center gap-2">
-      <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold cursor-pointer">رفع يدوي (بديل)<input id="file" type="file" accept=".csv,.xlsx,.xls" class="hidden" onchange="upload(this)"></label>
-      <button onclick="signOut()" class="text-xs text-slate-500 underline">خروج</button>
+  <header class="bg-white/95 backdrop-blur border-b border-slate-200/90 px-4 md:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-20">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-extrabold flex items-center justify-center text-sm shrink-0">TD</div>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 id="title" class="text-lg md:text-xl font-extrabold text-slate-900 leading-snug"></h1>
+          <span id="demoBadge" class="hidden text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">بيانات تجريبية (معاينة)</span>
+        </div>
+        <p class="text-xs text-slate-500">لوحة التحكم المالية التنفيذية</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button id="resetDemoBtn" type="button" onclick="resetDemoData()" class="hidden bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3.5 py-2 rounded-xl text-xs font-bold transition">إعادة ضبط البيانات الوهمية</button>
+      <button id="wipeBtn" type="button" onclick="openWipeConfirm()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/90 px-3.5 py-2 rounded-xl text-xs font-bold transition">مسح بيانات الشركة</button>
+      <button onclick="signOut()" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition">خروج</button>
     </div>
   </header>
+
   <div class="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
-    <div id="syncBar" class="text-xs rounded-xl px-3 py-2 bg-slate-100 text-slate-600"></div>
-    <p id="msg" class="text-sm font-bold"></p>
-    <div id="mapper" class="hidden bg-white p-5 rounded-2xl border border-indigo-200 space-y-3">
-      <h2 class="font-bold">ربط أعمدة الملف</h2>
-      <p class="text-xs text-slate-500">اختار العمود المناسب لكل خانة. اللي اتعرّفت عليه تلقائياً متحدد، وتقدر تغيّره. كشف الحساب اللي فيه مدين ودائن منفصلين بيشتغل كمان.</p>
-      <label class="block text-xs font-bold text-slate-600">نوع الملف
-        <select id="fileKind" onchange="openMapper()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="tx">حركات فلوس (كشف حساب بنك / خزينة)</option><option value="obl">مستحقات والتزامات (لينا / علينا / ضرائب)</option><option value="inv">المخزون</option></select></label>
-      <div id="modeBox" class="text-xs space-y-2 bg-slate-50 rounded-xl p-3">
-        <label class="flex gap-2 items-start"><input type="radio" name="upMode" value="replace" checked onchange="refreshImpact()" class="mt-1"><span><b>تحديث كامل (الأنسب):</b> يستبدل حركات نفس الفترة بالملف الجديد، فالتعديل والمسح في الملف بيظهروا.</span></label>
-        <label class="flex gap-2 items-start"><input type="radio" name="upMode" value="merge" onchange="refreshImpact()" class="mt-1"><span><b>إضافة وتحديث بس:</b> يضيف الجديد ويحدّث اللي ليه نفس الرقم المرجعي، ومابيمسحش حاجة.</span></label>
+    <!-- Wipe Confirmation Banner -->
+    <div id="wipeConfirmBox" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="space-y-0.5">
+        <p class="text-sm font-extrabold text-rose-900">تأكيد مسح بيانات الشركة الحالية</p>
+        <p class="text-xs text-rose-700">سيتم تفريغ الحركات والمستحقات والمخزون المعروضة حالياً. يمكنك استعادة البيانات الوهمية أو إعادة المزامنة في أي وقت.</p>
       </div>
-      <label id="defKindBox" class="hidden block text-xs font-bold text-slate-600">لو الملف مفيهوش عمود نوع، كل الصفوف تبقى
-        <select id="defKind" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="receivable">لينا فلوس (عملاء)</option><option value="payable">علينا فلوس (موردين)</option><option value="tax">ضرائب</option><option value="upcoming">التزامات جاية</option></select></label>
-      <div id="mapFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-      <label class="block text-xs font-bold text-slate-600">ترتيب التواريخ المكتوبة نص (زي 01/03/2026)
-        <select id="dateOrder" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1"><option value="dmy">يوم/شهر/سنة</option><option value="mdy">شهر/يوم/سنة</option></select></label>
-      <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead id="mapHead"></thead><tbody id="mapBody"></tbody></table></div>
-      <p id="mapImpact" class="text-xs font-bold text-indigo-700"></p>
-      <p id="mapStat" class="text-sm font-bold"></p>
-      <div class="flex gap-2"><button id="mapGo" onclick="mapUpload()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40">رفع</button><button onclick="mapCancel()" class="bg-slate-100 px-4 py-2 rounded-xl text-sm font-bold">إلغاء</button></div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="executeWipeCompanyData()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">تأكيد المسح</button>
+        <button type="button" onclick="closeWipeConfirm()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3.5 py-2 rounded-xl text-xs font-bold transition">إلغاء</button>
+      </div>
     </div>
-    <details id="srcDetails" class="bg-white rounded-2xl border border-indigo-200 p-5">
-      <summary class="font-bold cursor-pointer">مصادر البيانات (التحديث التلقائي) <span id="srcSummary" class="text-xs font-normal text-slate-500"></span></summary>
-      <div class="space-y-3 mt-3">
-        <p class="text-xs text-slate-500">ده الأساس: اربط شيتاتك مرة واحدة، والمنصة بتقراها وتتحدّث لوحدها حتى وإنت مش فاتحها. أي حد يعدّل في الشيت، التعديل بيوصلك. الرفع اليدوي بديل بس.</p>
-        <div id="srcChips" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
-        <div id="srcMsg" class="text-xs"></div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <input id="srcUrl" dir="ltr" placeholder="لينك Google Sheets (CSV منشور) أو ملف Excel من OneDrive / SharePoint" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
-        <select id="srcKind" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="tx">حركات فلوس</option><option value="obl">مستحقات والتزامات</option><option value="inv">المخزون</option></select>
+
+    <!-- Sync Status & Feedback -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div id="syncBar" class="flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-600"></div>
+    </div>
+    <p id="msg" class="text-sm font-bold"></p>
+
+    <!-- Unified Data Sources & Manual Upload Card -->
+    <div class="pro-card p-5 space-y-4 border-t-4 border-t-indigo-600">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+        <div>
+          <span class="section-tag mb-1">إدخال وتحديث البيانات</span>
+          <h2 class="font-extrabold text-base text-slate-900">مصادر التحديث التلقائي والرفع اليدوي</h2>
+          <p class="text-xs text-slate-500 mt-0.5">ده الأساس: اربط شيتاتك مرة واحدة، والمنصة بتقراها وتتحدّث لوحدها حتى وإنت مش فاتحها. الرفع اليدوي بديل سريع.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <label class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition">رفع ملف يدوياً (CSV / Excel)<input id="file" type="file" accept=".csv,.xlsx,.xls" class="hidden" onchange="upload(this)"></label>
+          <button type="button" onclick="srcSyncAll()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition">مزامنة الشيتات الآن</button>
+        </div>
       </div>
-      <input id="srcSheet" placeholder="اسم الصفحة (Sheet) لو ملف Excel فيه أكتر من صفحة، واتركه فاضي لأول صفحة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
-      <button onclick="srcPreview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold">قراءة الشيت وربط الأعمدة</button>
-      <details class="text-xs text-slate-600"><summary class="font-bold cursor-pointer">إزاي أجيب اللينك؟</summary>
-        <ol class="list-decimal pr-5 mt-2 space-y-1"><li>افتح الشيت في Google Sheets.</li><li>اضغط Share (مشاركة) ← General access ← Anyone with the link (أي حد معاه اللينك) ← Viewer (عرض فقط).</li><li>اضغط Copy link والصق اللينك هنا كما هو. المنصة بتحوّله لـ CSV لوحدها.</li><li>لو الشيت فيه أكتر من صفحة، افتح الصفحة المطلوبة قبل نسخ اللينك، وتأكد إن الرقم بعد gid= ظاهر في اللينك.</li></ol>
-        <p class="mt-2 font-bold">ملف Excel على OneDrive أو SharePoint:</p>
-        <ol class="list-decimal pr-5 mt-1 space-y-1"><li>الملف لازم يكون بصيغة .xlsx.</li><li>اضغط Share (مشاركة) على الملف.</li><li>اختار "Anyone with the link" (أي حد معاه اللينك) و"Can view" (عرض فقط).</li><li>Copy link والصقه هنا.</li></ol>
-        <p class="mt-1 text-slate-500">لو خيار "Anyone" مقفول، يبقى مسؤول الـ IT في الشركة مانعه. ساعتها محتاجين ربط آخر بموافقته.</p>
-        <p class="mt-2 text-amber-700 font-bold">تحذير: أي حد معاه اللينك يقدر يشوف الملف. استخدم ملف تجريبي أو من غير بيانات حساسة لحد ما نأمّن الربط.</p></details>
-      <ul id="srcList" class="space-y-2"></ul>
-      <button onclick="srcSyncAll()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold">اتزامن دلوقتي</button>
+
+      <details id="srcDetails" class="rounded-xl bg-slate-50/70 border border-slate-200/80 p-4">
+        <summary class="font-extrabold text-sm text-slate-900 cursor-pointer flex items-center justify-between gap-2">
+          <span>إعداد مصادر التحديث التلقائي <span id="srcSummary" class="text-xs font-semibold text-slate-500"></span></span>
+          <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2.5 py-1 rounded-lg">إدارة الشيتات</span>
+        </summary>
+        <div class="space-y-3.5 mt-3.5 pt-3.5 border-t border-slate-200/70">
+          <div id="srcChips" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+          <div id="srcMsg" class="text-xs"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <input id="srcUrl" dir="ltr" placeholder="لينك Google Sheets (CSV منشور) أو ملف Excel من OneDrive / SharePoint" class="sm:col-span-2 border border-slate-300 bg-white rounded-xl px-3.5 py-2.5 text-sm">
+            <select id="srcKind" class="border border-slate-300 rounded-xl px-3 py-2.5 text-sm bg-white"><option value="tx">حركات فلوس</option><option value="obl">مستحقات والتزامات</option><option value="inv">المخزون</option></select>
+          </div>
+          <input id="srcSheet" placeholder="اسم الصفحة (Sheet) لو ملف Excel فيه أكتر من صفحة، واتركه فاضي لأول صفحة" class="w-full border border-slate-300 bg-white rounded-xl px-3.5 py-2.5 text-sm">
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="srcPreview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition">قراءة الشيت وربط الأعمدة</button>
+          </div>
+          <details class="text-xs text-slate-600"><summary class="font-bold cursor-pointer">إزاي أجيب اللينك؟</summary>
+            <ol class="list-decimal pr-5 mt-2 space-y-1"><li>افتح الشيت في Google Sheets.</li><li>اضغط Share (مشاركة) ← General access ← Anyone with the link (أي حد معاه اللينك) ← Viewer (عرض فقط).</li><li>اضغط Copy link والصق اللينك هنا كما هو. المنصة بتحوّله لـ CSV لوحدها.</li><li>لو الشيت فيه أكتر من صفحة، افتح الصفحة المطلوبة قبل نسخ اللينك، وتأكد إن الرقم بعد gid= ظاهر في اللينك.</li></ol>
+            <p class="mt-2 font-bold">ملف Excel على OneDrive أو SharePoint:</p>
+            <ol class="list-decimal pr-5 mt-1 space-y-1"><li>الملف لازم يكون بصيغة .xlsx.</li><li>اضغط Share (مشاركة) على الملف.</li><li>اختار "Anyone with the link" (أي حد معاه اللينك) و"Can view" (عرض فقط).</li><li>Copy link والصقه هنا.</li></ol>
+            <p class="mt-1 text-slate-500">لو خيار "Anyone" مقفول، يبقى مسؤول الـ IT في الشركة مانعه. ساعتها محتاجين ربط آخر بموافقته.</p>
+            <p class="mt-2 text-amber-700 font-bold">تحذير: أي حد معاه اللينك يقدر يشوف الملف. استخدم ملف تجريبي أو من غير بيانات حساسة لحد ما نأمّن الربط.</p></details>
+          <ul id="srcList" class="space-y-2"></ul>
+        </div>
+      </details>
+    </div>
+
+    <!-- Primary KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 tabular-nums">
+      <div class="pro-card kpi-accent-blue p-5">
+        <p class="text-xs font-bold text-slate-500">النقدية المتاحة</p>
+        <h3 id="kCash" class="text-2xl font-extrabold text-slate-900 mt-1.5">-</h3>
       </div>
-    </details>
+      <div class="pro-card kpi-accent-emerald p-5">
+        <p class="text-xs font-bold text-slate-500">العمر النقدي (Runway)</p>
+        <h3 id="kRun" class="text-2xl font-extrabold text-slate-900 mt-1.5">-</h3>
+      </div>
+      <div class="pro-card kpi-accent-amber p-5">
+        <p class="text-xs font-bold text-slate-500">معدل الحرق الشهري</p>
+        <h3 id="kBurn" class="text-2xl font-extrabold text-slate-900 mt-1.5">-</h3>
+      </div>
+      <div class="pro-card kpi-accent-rose p-5">
+        <p class="text-xs font-bold text-slate-500">صافي الربح (آخر شهر)</p>
+        <h3 id="kProfit" class="text-2xl font-extrabold mt-1.5">-</h3>
+        <p id="kProfitSub" class="text-xs text-slate-400 mt-1"></p>
+      </div>
+    </div>
+
+    <!-- Executive Alerts & Recommendations (Directly under Net Profit) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <details id="execAlertsCard" class="bg-white p-5 rounded-2xl border border-slate-200">
+      <details id="execAlertsCard" open class="pro-card p-5 border-t-4 border-t-amber-500 bg-gradient-to-b from-amber-50/35 to-white">
         <summary class="list-none cursor-pointer select-none">
           <div class="flex items-start justify-between gap-2">
             <div>
-              <h2 class="font-bold text-base text-slate-900">تنبيهات الإدارة التنفيذية</h2>
+              <span class="section-tag mb-1.5">المتابعة الفورية</span>
+              <h2 class="font-extrabold text-base text-slate-900">تنبيهات الإدارة التنفيذية</h2>
               <p class="text-xs text-slate-500 mt-0.5">مؤشرات إنذار مبكر للسيولة، المستحقات المتأخرة، وهامش الربح</p>
             </div>
-            <span id="execAlertsBadge" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700">0 نشط</span>
+            <span id="execAlertsBadge" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">0 نشط</span>
           </div>
-          <div id="execAlertsBanner" class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-2.5 text-xs font-bold text-center">الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.</div>
-          <p class="text-[11px] text-slate-400 font-bold mt-2">اضغط لعرض التفاصيل</p>
+          <div id="execAlertsBanner" class="mt-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 px-3.5 py-2.5 text-xs font-bold text-center">الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.</div>
+          <p class="text-[11px] text-slate-400 font-bold mt-2">اضغط لطي أو عرض التفاصيل</p>
         </summary>
-        <div id="execAlertsList" class="mt-3 pt-3 border-t border-slate-100 space-y-2"></div>
+        <div id="execAlertsList" class="mt-3.5 pt-3.5 border-t border-slate-100 space-y-2"></div>
       </details>
 
-      <details id="execRecCard" class="bg-white p-5 rounded-2xl border border-slate-200">
+      <details id="execRecCard" open class="pro-card p-5 border-t-4 border-t-indigo-600 bg-gradient-to-b from-indigo-50/35 to-white">
         <summary class="list-none cursor-pointer select-none">
           <div class="flex items-start justify-between gap-2">
             <div>
-              <h2 class="font-bold text-base text-slate-900">توصيات زيادة السيولة وصافي الربح</h2>
+              <span class="section-tag mb-1.5">القرارات المقترحة</span>
+              <h2 class="font-extrabold text-base text-slate-900">توصيات زيادة السيولة وصافي الربح</h2>
               <p class="text-xs text-slate-500 mt-0.5">قرارات تنفيذية للسيولة، المستحقات، وتحسين صافي الربح</p>
             </div>
-            <span id="execRecBadge" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700">3 نشط</span>
+            <span id="execRecBadge" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800">3 نشط</span>
           </div>
-          <div id="execRecBanner" class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-2.5 text-xs font-bold text-center">جاري تحليل السيولة وصافي الربح...</div>
-          <p class="text-[11px] text-slate-400 font-bold mt-2">اضغط لعرض التفاصيل</p>
+          <div id="execRecBanner" class="mt-3.5 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-950 px-3.5 py-2.5 text-xs font-bold text-center">جاري تحليل السيولة وصافي الربح...</div>
+          <p class="text-[11px] text-slate-400 font-bold mt-2">اضغط لطي أو عرض التفاصيل</p>
         </summary>
-        <div id="execRecList" class="mt-3 pt-3 border-t border-slate-100 space-y-2.5"></div>
+        <div id="execRecList" class="mt-3.5 pt-3.5 border-t border-slate-100 space-y-2.5"></div>
       </details>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">النقدية المتاحة</p><h3 id="kCash" class="text-2xl font-extrabold">-</h3></div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">العمر النقدي (Runway)</p><h3 id="kRun" class="text-2xl font-extrabold">-</h3></div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">معدل الحرق الشهري</p><h3 id="kBurn" class="text-2xl font-extrabold">-</h3></div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200"><p class="text-sm font-bold text-slate-500">صافي الربح (آخر شهر)</p><h3 id="kProfit" class="text-2xl font-extrabold">-</h3><p id="kProfitSub" class="text-xs text-slate-400 mt-1"></p></div>
+
+    <!-- Column Mapper -->
+    <div id="mapper" class="hidden pro-card p-6 border-indigo-200 space-y-4">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <div>
+          <span class="section-tag mb-1">معالج الاستيراد</span>
+          <h2 class="font-extrabold text-base text-slate-900">ربط أعمدة الملف</h2>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500 leading-relaxed">اختار العمود المناسب لكل خانة. اللي اتعرّفت عليه تلقائياً متحدد، وتقدر تغيّره. كشف الحساب اللي فيه مدين ودائن منفصلين بيشتغل كمان.</p>
+      <label class="block text-xs font-bold text-slate-700">نوع الملف
+        <select id="fileKind" onchange="openMapper()" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white"><option value="tx">حركات فلوس (كشف حساب بنك / خزينة)</option><option value="obl">مستحقات والتزامات (لينا / علينا / ضرائب)</option><option value="inv">المخزون</option></select></label>
+      <div id="modeBox" class="text-xs space-y-2 bg-slate-50 border border-slate-200/70 rounded-xl p-3.5">
+        <label class="flex gap-2 items-start cursor-pointer"><input type="radio" name="upMode" value="replace" checked onchange="refreshImpact()" class="mt-1"><span><b>تحديث كامل (الأنسب):</b> يستبدل حركات نفس الفترة بالملف الجديد، فالتعديل والمسح في الملف بيظهروا.</span></label>
+        <label class="flex gap-2 items-start cursor-pointer"><input type="radio" name="upMode" value="merge" onchange="refreshImpact()" class="mt-1"><span><b>إضافة وتحديث بس:</b> يضيف الجديد ويحدّث اللي ليه نفس الرقم المرجعي، ومابيمسحش حاجة.</span></label>
+      </div>
+      <label id="defKindBox" class="hidden block text-xs font-bold text-slate-700">لو الملف مفيهوش عمود نوع، كل الصفوف تبقى
+        <select id="defKind" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white"><option value="receivable">لينا فلوس (عملاء)</option><option value="payable">علينا فلوس (موردين)</option><option value="tax">ضرائب</option><option value="upcoming">التزامات جاية</option></select></label>
+      <div id="mapFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      <label class="block text-xs font-bold text-slate-700">ترتيب التواريخ المكتوبة نص (زي 01/03/2026)
+        <select id="dateOrder" onchange="renderPreview()" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 bg-white"><option value="dmy">يوم/شهر/سنة</option><option value="mdy">شهر/يوم/سنة</option></select></label>
+      <div class="overflow-x-auto rounded-xl border border-slate-200"><table class="w-full text-right text-xs tabular-nums"><thead id="mapHead"></thead><tbody id="mapBody"></tbody></table></div>
+      <p id="mapImpact" class="text-xs font-bold text-indigo-700"></p>
+      <p id="mapStat" class="text-sm font-bold"></p>
+      <div class="flex gap-2 pt-1"><button id="mapGo" onclick="mapUpload()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40">رفع</button><button onclick="mapCancel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold">إلغاء</button></div>
     </div>
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
-      <div class="flex justify-between items-center gap-2 flex-wrap">
-        <div><h2 class="font-bold">المستحقات والالتزامات</h2><p class="text-xs text-slate-500">فلوس لينا بره، وفلوس علينا، والضرائب، والالتزامات الجاية. بتدخلها بإيدك من أوراقك أو من محاسبك.</p></div>
-        <button onclick="oblToggle()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold">+ إضافة</button>
+
+    <!-- Receivables, Payables, Taxes & Upcoming -->
+    <div class="pro-card p-6 space-y-4">
+      <div class="flex justify-between items-center gap-2 flex-wrap border-b border-slate-100 pb-4">
+        <div>
+          <span class="section-tag mb-1">الذمم والالتزامات</span>
+          <h2 class="font-extrabold text-base text-slate-900">المستحقات والالتزامات</h2>
+          <p class="text-xs text-slate-500 mt-0.5">فلوس لينا بره، وفلوس علينا، والضرائب، والالتزامات الجاية. بتدخلها بإيدك من أوراقك أو من محاسبك.</p>
+        </div>
+        <button onclick="oblToggle()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition">+ إضافة</button>
       </div>
       <div id="oblMsg" class="text-xs"></div>
-      <div id="oblForm" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl">
-        <label class="block text-xs font-bold text-slate-600">النوع
-          <select id="oKind" class="w-full border border-slate-300 rounded-xl px-2 py-2 text-sm mt-1 font-normal"><option value="receivable">لينا فلوس عند حد (عميل)</option><option value="payable">علينا فلوس لحد (مورد أو غيره)</option><option value="tax">ضريبة عليا</option><option value="upcoming">التزام جاي (إيجار، قسط، راتب...)</option></select></label>
-        <label class="block text-xs font-bold text-slate-600">الاسم أو البيان
-          <input id="oParty" maxlength="80" placeholder="مثلاً: شركة النور أو ضريبة القيمة المضافة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
-        <label class="block text-xs font-bold text-slate-600">المبلغ (ج.م)
-          <input id="oAmount" type="number" min="0" step="0.01" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
-        <label class="block text-xs font-bold text-slate-600">تاريخ الاستحقاق (اختياري)
-          <input id="oDue" type="date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
-        <label class="block text-xs font-bold text-slate-600 sm:col-span-2">ملاحظة (اختياري)
-          <input id="oNote" maxlength="120" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal"></label>
-        <div class="sm:col-span-2 flex gap-2"><button id="oSave" onclick="oblSave()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40">حفظ</button><button onclick="oblToggle()" class="bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold">إلغاء</button></div>
+      <div id="oblForm" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50/90 border border-slate-200/80 p-4 rounded-2xl">
+        <label class="block text-xs font-bold text-slate-700">النوع
+          <select id="oKind" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white"><option value="receivable">لينا فلوس عند حد (عميل)</option><option value="payable">علينا فلوس لحد (مورد أو غيره)</option><option value="tax">ضريبة عليا</option><option value="upcoming">التزام جاي (إيجار، قسط، راتب...)</option></select></label>
+        <label class="block text-xs font-bold text-slate-700">الاسم أو البيان
+          <input id="oParty" maxlength="80" placeholder="مثلاً: شركة النور أو ضريبة القيمة المضافة" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white"></label>
+        <label class="block text-xs font-bold text-slate-700">المبلغ (ج.م)
+          <input id="oAmount" type="number" min="0" step="0.01" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white tabular-nums"></label>
+        <label class="block text-xs font-bold text-slate-700">تاريخ الاستحقاق (اختياري)
+          <input id="oDue" type="date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white"></label>
+        <label class="block text-xs font-bold text-slate-700 sm:col-span-2">ملاحظة (اختياري)
+          <input id="oNote" maxlength="120" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm mt-1 font-normal bg-white"></label>
+        <div class="sm:col-span-2 flex gap-2"><button id="oSave" onclick="oblSave()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40">حفظ</button><button onclick="oblToggle()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold">إلغاء</button></div>
       </div>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="border border-emerald-200 bg-emerald-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">لينا بره</p><p id="oRec" class="text-xl font-extrabold text-emerald-700">-</p><p id="oRecSub" class="text-xs text-slate-500"></p></div>
-        <div class="border border-rose-200 bg-rose-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">علينا بره</p><p id="oPay" class="text-xl font-extrabold text-rose-700">-</p><p id="oPaySub" class="text-xs text-slate-500"></p></div>
-        <div class="border border-amber-200 bg-amber-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">ضرائب عليك</p><p id="oTax" class="text-xl font-extrabold text-amber-700">-</p><p id="oTaxSub" class="text-xs text-slate-500"></p></div>
-        <div class="border border-orange-200 bg-orange-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">التزامات خلال 30 يوم</p><p id="oUp" class="text-xl font-extrabold text-orange-700">-</p><p id="oUpSub" class="text-xs text-slate-500"></p></div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 tabular-nums">
+        <div class="border border-emerald-200/90 bg-emerald-50/70 rounded-2xl p-4"><p class="text-xs font-bold text-emerald-900/80">لينا بره</p><p id="oRec" class="text-xl font-extrabold text-emerald-700 mt-1">-</p><p id="oRecSub" class="text-xs text-slate-600 mt-0.5"></p></div>
+        <div class="border border-rose-200/90 bg-rose-50/70 rounded-2xl p-4"><p class="text-xs font-bold text-rose-900/80">علينا بره</p><p id="oPay" class="text-xl font-extrabold text-rose-700 mt-1">-</p><p id="oPaySub" class="text-xs text-slate-600 mt-0.5"></p></div>
+        <div class="border border-amber-200/90 bg-amber-50/70 rounded-2xl p-4"><p class="text-xs font-bold text-amber-900/80">ضرائب عليك</p><p id="oTax" class="text-xl font-extrabold text-amber-700 mt-1">-</p><p id="oTaxSub" class="text-xs text-slate-600 mt-0.5"></p></div>
+        <div class="border border-orange-200/90 bg-orange-50/70 rounded-2xl p-4"><p class="text-xs font-bold text-orange-900/80">التزامات خلال 30 يوم</p><p id="oUp" class="text-xl font-extrabold text-orange-700 mt-1">-</p><p id="oUpSub" class="text-xs text-slate-600 mt-0.5"></p></div>
       </div>
-      <div class="rounded-xl bg-slate-900 text-white p-4">
-        <p class="text-xs text-slate-300">صافي وضعك بعد المستحقات</p>
-        <p id="oNet" class="text-2xl font-extrabold">-</p>
-        <p class="text-xs text-slate-400 mt-1">= النقدية المتاحة + اللي لينا − اللي علينا − الضرائب − التزامات الـ 30 يوم. يعني لو كل اللي لينا اتحصّل وكل اللي عليك اتسدد. لو دخلت نفس المبلغ في أكتر من بند، هيتحسب مرتين.</p>
+      <div class="rounded-2xl bg-gradient-to-l from-slate-900 via-slate-900 to-indigo-950 text-white p-5 tabular-nums">
+        <p class="text-xs font-semibold text-indigo-200">صافي وضعك بعد المستحقات</p>
+        <p id="oNet" class="text-2xl font-extrabold mt-1">-</p>
+        <p class="text-xs text-slate-300/90 mt-1.5 leading-relaxed">= النقدية المتاحة + اللي لينا − اللي علينا − الضرائب − التزامات الـ 30 يوم. يعني لو كل اللي لينا اتحصّل وكل اللي عليك اتسدد. لو دخلت نفس المبلغ في أكتر من بند، هيتحسب مرتين.</p>
       </div>
       <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
-        <button id="oblToggleBtn" type="button" onclick="toggleOblDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold">عرض التفاصيل</button>
+        <button id="oblToggleBtn" type="button" onclick="toggleOblDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold transition">عرض التفاصيل</button>
         <span id="oblDetailsHint" class="text-xs text-slate-400">جدول بنود المستحقات والالتزامات مخفي افتراضياً — اضغط لعرضه</span>
       </div>
-      <div id="oblDetailsBox" class="hidden overflow-x-auto pt-2 border-t border-slate-100"><table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-2">النوع</th><th class="p-2">الاسم</th><th class="p-2">المبلغ</th><th class="p-2">الاستحقاق</th><th class="p-2"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
+      <div id="oblDetailsBox" class="hidden overflow-x-auto pt-2 border-t border-slate-100"><table class="w-full text-right text-sm tabular-nums"><thead class="bg-slate-50 text-slate-600 text-xs"><tr><th class="p-2.5 rounded-r-lg">النوع</th><th class="p-2.5">الاسم</th><th class="p-2.5">المبلغ</th><th class="p-2.5">الاستحقاق</th><th class="p-2.5 rounded-l-lg"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
     </div>
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-      <div class="flex justify-between items-start gap-2 flex-wrap">
-        <div><h2 class="font-bold">المخزون</h2><p class="text-xs text-slate-500">اربط شيت المخزون من "مصادر البيانات" فوق عشان يتحدّث لوحده، أو ارفعه يدوياً بزر "رفع يدوي". القيمة = الكمية × تكلفة الوحدة بطريقة التقييم اللي في نظامك.</p></div>
-        <button onclick="invTemplate()" class="bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold">تحميل قالب المخزون</button>
+
+    <!-- Inventory -->
+    <div class="pro-card p-6 space-y-4">
+      <div class="flex justify-between items-start gap-2 flex-wrap border-b border-slate-100 pb-4">
+        <div>
+          <span class="section-tag mb-1">الأصول المخزنية</span>
+          <h2 class="font-extrabold text-base text-slate-900">المخزون</h2>
+          <p class="text-xs text-slate-500 mt-0.5">اربط شيت المخزون من "مصادر البيانات" فوق عشان يتحدّث لوحده، أو ارفعه يدوياً. القيمة = الكمية × تكلفة الوحدة بطريقة التقييم اللي في نظامك.</p>
+        </div>
+        <button onclick="invTemplate()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition">تحميل قالب المخزون</button>
       </div>
       <div id="invMsg" class="text-xs"></div>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">قيمة المخزون</p><p id="invVal" class="text-xl font-extrabold">-</p></div>
-        <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">عدد الأصناف</p><p id="invCnt" class="text-xl font-extrabold">-</p><p id="invCntSub" class="text-xs text-slate-500"></p></div>
-        <div class="border border-amber-200 bg-amber-50 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">تحت حد الطلب</p><p id="invLow" class="text-xl font-extrabold text-amber-700">-</p></div>
-        <div class="border border-slate-200 rounded-xl p-3"><p class="text-xs font-bold text-slate-600">المخزون يكفي (تقدير)</p><p id="invDays" class="text-xl font-extrabold">-</p><p id="invDaysSub" class="text-xs text-slate-500"></p></div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 tabular-nums">
+        <div class="border border-slate-200/90 bg-slate-50/50 rounded-2xl p-4"><p class="text-xs font-bold text-slate-600">قيمة المخزون</p><p id="invVal" class="text-xl font-extrabold text-slate-900 mt-1">-</p></div>
+        <div class="border border-slate-200/90 bg-slate-50/50 rounded-2xl p-4"><p class="text-xs font-bold text-slate-600">عدد الأصناف</p><p id="invCnt" class="text-xl font-extrabold text-slate-900 mt-1">-</p><p id="invCntSub" class="text-xs text-slate-500 mt-0.5"></p></div>
+        <div class="border border-amber-200/90 bg-amber-50/70 rounded-2xl p-4"><p class="text-xs font-bold text-amber-900/80">تحت حد الطلب</p><p id="invLow" class="text-xl font-extrabold text-amber-700 mt-1">-</p></div>
+        <div class="border border-slate-200/90 bg-slate-50/50 rounded-2xl p-4"><p class="text-xs font-bold text-slate-600">المخزون يكفي (تقدير)</p><p id="invDays" class="text-xl font-extrabold text-slate-900 mt-1">-</p><p id="invDaysSub" class="text-xs text-slate-500 mt-0.5"></p></div>
       </div>
       <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
-        <button id="invToggleBtn" type="button" onclick="toggleInvDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold">عرض التفاصيل</button>
+        <button id="invToggleBtn" type="button" onclick="toggleInvDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold transition">عرض التفاصيل</button>
         <span id="invDetailsHint" class="text-xs text-slate-400">التفاصيل مخفية للحفاظ على ترتيب الواجهة — اضغط لعرضها</span>
       </div>
       <div id="invDetailsBox" class="hidden space-y-3 pt-2 border-t border-slate-100">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <input id="invSearch" oninput="renderInventory()" placeholder="ابحث عن صنف" class="sm:col-span-2 border border-slate-300 rounded-xl px-3 py-2 text-sm">
-          <select id="invFilter" onchange="renderInventory()" class="border border-slate-300 rounded-xl px-2 py-2 text-sm"><option value="all">كل الأصناف</option><option value="low">تحت حد الطلب</option><option value="zero">خلصانة (كمية صفر)</option></select>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <input id="invSearch" oninput="renderInventory()" placeholder="ابحث عن صنف" class="sm:col-span-2 border border-slate-300 rounded-xl px-3.5 py-2 text-sm">
+          <select id="invFilter" onchange="renderInventory()" class="border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white"><option value="all">كل الأصناف</option><option value="low">تحت حد الطلب</option><option value="zero">خلصانة (كمية صفر)</option></select>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-right text-xs"><thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">الصنف</th><th class="p-2">الكمية</th><th class="p-2">حد الطلب</th><th class="p-2">القيمة</th><th class="p-2">الحالة</th></tr></thead><tbody id="invBody" class="divide-y divide-slate-100"></tbody></table></div>
+        <div class="overflow-x-auto"><table class="w-full text-right text-xs tabular-nums"><thead class="bg-slate-50 text-slate-600"><tr><th class="p-2.5 rounded-r-lg">الصنف</th><th class="p-2.5">الكمية</th><th class="p-2.5">حد الطلب</th><th class="p-2.5">القيمة</th><th class="p-2.5 rounded-l-lg">الحالة</th></tr></thead><tbody id="invBody" class="divide-y divide-slate-100"></tbody></table></div>
         <button id="invMore" onclick="invShowAll()" class="hidden bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold">عرض الكل</button>
       </div>
     </div>
-    <div class="bg-white p-5 rounded-2xl border border-slate-200"><h2 class="font-bold mb-3">تطور الرصيد النقدي</h2><div class="h-64"><canvas id="chart"></canvas></div></div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200">
-        <h2 class="font-bold mb-1">الإيرادات والمصروفات كل شهر</h2>
-        <p class="text-xs text-slate-500 mb-3">الأخضر = اللي دخل، والأحمر = اللي خرج</p>
-        <div class="h-64"><canvas id="chartIE"></canvas></div>
-        <p id="ieNote" class="text-sm font-bold mt-3"></p>
+
+    <!-- Charts -->
+    <div class="pro-card p-6">
+      <div class="flex items-center justify-between gap-2 mb-4">
+        <div>
+          <span class="section-tag mb-1">الأداء النقدي</span>
+          <h2 class="font-extrabold text-base text-slate-900">تطور الرصيد النقدي</h2>
+        </div>
       </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200">
-        <div class="flex justify-between items-center gap-2 mb-1"><h2 class="font-bold">المصروفات حسب التصنيف</h2><select id="catMonth" onchange="drawCat()" class="text-xs border border-slate-300 rounded-lg px-2 py-1"></select></div>
-        <p class="text-xs text-slate-500 mb-3">فين بتروح فلوسك؟</p>
+      <div class="h-64"><canvas id="chart"></canvas></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="pro-card p-6">
+        <h2 class="font-extrabold text-base text-slate-900 mb-1">الإيرادات والمصروفات كل شهر</h2>
+        <p class="text-xs text-slate-500 mb-4">الأخضر = اللي دخل، والأحمر = اللي خرج</p>
+        <div class="h-64"><canvas id="chartIE"></canvas></div>
+        <p id="ieNote" class="text-sm font-bold mt-3.5 tabular-nums"></p>
+      </div>
+      <div class="pro-card p-6">
+        <div class="flex justify-between items-center gap-2 mb-1 flex-wrap">
+          <h2 class="font-extrabold text-base text-slate-900">المصروفات حسب التصنيف</h2>
+          <div class="flex items-center gap-2">
+            <select id="catMonth" onchange="drawCat()" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white font-semibold"></select>
+            <button id="catToggleBtn" type="button" onclick="toggleCatDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-xl text-xs font-bold transition">عرض التفاصيل</button>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mb-4">فين بتروح فلوسك؟ اعرض التفاصيل أو اضغط على أي بند لعرض حركاته</p>
         <div class="h-64"><canvas id="chartCat"></canvas></div>
-        <p id="catNote" class="text-sm font-bold mt-3"></p>
+        <p id="catNote" class="text-sm font-bold mt-3.5 tabular-nums"></p>
+        <p id="catDetailsHint" class="text-xs text-slate-400 mt-1">تفاصيل البنود وحركاتها مخفية افتراضياً — اضغط "عرض التفاصيل" لإظهارها</p>
+        <div id="catDetailsBox" class="hidden mt-3.5 pt-3.5 border-t border-slate-100 space-y-3">
+          <div id="catBreakdown" class="space-y-2.5 tabular-nums"></div>
+          <div id="catTxDrawer" class="hidden rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span id="catDrawerTitle" class="text-xs font-extrabold text-indigo-950"></span>
+              <button type="button" onclick="closeCatDrawer()" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800">إغلاق</button>
+            </div>
+            <ul id="catDrawerList" class="divide-y divide-indigo-100/80 text-xs"></ul>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl space-y-3">
-      <h2 class="font-bold">المساعد المالي الذكي</h2>
-      <p class="text-xs text-slate-300">اسأل عن أرقامك، مثلاً: ليه الحرق عالي؟ أو أكبر بند مصروفات؟ (بيشوف الإجماليات الشهرية حسب التصنيف بس، مش أوصاف الحركات. الخدمة مجانية من Google، وممكن Google تستخدم الأسئلة لتحسين منتجاتها.)</p>
-      <div class="flex gap-2"><input id="q" maxlength="300" placeholder="اكتب سؤالك" class="flex-1 rounded-xl px-3 py-2 text-sm text-slate-900"><button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-4 rounded-xl font-bold text-sm">اسأل</button></div>
+
+    <!-- AI Assistant -->
+    <div class="rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 shadow-md space-y-3.5">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="font-extrabold text-base">المساعد المالي الذكي</h2>
+        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">تحليل فوري</span>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">اسأل عن أرقامك، مثلاً: ليه الحرق عالي؟ أو أكبر بند مصروفات؟ (بيشوف الإجماليات الشهرية حسب التصنيف بس، مش أوصاف الحركات. الخدمة مجانية من Google، وممكن Google تستخدم الأسئلة لتحسين منتجاتها.)</p>
+      <div class="flex gap-2">
+        <input id="q" maxlength="300" placeholder="اكتب سؤالك" class="flex-1 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none">
+        <button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-5 rounded-xl font-bold text-sm shrink-0">اسأل</button>
+      </div>
       <div id="answer" class="text-sm leading-relaxed whitespace-pre-wrap"></div>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+
+    <!-- Latest Transactions -->
+    <div class="pro-card p-6 space-y-3">
       <div class="flex items-center justify-between gap-2 flex-wrap">
         <div>
-          <h2 class="font-bold">أحدث الحركات</h2>
+          <h2 class="font-extrabold text-base text-slate-900">أحدث الحركات</h2>
           <p id="txSummaryText" class="text-xs text-slate-500 mt-0.5">آخر الحركات المسجّلة في المنصة جاهزة للعرض عند الطلب.</p>
         </div>
-        <button id="txToggleBtn" type="button" onclick="toggleTxDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold">عرض التفاصيل</button>
+        <button id="txToggleBtn" type="button" onclick="toggleTxDetails()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl text-xs font-bold transition">عرض التفاصيل</button>
       </div>
       <div id="txDetailsBox" class="hidden overflow-x-auto pt-2 border-t border-slate-100">
-        <table class="w-full text-right text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="p-3">التاريخ</th><th class="p-3">البيان</th><th class="p-3">التصنيف</th><th class="p-3">المبلغ</th></tr></thead><tbody id="rows" class="divide-y divide-slate-100"></tbody></table>
+        <table class="w-full text-right text-sm tabular-nums"><thead class="bg-slate-50 text-slate-600 text-xs"><tr><th class="p-3 rounded-r-lg">التاريخ</th><th class="p-3">البيان</th><th class="p-3">التصنيف</th><th class="p-3 rounded-l-lg">المبلغ</th></tr></thead><tbody id="rows" class="divide-y divide-slate-100"></tbody></table>
       </div>
     </div>
-  <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
-      <summary class="font-bold cursor-pointer">مشكلة؟ أشهر المشاكل وحلولها</summary>
+
+    <!-- Help -->
+    <details class="pro-card p-5 text-sm">
+      <summary class="font-extrabold text-slate-900 cursor-pointer">مشكلة؟ أشهر المشاكل وحلولها</summary>
       <ul id="helpList" class="mt-3 space-y-3"></ul>
     </details>
   </div>
@@ -241,32 +419,234 @@ const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold'
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
 let curCash = 0, curBurn = 0, curRunway = null, lastMonthKey = '', lastMonthNet = 0, totalNetProfit = 0, obl = [];
-let companyId = null, chart = null, allTx = [], chartIE = null, chartCat = null;
+let companyId = null, companyName = '', chart = null, allTx = [], chartIE = null, chartCat = null;
+let isDemoMode = false, selectedCatLabel = '', catDetailsOpen = false, lastCatEntries = [], lastCatSum = 0, lastCatMonth = 'all';
 Chart.defaults.font.family = 'Cairo, system-ui, sans-serif';
 const COLORS = ['#4f46e5','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#ec4899','#64748b'];
+const pad = n => String(n).padStart(2, '0');
+function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dayDiff(due){ return Math.round((Date.parse(due) - Date.parse(todayStr())) / 864e5); }
+function show(id){ ['auth','setup','app'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
+
+function createDemoDataset(){
+  return {
+    companyId: 'demo-al-ofoq-eg',
+    companyName: 'شركة الأفق للتجارة والتوزيع',
+    openingCash: 650000,
+    cashOnHand: 840000,
+    burnRate: 145000,
+    runwayMonths: 5.8,
+    transactions: [
+      { tx_date: '2026-08-03', description: 'تحصيل مبيعات فرع القاهرة الكبرى', category: 'Sales Revenue', amount: 340000 },
+      { tx_date: '2026-08-09', description: 'شراء بضاعة وتوريد مخزون رئيسي', category: 'Cost of Goods Sold', amount: -145000 },
+      { tx_date: '2026-08-15', description: 'رواتب وأجور فريق المبيعات والتشغيل', category: 'Salaries & Wages', amount: -92000 },
+      { tx_date: '2026-08-22', description: 'إيجار المقر والمخزن وفواتير الكهرباء والمياه', category: 'Rent & Utilities', amount: -34000 },
+      { tx_date: '2026-08-27', description: 'إعلانات ممولة وحملات تسويق رقمي', category: 'Marketing', amount: -19000 },
+      { tx_date: '2026-09-04', description: 'تحصيل فواتير عملاء الجملة والتجزئة', category: 'Sales Revenue', amount: 395000 },
+      { tx_date: '2026-09-10', description: 'توريد بضاعة ومواد خام للمخازن', category: 'Cost of Goods Sold', amount: -162000 },
+      { tx_date: '2026-09-15', description: 'رواتب وأجور شهر سبتمبر', category: 'Salaries & Wages', amount: -95000 },
+      { tx_date: '2026-09-19', description: 'سداد دفعة ضرائب ورسوم حكومية', category: 'Taxes & Fees', amount: -24000 },
+      { tx_date: '2026-09-24', description: 'إيجار ومرافق وباقة إنترنت وشركات اتصالات', category: 'Rent & Utilities', amount: -35000 },
+      { tx_date: '2026-09-28', description: 'عمولات تحويلات ومصاريف بنكية', category: 'Bank Fees', amount: -4500 },
+      { tx_date: '2026-10-03', description: 'مبيعات موسم الخريف وتحصيلات العملاء', category: 'Sales Revenue', amount: 425000 },
+      { tx_date: '2026-10-08', description: 'شراء بضاعة وتوريدات موردين', category: 'Cost of Goods Sold', amount: -178000 },
+      { tx_date: '2026-10-15', description: 'رواتب وأجور شهر أكتوبر', category: 'Salaries & Wages', amount: -98000 },
+      { tx_date: '2026-10-18', description: 'حملات تسويق ورعاية معارض', category: 'Marketing', amount: -28000 },
+      { tx_date: '2026-10-23', description: 'ضيافة واجتماعات عملاء وموردين', category: 'Meals & Hospitality', amount: -8500 },
+      { tx_date: '2026-10-27', description: 'إيجار ومرافق تشغيلية', category: 'Rent & Utilities', amount: -35000 },
+      { tx_date: '2026-10-30', description: 'مصاريف صيانة متفرقة وأخرى', category: 'Other', amount: -11500 },
+      { tx_date: '2026-11-02', description: 'تحصيل مبيعات بداية شهر نوفمبر', category: 'Sales Revenue', amount: 460000 },
+      { tx_date: '2026-11-07', description: 'شراء بضاعة وتوريد أصناف سريعة الدوران', category: 'Cost of Goods Sold', amount: -168000 },
+      { tx_date: '2026-11-12', description: 'رواتب وأجور شهر نوفمبر', category: 'Salaries & Wages', amount: -102000 },
+      { tx_date: '2026-11-15', description: 'إيجار المقر والمخزن والمرافق', category: 'Rent & Utilities', amount: -36000 },
+      { tx_date: '2026-11-17', description: 'تسويق رقمي وإعلانات مستهدفة', category: 'Marketing', amount: -22000 },
+      { tx_date: '2026-11-19', description: 'رسوم بنكية وعمولات نقاط بيع', category: 'Bank Fees', amount: -5200 },
+      { tx_date: '2026-11-20', description: 'ضيافة ووجبات عمل للفريق', category: 'Meals & Hospitality', amount: -6800 }
+    ],
+    obligations: [
+      { id: 'demo-obl-1', kind: 'receivable', party: 'شركة النيل الحديثة للتجارة', amount: 245000, due_date: '2026-11-10', note: 'فاتورة متأخرة' },
+      { id: 'demo-obl-2', kind: 'receivable', party: 'مؤسسة الصفا للتوريدات', amount: 135000, due_date: '2026-12-05', note: 'مستحق قريباً' },
+      { id: 'demo-obl-3', kind: 'payable', party: 'مصنع الدلتا للمنتجات الغذائية', amount: 165000, due_date: '2026-11-15', note: 'رصيد مورد' },
+      { id: 'demo-obl-4', kind: 'tax', party: 'ضريبة القيمة المضافة (VAT)', amount: 54000, due_date: '2026-11-25', note: 'إقرار ضريبي شهري' },
+      { id: 'demo-obl-5', kind: 'upcoming', party: 'إيجار المقر والمخزن ورواتب الشهر', amount: 120000, due_date: '2026-12-01', note: 'التزام خلال 30 يوماً' }
+    ],
+    inventory: [
+      { id: 'demo-inv-1', item: 'زيت طعام عباد الشمس 1 لتر (كرتونة 12)', qty: 320, unit_cost: 460, min_qty: 120 },
+      { id: 'demo-inv-2', item: 'سكر أبيض معبأ 1 كجم (شيكارة 25)', qty: 55, unit_cost: 540, min_qty: 80 },
+      { id: 'demo-inv-3', item: 'أرز مصري فاخر 5 كجم', qty: 0, unit_cost: 165, min_qty: 60 },
+      { id: 'demo-inv-4', item: 'مكرونة متنوعة 400 جم (كرتونة 20)', qty: 240, unit_cost: 210, min_qty: 75 },
+      { id: 'demo-inv-5', item: 'شاي أسود فاخر 250 جم', qty: 45, unit_cost: 130, min_qty: 50 }
+    ],
+    sources: [
+      { id: 'demo-src-1', kind: 'tx', url: 'https://docs.google.com/spreadsheets/d/demo-egp-cashflow/export?format=csv', last_sync: new Date(Date.now() - 4 * 60000).toISOString(), last_rows: 25, last_status: 'ok', enabled: true },
+      { id: 'demo-src-2', kind: 'inv', url: 'https://docs.google.com/spreadsheets/d/demo-egp-inventory/export?format=csv', last_sync: new Date(Date.now() - 6 * 60000).toISOString(), last_rows: 5, last_status: 'ok', enabled: true }
+    ]
+  };
+}
+
+function applyDemoMode(customData){
+  const d = customData || createDemoDataset();
+  isDemoMode = true;
+  companyId = d.companyId;
+  companyName = d.companyName;
+  show('app');
+  $('demoBadge').classList.remove('hidden');
+  $('resetDemoBtn').classList.remove('hidden');
+  $('title').textContent = 'نظرة عامة على السيولة - ' + companyName;
+
+  const cash = Number(d.cashOnHand || 0);
+  const burn = Number(d.burnRate || 0);
+  curCash = cash; curBurn = burn; curRunway = d.runwayMonths;
+
+  $('kCash').textContent = fmt(cash) + ' ج.م';
+  $('kBurn').textContent = fmt(burn) + ' ج.م';
+  $('kRun').textContent = d.runwayMonths === null ? 'لا يوجد حرق' : d.runwayMonths + ' شهر';
+
+  const txList = [...(d.transactions || [])].sort((a, b) => a.tx_date.localeCompare(b.tx_date));
+  const monthly = {};
+  txList.forEach(t => { const k = t.tx_date.slice(0, 7); monthly[k] = (monthly[k] || 0) + Number(t.amount); });
+  let run = Number(d.openingCash || 0);
+  const keys = Object.keys(monthly).sort();
+  const vals = keys.map(k => (run += monthly[k]));
+  const last = keys[keys.length - 1];
+  const net = last ? monthly[last] : 0;
+  const total = keys.reduce((a, k) => a + monthly[k], 0);
+  lastMonthKey = last || ''; lastMonthNet = net; totalNetProfit = total;
+
+  const kp = $('kProfit');
+  kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-';
+  kp.className = 'text-2xl font-extrabold mt-1.5 ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
+  $('kProfitSub').textContent = last ? 'شهر ' + last + ' | الإجمالي كله: ' + (total > 0 ? '+' : '') + fmt(total) : 'لا توجد حركات';
+
+  if (chart) chart.destroy();
+  chart = new Chart($('chart'), {
+    type: 'line',
+    data: { labels: keys, datasets: [{ data: vals, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.10)', borderWidth: 3, fill: true, tension: 0.35 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
+  });
+
+  allTx = txList;
+  drawIE();
+  drawCat();
+  obl = [...(d.obligations || [])];
+  renderObl();
+  invItems = [...(d.inventory || [])];
+  renderInventory();
+  srcRows = [...(d.sources || [])];
+  renderSrcListOnly();
+  renderSrcStatus();
+  updateExecutiveInsights();
+  renderLatestTx();
+}
+
+function resetDemoData(){
+  closeWipeConfirm();
+  applyDemoMode(createDemoDataset());
+  $('msg').className = 'text-sm font-bold text-emerald-600';
+  $('msg').textContent = 'تمت إعادة ضبط البيانات الوهمية لـ "شركة الأفق للتجارة والتوزيع" بنجاح.';
+}
+
 function drawIE(){
   const inc = {}, exp = {};
   allTx.forEach(t => { const k = t.tx_date.slice(0,7), a = Number(t.amount); if (a > 0) inc[k] = (inc[k] || 0) + a; else exp[k] = (exp[k] || 0) - a; });
   const keys = [...new Set([...Object.keys(inc), ...Object.keys(exp)])].sort();
   if (chartIE) chartIE.destroy();
-  chartIE = new Chart($('chartIE'), {type:'bar', data:{labels: keys, datasets:[{label:'إيرادات', data: keys.map(k => inc[k] || 0), backgroundColor:'#10b981'}, {label:'مصروفات', data: keys.map(k => exp[k] || 0), backgroundColor:'#ef4444'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}}}}});
+  chartIE = new Chart($('chartIE'), {
+    type:'bar',
+    data:{ labels: keys, datasets:[
+      {label:'إيرادات', data: keys.map(k => inc[k] || 0), backgroundColor:'#10b981', borderRadius: 6},
+      {label:'مصروفات', data: keys.map(k => exp[k] || 0), backgroundColor:'#ef4444', borderRadius: 6}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}}}}
+  });
   const last = keys[keys.length - 1], note = $('ieNote');
-  if (last) { const i = inc[last] || 0, e = exp[last] || 0, n = i - e; note.textContent = 'شهر ' + last + ': دخل ' + fmt(i) + ' وخرج ' + fmt(e) + '، يعني ' + (n >= 0 ? 'ربح ' : 'خسارة ') + fmt(Math.abs(n)) + ' ج.م'; note.className = 'text-sm font-bold mt-3 ' + (n >= 0 ? 'text-emerald-600' : 'text-rose-600'); }
-  else note.textContent = 'ارفع ملف عشان يظهر الرسم';
+  if (last) {
+    const i = inc[last] || 0, e = exp[last] || 0, n = i - e;
+    note.textContent = 'شهر ' + last + ': دخل ' + fmt(i) + ' وخرج ' + fmt(e) + '، يعني ' + (n >= 0 ? 'ربح ' : 'خسارة ') + fmt(Math.abs(n)) + ' ج.م';
+    note.className = 'text-sm font-bold mt-3.5 tabular-nums ' + (n >= 0 ? 'text-emerald-600' : 'text-rose-600');
+  } else note.textContent = 'ارفع ملف عشان يظهر الرسم';
   const sel = $('catMonth'), cur = sel.value; sel.textContent = '';
   const o0 = document.createElement('option'); o0.value = 'all'; o0.textContent = 'كل الفترة'; sel.appendChild(o0);
   keys.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o); });
   if (keys.includes(cur)) sel.value = cur;
 }
+
 function drawCat(){
-  const m = $('catMonth').value, tot = {};
+  const m = $('catMonth').value || 'all', tot = {};
   allTx.forEach(t => { const a = Number(t.amount); if (a < 0 && (m === 'all' || t.tx_date.startsWith(m))) { const c = AR[t.category] || t.category; tot[c] = (tot[c] || 0) - a; } });
   const ent = Object.entries(tot).sort((a, b) => b[1] - a[1]), sum = ent.reduce((s, e) => s + e[1], 0);
+  lastCatEntries = ent; lastCatSum = sum; lastCatMonth = m;
   if (chartCat) chartCat.destroy();
-  chartCat = new Chart($('chartCat'), {type:'doughnut', data:{labels: ent.map(e => e[0]), datasets:[{data: ent.map(e => e[1]), backgroundColor: ent.map((_, i) => COLORS[i % COLORS.length])}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}});
+  chartCat = new Chart($('chartCat'), {
+    type:'doughnut',
+    data:{ labels: ent.map(e => e[0]), datasets:[{data: ent.map(e => e[1]), backgroundColor: ent.map((_, i) => COLORS[i % COLORS.length]), borderWidth: 2, borderColor: '#ffffff'}] },
+    options:{responsive:true, maintainAspectRatio:false, cutout: '62%', plugins:{legend:{position:'bottom'}}}
+  });
   const oth = ent.find(e => e[0] === AR['Other']), othPct = oth && sum ? Math.round(oth[1] / sum * 100) : 0;
-  $('catNote').textContent = ent.length ? 'أكبر بند: ' + ent[0][0] + ' (' + Math.round(ent[0][1] / sum * 100) + '% من المصروفات)' + (othPct >= 20 ? ' — تنبيه: بند "أخرى" ' + othPct + '% من المصروفات، راجع التصنيف' : '') : 'مفيش مصروفات في الفترة دي';
+  $('catNote').textContent = ent.length ? 'أكبر بند: ' + ent[0][0] + ' (' + Math.round(ent[0][1] / sum * 100) + '% من المصروفات) — إجمالي المصروفات: ' + fmt(sum) + ' ج.م' + (othPct >= 20 ? ' — تنبيه: بند "أخرى" ' + othPct + '% من المصروفات' : '') : 'مفيش مصروفات في الفترة دي';
+  $('catDetailsHint').textContent = catDetailsOpen
+    ? (ent.length ? 'عرض ' + ent.length + ' بنود مصروفات — اضغط على أي بند لعرض حركاته' : 'لا توجد مصروفات في الفترة المحددة')
+    : (ent.length ? 'يوجد ' + ent.length + ' بنود مصروفات — اضغط "عرض التفاصيل" لعرضها' : 'تفاصيل البنود وحركاتها مخفية افتراضياً — اضغط "عرض التفاصيل" لإظهارها');
+  if (catDetailsOpen) renderCategoryBreakdown(ent, sum, m);
+  else closeCatDrawer();
 }
+
+function toggleCatDetails(){
+  catDetailsOpen = !catDetailsOpen;
+  $('catDetailsBox').classList.toggle('hidden', !catDetailsOpen);
+  $('catToggleBtn').textContent = catDetailsOpen ? 'إخفاء التفاصيل' : 'عرض التفاصيل';
+  drawCat();
+}
+
+function renderCategoryBreakdown(ent, sum, monthFilter){
+  const box = $('catBreakdown'); box.textContent = '';
+  if (!ent.length || !sum) { closeCatDrawer(); return; }
+  ent.forEach(([label, val], i) => {
+    const pct = Math.round((val / sum) * 100);
+    const txCount = allTx.filter(t => Number(t.amount) < 0 && (monthFilter === 'all' || t.tx_date.startsWith(monthFilter)) && (AR[t.category] || t.category) === label).length;
+    const color = COLORS[i % COLORS.length];
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'w-full text-right rounded-xl border border-slate-200/80 hover:border-indigo-300 bg-slate-50/70 hover:bg-indigo-50/40 p-2.5 transition space-y-1.5';
+    btn.onclick = () => openCatDrawer(label, monthFilter, val, pct);
+
+    const top = document.createElement('div');
+    top.className = 'flex items-center justify-between gap-2 text-xs';
+    top.innerHTML = '<span class="font-bold text-slate-800 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:' + color + '"></span><span>' + label + '</span><span class="text-[11px] text-slate-400 font-semibold">(' + txCount + ' حركات)</span></span><span class="font-extrabold text-slate-900 whitespace-nowrap">' + fmt(val) + ' ج.م (' + pct + '%)</span>';
+
+    const track = document.createElement('div');
+    track.className = 'w-full h-1.5 rounded-full bg-slate-200/80 overflow-hidden';
+    const fill = document.createElement('div');
+    fill.className = 'h-full rounded-full';
+    fill.style.width = Math.max(pct, 2) + '%';
+    fill.style.background = color;
+    track.appendChild(fill);
+    btn.append(top, track);
+    box.appendChild(btn);
+  });
+}
+
+function openCatDrawer(label, monthFilter, totalVal, pct){
+  selectedCatLabel = label;
+  $('catDrawerTitle').textContent = 'حركات "' + label + '" — ' + fmt(totalVal) + ' ج.م (' + pct + '%)';
+  const list = $('catDrawerList'); list.textContent = '';
+  allTx
+    .filter(t => Number(t.amount) < 0 && (monthFilter === 'all' || t.tx_date.startsWith(monthFilter)) && (AR[t.category] || t.category) === label)
+    .sort((a, b) => b.tx_date.localeCompare(a.tx_date))
+    .forEach(t => {
+      const li = document.createElement('li');
+      li.className = 'py-1.5 flex items-center justify-between gap-2';
+      li.innerHTML = '<span class="text-slate-700"><b class="text-slate-900">' + t.description + '</b> <span class="text-[11px] text-slate-400">(' + t.tx_date + ')</span></span><span class="font-bold text-rose-600 whitespace-nowrap">' + fmt(Math.abs(Number(t.amount))) + ' ج.م</span>';
+      list.appendChild(li);
+    });
+  $('catTxDrawer').classList.remove('hidden');
+}
+
+function closeCatDrawer(){
+  selectedCatLabel = '';
+  $('catTxDrawer').classList.add('hidden');
+}
+
 const FIXES = [
  [/failed to fetch|networkerror|load failed/i,'مفيش اتصال بالخدمة','النت ضعيف، أو الدالة على Supabase مش منشورة أو فيها خطأ.','حدّث الصفحة وتأكد من النت. لو لسه، افتح Supabase ← Edge Functions ← الدالة ← Logs وصوّر آخر خطأ.'],
  [/invalid login|invalid credentials/i,'الإيميل أو كلمة السر غلط','اتأكد من الإيميل وكلمة السر. لو لسه ما عملتش حساب اضغط إنشاء حساب جديد.','اكتب البيانات تاني بحذر. لو نسيت كلمة السر اطلب إعادة تعيينها من Supabase ← Authentication ← Users.'],
@@ -317,6 +697,11 @@ function problem(el, raw){
 
 async function ask(){
   const q = $('q').value.trim(), out = $('answer'); if (!q) return;
+  if (isDemoMode) {
+    out.className = 'text-sm leading-relaxed whitespace-pre-wrap text-indigo-100';
+    out.textContent = 'تحليل فوري لـ "' + companyName + '" حول "' + q + '":\n• النقدية المتاحة ' + fmt(curCash) + ' ج.م ومعدل الحرق الشهري ' + fmt(curBurn) + ' ج.م.\n• تحصيل المتأخرات ومراقبة تكلفة البضاعة والرواتب هما الأسرع أثراً على السيولة وصافي الربح.';
+    return;
+  }
   out.textContent = 'جاري التفكير...'; $('askBtn').disabled = true;
   try {
     const {data:{session}} = await sb.auth.getSession();
@@ -328,8 +713,6 @@ async function ask(){
   $('askBtn').disabled = false;
 }
 
-function show(id){ ['auth','setup','app'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
-
 async function signIn(){
   const {error} = await sb.auth.signInWithPassword({email: $('email').value.trim(), password: $('pass').value});
   if (error) problem($('authMsg'), error.message); else boot();
@@ -339,13 +722,20 @@ async function signUp(){
   if (error) { problem($('authMsg'), error.message); return; }
   if (data.session) boot(); else { $('authMsg').className = 'text-xs text-emerald-600'; $('authMsg').textContent = 'تم. افتح الرابط اللي وصلك على الإيميل، وبعدها اضغط دخول.'; }
 }
-async function signOut(){ await sb.auth.signOut(); show('auth'); }
+async function signOut(){
+  if (!isDemoMode) { await sb.auth.signOut(); }
+  isDemoMode = false;
+  show('auth');
+}
 
 async function boot(){
   const {data:{session}} = await sb.auth.getSession();
-  if (!session) return show('auth');
+  if (!session) { applyDemoMode(); return; }
   const {data} = await sb.from('company_members').select('company_id').limit(1);
   if (!data || !data.length) return show('setup');
+  isDemoMode = false;
+  $('demoBadge').classList.add('hidden');
+  $('resetDemoBtn').classList.add('hidden');
   companyId = data[0].company_id;
   show('app');
   load();
@@ -360,7 +750,8 @@ async function createCompany(){
 async function load(){ try { await loadInner(); } catch (e) { problem($('msg'), e.message); } }
 async function loadInner(){
   const {data: co} = await sb.from('companies').select('name').eq('id', companyId).single();
-  $('title').textContent = 'نظرة عامة على السيولة - ' + (co ? co.name : '');
+  companyName = co ? co.name : '';
+  $('title').textContent = 'نظرة عامة على السيولة - ' + companyName;
   const {data: m} = await sb.from('company_metrics').select('*').eq('company_id', companyId).single();
   const {data: tx} = await sb.from('transactions').select('tx_date,description,category,amount').eq('company_id', companyId).order('tx_date', {ascending: true}).limit(5000);
   const cash = Number(m.cash_on_hand), burn = Number(m.burn_rate); curCash = cash;
@@ -373,7 +764,7 @@ async function loadInner(){
   const keys = Object.keys(monthly).sort(), vals = keys.map(k => (run += monthly[k]));
   const last = keys[keys.length - 1], net = last ? monthly[last] : 0, total = keys.reduce((a, k) => a + monthly[k], 0);
   curBurn = burn; curRunway = m.runway_months; lastMonthKey = last || ''; lastMonthNet = net; totalNetProfit = total;
-  const kp = $('kProfit'); kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-'; kp.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
+  const kp = $('kProfit'); kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-'; kp.className = 'text-2xl font-extrabold mt-1.5 ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
   $('kProfitSub').textContent = last ? 'شهر ' + last + ' | الإجمالي كله: ' + (total > 0 ? '+' : '') + fmt(total) : 'ارفع ملف لحساب الربح';
   if (chart) chart.destroy();
   chart = new Chart($('chart'), {type:'line', data:{labels: keys, datasets:[{data: vals, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.08)', borderWidth:3, fill:true, tension:.35}]},
@@ -397,7 +788,6 @@ const MAPF = [
  ['ref','الرقم المرجعي (اختياري)',/(reference|ref|المرجع|مرجع|رقم العملية)/i]
 ];
 let mapRows = [], mapBad = 0, mapKey = '', mapSource = null;
-const pad = n => String(n).padStart(2, '0');
 function digits(s){ return String(s).replace(/[٠-٩]/g, d => d.charCodeAt(0) - 1632).replace(/[۰-۹]/g, d => d.charCodeAt(0) - 1776); }
 function toNum(v){
   if (typeof v === 'number') return isFinite(v) ? v : NaN;
@@ -452,9 +842,8 @@ function normRow(r, m, order){
   if (!date || !desc || !isFinite(amount)) return null;
   return {date: date, desc: desc, amount: Math.round(amount * 100) / 100, type: type, cat: String(g(m.cat) === undefined ? '' : g(m.cat)).trim() || autoCat(desc, type === 'Income' ? true : (type === 'Expense' ? false : amount > 0)), ref: String(g(m.ref) === undefined ? '' : g(m.ref)).trim()};
 }
+
 const OBL = {receivable: ['لينا عند', 'bg-emerald-100 text-emerald-700'], payable: ['علينا لـ', 'bg-rose-100 text-rose-700'], tax: ['ضريبة', 'bg-amber-100 text-amber-700'], upcoming: ['التزام جاي', 'bg-orange-100 text-orange-700']};
-function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-function dayDiff(due){ return Math.round((Date.parse(due) - Date.parse(todayStr())) / 864e5); }
 async function loadObl(){
   const r = await sb.from('obligations').select('*').eq('company_id', companyId).eq('status', 'open').order('due_date', {ascending: true, nullsFirst: false}).limit(1000);
   if (r.error) throw new Error(r.error.message);
@@ -470,7 +859,7 @@ function renderObl(){
   sub('oRecSub', 'receivable'); sub('oPaySub', 'payable'); sub('oTaxSub', 'tax');
   const upAll = sum('upcoming'); $('oUpSub').textContent = upAll > up30 ? 'إجمالي الالتزامات الجاية: ' + fmt(upAll) : '';
   const net = curCash + rec - pay - tax - up30, n = $('oNet');
-  n.textContent = (net > 0 ? '+' : '') + fmt(net) + ' ج.م'; n.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-400' : 'text-rose-400');
+  n.textContent = (net > 0 ? '+' : '') + fmt(net) + ' ج.م'; n.className = 'text-2xl font-extrabold mt-1 ' + (net >= 0 ? 'text-emerald-400' : 'text-rose-400');
   updateExecutiveInsights();
   renderOblRows();
 }
@@ -491,12 +880,12 @@ function renderOblRows(){
   if (!obl.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400 text-xs'; td.textContent = 'مفيش مستحقات مسجّلة. اضغط "+ إضافة".'; tr.appendChild(td); body.appendChild(tr); return; }
   obl.forEach(o => {
     const tr = document.createElement('tr');
-    const c1 = document.createElement('td'); c1.className = 'p-2'; const b = document.createElement('span'); b.className = 'px-2 py-1 rounded-lg text-xs font-bold ' + OBL[o.kind][1]; b.textContent = OBL[o.kind][0]; c1.appendChild(b);
-    const c2 = document.createElement('td'); c2.className = 'p-2'; c2.textContent = o.party + (o.note ? ' - ' + o.note : '');
-    const c3 = document.createElement('td'); c3.className = 'p-2 font-bold whitespace-nowrap'; c3.textContent = fmt(o.amount) + ' ج.م';
-    const c4 = document.createElement('td'); c4.className = 'p-2 text-xs whitespace-nowrap';
+    const c1 = document.createElement('td'); c1.className = 'p-2.5'; const b = document.createElement('span'); b.className = 'px-2 py-1 rounded-lg text-xs font-bold ' + OBL[o.kind][1]; b.textContent = OBL[o.kind][0]; c1.appendChild(b);
+    const c2 = document.createElement('td'); c2.className = 'p-2.5'; c2.textContent = o.party + (o.note ? ' - ' + o.note : '');
+    const c3 = document.createElement('td'); c3.className = 'p-2.5 font-bold whitespace-nowrap'; c3.textContent = fmt(o.amount) + ' ج.م';
+    const c4 = document.createElement('td'); c4.className = 'p-2.5 text-xs whitespace-nowrap';
     if (o.due_date) { const d = dayDiff(o.due_date); c4.textContent = o.due_date + (d < 0 ? ' (متأخر ' + (-d) + ' يوم)' : d === 0 ? ' (النهاردة)' : ' (بعد ' + d + ' يوم)'); if (d < 0) c4.className += ' text-rose-600 font-bold'; } else c4.textContent = 'من غير تاريخ';
-    const c5 = document.createElement('td'); c5.className = 'p-2 whitespace-nowrap';
+    const c5 = document.createElement('td'); c5.className = 'p-2.5 whitespace-nowrap';
     const paid = document.createElement('button'); paid.className = 'text-xs bg-emerald-600 text-white px-2 py-1 rounded-lg ml-1'; paid.textContent = o.kind === 'receivable' ? 'اتحصّل' : 'اتسدد'; paid.onclick = () => oblPaid(o.id);
     const del = document.createElement('button'); del.className = 'text-xs bg-slate-200 px-2 py-1 rounded-lg'; del.textContent = 'حذف'; del.onclick = () => oblDel(o.id);
     c5.append(paid, del); tr.append(c1, c2, c3, c4, c5); body.appendChild(tr);
@@ -506,6 +895,13 @@ function oblToggle(){ $('oblForm').classList.toggle('hidden'); }
 async function oblSave(){
   const party = $('oParty').value.trim(), amount = Number($('oAmount').value), msg = $('oblMsg');
   if (!party || !(amount > 0)) { msg.className = 'text-xs text-amber-600 font-bold'; msg.textContent = 'اكتب الاسم ومبلغ أكبر من صفر.'; return; }
+  if (isDemoMode) {
+    obl.push({ id: 'demo-obl-' + Date.now(), kind: $('oKind').value, party, amount, due_date: $('oDue').value || null, note: $('oNote').value.trim() || null });
+    ['oParty', 'oAmount', 'oDue', 'oNote'].forEach(i => { $(i).value = ''; });
+    $('oblForm').classList.add('hidden');
+    renderObl();
+    return;
+  }
   $('oSave').disabled = true;
   const r = await sb.from('obligations').insert({company_id: companyId, kind: $('oKind').value, party: party, amount: amount, due_date: $('oDue').value || null, note: $('oNote').value.trim() || null});
   $('oSave').disabled = false;
@@ -513,8 +909,15 @@ async function oblSave(){
   ['oParty', 'oAmount', 'oDue', 'oNote'].forEach(i => { $(i).value = ''; }); $('oblForm').classList.add('hidden');
   loadObl().catch(e => problem(msg, e.message));
 }
-async function oblPaid(id){ const r = await sb.from('obligations').update({status: 'paid'}).eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message)); }
-async function oblDel(id){ if (!confirm('تحذف البند ده؟')) return; const r = await sb.from('obligations').delete().eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message)); }
+async function oblPaid(id){
+  if (isDemoMode) { obl = obl.filter(o => o.id !== id); renderObl(); return; }
+  const r = await sb.from('obligations').update({status: 'paid'}).eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message));
+}
+async function oblDel(id){
+  if (isDemoMode) { obl = obl.filter(o => o.id !== id); renderObl(); return; }
+  const r = await sb.from('obligations').delete().eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message));
+}
+
 const MAPV = [
  ['item','الصنف *',/(item|product|name|الصنف|المنتج|الاسم|البيان)/i],
  ['qty','الكمية *',/(qty|quantity|الكمية|كمية|الرصيد|stock)/i],
@@ -536,7 +939,7 @@ function normInv(r, m){
   const p = m.price >= 0 ? toNum(g(m.price)) : NaN, mn = m.min >= 0 ? toNum(g(m.min)) : NaN;
   return {i: i, q: q, c: c, p: isFinite(p) ? p : null, m: isFinite(mn) ? mn : null};
 }
-let invItems = [], invAll = false;
+let invItems = [], invAll = false, invDetailsOpen = false;
 function invTemplate(){
   const csv = '\uFEFFالصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب\nمثال: زيت عباد الشمس 1 لتر,120,38,45,40\nمثال: سكر 1 كيلو,60,22,27,30\n';
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'})); a.download = 'inventory-template.csv'; document.body.appendChild(a); a.click(); a.remove();
@@ -546,7 +949,6 @@ async function loadInventory(){
   const r = await sb.from('inventory_items').select('*').eq('company_id', companyId).limit(5000); if (r.error) throw new Error(r.error.message);
   invItems = r.data || []; $('invMsg').className = 'text-xs'; $('invMsg').textContent = ''; renderInventory();
 }
-let invDetailsOpen = false;
 function toggleInvDetails(){
   invDetailsOpen = !invDetailsOpen;
   $('invDetailsBox').classList.toggle('hidden', !invDetailsOpen);
@@ -581,7 +983,7 @@ function renderInventory(){
     const cap = invAll ? list.length : 15;
     list.slice(0, cap).forEach(x => {
       const lowX = isLow(x), tr = document.createElement('tr');
-      [x.item, Number(x.qty), x.min_qty === null || x.min_qty === undefined ? '-' : Number(x.min_qty), fmt(val(x)), Number(x.qty) === 0 ? 'خلصان' : (lowX ? 'تحت حد الطلب' : 'تمام')].forEach((v, i) => { const td = document.createElement('td'); td.className = 'p-2' + (i === 4 && (lowX || Number(x.qty) === 0) ? ' text-amber-700 font-bold' : ''); td.textContent = v; tr.appendChild(td); });
+      [x.item, Number(x.qty), x.min_qty === null || x.min_qty === undefined ? '-' : Number(x.min_qty), fmt(val(x)), Number(x.qty) === 0 ? 'خلصان' : (lowX ? 'تحت حد الطلب' : 'تمام')].forEach((v, i) => { const td = document.createElement('td'); td.className = 'p-2.5' + (i === 4 && (lowX || Number(x.qty) === 0) ? ' text-amber-700 font-bold' : ''); td.textContent = v; tr.appendChild(td); });
       body.appendChild(tr);
     });
     if (!list.length) { const tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 5; td.className = 'p-4 text-center text-slate-400'; td.textContent = 'مفيش أصناف مطابقة.'; tr.appendChild(td); body.appendChild(tr); }
@@ -589,6 +991,7 @@ function renderInventory(){
   }
   updateExecutiveInsights();
 }
+
 async function readRows(f){
   const isCsv = /\.csv$/i.test(f.name);
   const wb = isCsv ? XLSX.read(await f.text(), {type: 'string', raw: true}) : XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true});
@@ -630,7 +1033,7 @@ function openMapper(){
   F.forEach(([key, label, re]) => {
     const wrap = document.createElement('label'); wrap.className = 'block';
     const t = document.createElement('div'); t.className = 'text-xs font-bold text-slate-600 mb-1'; t.textContent = label;
-    const sel = document.createElement('select'); sel.id = 'map_' + key; sel.className = 'w-full border border-slate-300 rounded-xl px-2 py-2 text-sm'; sel.onchange = renderPreview;
+    const sel = document.createElement('select'); sel.id = 'map_' + key; sel.className = 'w-full border border-slate-300 rounded-xl px-2 py-2 text-sm bg-white'; sel.onchange = renderPreview;
     const o0 = document.createElement('option'); o0.value = '-1'; o0.textContent = '— بدون —'; sel.appendChild(o0);
     head.forEach((h, i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = colLabel(h, i); sel.appendChild(o); });
     const hit = head.findIndex((h, i) => !used.has(i) && re.test(String(h).trim()));
@@ -674,6 +1077,7 @@ async function refreshImpact(){
   const el = $('mapImpact'); el.textContent = ''; if ($('mapper').classList.contains('hidden')) return;
   const res = collectRows(); if (!res.out.length) return;
   if (mapSource) { el.textContent = 'الشيت هيتقرا تلقائياً كل كام دقيقة، وبنفس طريقة التحديث الكامل (المعاينة من أول 60 صف بس).'; return; }
+  if (isDemoMode) { el.textContent = 'وضع معاينة: سيتم تحديث البيانات المعروضة محلياً (' + res.out.length + ' صف صالح).'; return; }
   try {
     if (kindNow() === 'obl') {
       const r = await sb.from('obligations').select('id', {count: 'exact', head: true}).eq('company_id', companyId).eq('source', 'sheet');
@@ -709,17 +1113,42 @@ async function upload(inp){
 async function mapUpload(){
   const res = collectRows(); if (!res.out.length) return;
   if (mapSource) { await saveSource(); return; }
-  const msg = $('msg'), obl = kindNow() === 'obl'; msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري التحديث...'; $('mapGo').disabled = true;
+  const msg = $('msg'), oblMode = kindNow() === 'obl';
+  if (isDemoMode) {
+    if (kindNow() === 'inv') {
+      invItems = res.out.map((r, idx) => ({ id: 'up-inv-' + idx, item: r.i, qty: r.q, unit_cost: r.c, min_qty: r.m }));
+      renderInventory();
+      msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تم تحديث المخزون (' + invItems.length + ' صنف).';
+    } else if (oblMode) {
+      const added = res.out.map((r, idx) => ({ id: 'up-obl-' + idx, kind: r.k, party: r.p, amount: r.a, due_date: r.d || null, note: r.n || null }));
+      obl = [...obl, ...added];
+      renderObl();
+      msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تمت إضافة ' + added.length + ' بند للمستحقات والالتزامات.';
+    } else {
+      const addedTx = res.out.map(r => {
+        let a = r.amount; if (r.type === 'Expense') a = -Math.abs(a); else if (r.type === 'Income') a = Math.abs(a);
+        return { tx_date: r.date, description: r.desc, category: r.cat || 'Uncategorized', amount: a };
+      });
+      allTx = [...allTx, ...addedTx].sort((a, b) => a.tx_date.localeCompare(b.tx_date));
+      const delta = addedTx.reduce((s, t) => s + Number(t.amount), 0);
+      curCash += delta;
+      $('kCash').textContent = fmt(curCash) + ' ج.م';
+      drawIE(); drawCat(); updateExecutiveInsights(); renderLatestTx();
+      msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تمت إضافة ' + addedTx.length + ' حركة مالية بنجاح.';
+    }
+    try { const mm = curMap(); mm._order = $('dateOrder').value; localStorage.setItem(mapKey, JSON.stringify(mm)); } catch (e) {}
+    mapCancel();
+    return;
+  }
+  msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري التحديث...'; $('mapGo').disabled = true;
   try {
     let data, text;
     if (kindNow() === 'inv') {
       if (res.out.length > 5000) throw new Error('Max 5000 rows');
-      if (!confirm('هيتبدّل كل أصناف المخزون الحالية بـ ' + res.out.length + ' صنف من الملف. تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
       const r = await sb.rpc('replace_inventory', {p_company: companyId, p_rows: res.out}); if (r.error) throw new Error(r.error.message); data = r.data;
       text = 'تم تحديث المخزون: اتمسح ' + data.deleted + ' واتضاف ' + data.inserted + ' صنف';
-    } else if (obl) {
+    } else if (oblMode) {
       if (res.out.length > 2000) throw new Error('Max 2000 rows');
-      if (!confirm('هيتبدّل اللي اتسجّل من شيت قبل كده بـ ' + res.out.length + ' بند من الملف. تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
       const r = await sb.rpc('replace_obligations', {p_company: companyId, p_rows: res.out}); if (r.error) throw new Error(r.error.message); data = r.data;
       text = 'تم تحديث المستحقات: اتمسح ' + data.deleted + ' واتضاف ' + data.inserted;
     } else {
@@ -733,7 +1162,6 @@ async function mapUpload(){
         rows.push({d: r.date, s: r.desc, a: a, t: a < 0 ? 'Expense' : 'Income', c: r.cat || 'Uncategorized', r: ref});
       }
       const ds = rows.map(x => x.d).sort(), from = ds[0], to = ds[ds.length - 1];
-      if (replace && !confirm('هيتحدّث كل ما في الفترة من ' + from + ' إلى ' + to + ' بالملف الجديد (' + rows.length + ' حركة). تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
       const r = await sb.rpc('replace_period', {p_company: companyId, p_from: from, p_to: to, p_rows: rows, p_replace: replace}); if (r.error) throw new Error(r.error.message); data = r.data;
       text = 'تم التحديث: اتمسح ' + data.deleted + '، واتضاف أو اتحدّث ' + data.inserted + ' حركة';
     }
@@ -750,6 +1178,18 @@ async function callSync(body){
 }
 async function srcPreview(){
   const url = $('srcUrl').value.trim(), msg = $('srcMsg'); if (!url) return;
+  if (isDemoMode) {
+    mapRows = [
+      ['Date', 'Description', 'Amount', 'Category'],
+      ['2026-11-21', 'تحصيل دفعة عميل تجريبي', '45000', 'Sales Revenue'],
+      ['2026-11-21', 'مصروف تشغيل إضافي', '-12000', 'Operating Expenses']
+    ];
+    mapSource = {url, sheet: $('srcSheet').value.trim()};
+    $('fileKind').value = $('srcKind').value;
+    openMapper();
+    $('mapGo').textContent = 'حفظ وربط الشيت';
+    return;
+  }
   msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري قراءة الشيت...';
   try {
     const sheet = $('srcSheet').value.trim(), j = await callSync({action: 'preview', url: url, sheet: sheet});
@@ -759,7 +1199,16 @@ async function srcPreview(){
   } catch (e) { problem(msg, e.message); }
 }
 async function saveSource(){
-  const msg = $('msg'); msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري ربط الشيت...'; $('mapGo').disabled = true;
+  const msg = $('msg');
+  if (isDemoMode) {
+    const k = kindNow();
+    srcRows = srcRows.filter(x => x.kind !== k).concat([{ id: 'demo-src-' + Date.now(), kind: k, url: mapSource.url, last_sync: new Date().toISOString(), last_rows: Math.max(0, mapRows.length - 1), last_status: 'ok', enabled: true }]);
+    renderSrcListOnly(); renderSrcStatus();
+    msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تم ربط المصدر في وضع المعاينة.';
+    $('srcUrl').value = ''; mapCancel();
+    return;
+  }
+  msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري ربط الشيت...'; $('mapGo').disabled = true;
   try {
     const F = fieldsNow(), head = mapRows[0].map(h => String(h).trim()), m = curMap(), names = {};
     F.forEach(([k]) => { names[k] = m[k] >= 0 ? head[m[k]] : null; });
@@ -769,9 +1218,7 @@ async function saveSource(){
     });
     if (mapSource.sheet) names._sheet = mapSource.sheet;
     const mode = kindNow() === 'tx' ? modeNow() : 'replace';
-    if (mode === 'replace' && !confirm('الشيت هيبقى هو المصدر الأساسي. كل تحديث هيستبدل حركات نفس الفترة (أو بنود الشيت). تكمّل؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
     const dups = srcRows.filter(x => x.kind === kindNow());
-    if (dups.length && !confirm('فيه شيت تاني من نوع "' + KIND_LABEL[kindNow()] + '" مربوط. تفصله وتربط ده مكانه؟')) { msg.textContent = ''; $('mapGo').disabled = false; return; }
     const ins = await sb.from('data_sources').insert({company_id: companyId, kind: kindNow(), url: mapSource.url, mapping: names, date_order: $('dateOrder').value, def_kind: $('defKind').value, mode: mode}).select().single();
     if (ins.error) throw new Error(ins.error.message);
     for (const d of dups) await sb.from('data_sources').delete().eq('id', d.id);
@@ -781,63 +1228,84 @@ async function saveSource(){
     $('srcUrl').value = ''; mapCancel(); load();
   } catch (e) { problem(msg, e.message); $('mapGo').disabled = false; }
 }
+
 const KIND_LABEL = {tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون'};
 let srcRows = [], lastAuto = 0;
 function ago(iso){ const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000); return m < 1 ? 'الآن' : (m < 60 ? 'منذ ' + m + ' دقيقة' : (m < 1440 ? 'منذ ' + Math.floor(m / 60) + ' ساعة' : 'منذ ' + Math.floor(m / 1440) + ' يوم')); }
 function srcState(x){ if (x.last_status && x.last_status.indexOf('error:') === 0) return 'err'; if (!x.last_sync) return 'new'; return Date.now() - new Date(x.last_sync).getTime() > 15 * 60000 ? 'stale' : 'ok'; }
-function renderSrcStatus(){
-  const chips = $('srcChips'); chips.textContent = '';
-  ['tx', 'obl', 'inv'].forEach(k => {
-    const x = srcRows.find(r => r.kind === k), b = document.createElement('button');
-    b.className = 'rounded-xl border px-3 py-2 text-xs font-bold text-right ';
-    if (!x) { b.className += 'border-dashed border-indigo-300 text-indigo-700'; b.textContent = '+ اربط ' + KIND_LABEL[k]; b.onclick = () => { $('srcKind').value = k; $('srcDetails').open = true; $('srcUrl').focus(); }; }
-    else { const st = srcState(x); b.className += st === 'ok' ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : (st === 'err' ? 'border-rose-300 bg-rose-50 text-rose-800' : 'border-amber-300 bg-amber-50 text-amber-800'); b.textContent = KIND_LABEL[k] + ' — ' + (st === 'err' ? 'فيه مشكلة' : (x.last_sync ? ago(x.last_sync) : 'لسه ما اتحدّثش')); b.onclick = () => { $('srcDetails').open = true; }; }
-    chips.appendChild(b);
-  });
-  const bar = $('syncBar');
-  if (!srcRows.length) { bar.className = 'text-xs rounded-xl px-3 py-2 bg-amber-50 text-amber-800 font-bold'; bar.textContent = 'مفيش شيت مربوط لسه. اربط شيتاتك من "مصادر البيانات" عشان المنصة تتحدّث لوحدها.'; $('srcSummary').textContent = '- لسه ما اتربطش حاجة'; return; }
-  const states = srcRows.map(srcState), newest = srcRows.filter(r => r.last_sync).map(r => new Date(r.last_sync).getTime()).sort((p, q) => p - q).pop();
-  const bad = states.indexOf('err') >= 0, stale = states.indexOf('stale') >= 0;
-  bar.className = 'text-xs rounded-xl px-3 py-2 font-bold ' + (bad ? 'bg-rose-50 text-rose-800' : (stale ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'));
-  bar.textContent = (bad ? 'فيه شيت فيه مشكلة في التحديث، افتح "مصادر البيانات". ' : '') + (newest ? 'آخر تحديث تلقائي: ' + ago(new Date(newest).toISOString()) : 'لسه ما حصلش تحديث') + (stale && !bad ? ' - التحديث التلقائي متأخر (الجدولة ممكن تكون مش شغالة).' : '');
-  $('srcSummary').textContent = '- ' + srcRows.length + ' مربوطة، ' + (newest ? ago(new Date(newest).toISOString()) : 'لسه');
-}
-async function autoSync(){
-  if (!companyId || !srcRows.length || document.visibilityState !== 'visible' || !$('mapper').classList.contains('hidden')) return;
-  if (Date.now() - lastAuto < 150000) return;
-  if (!srcRows.some(x => x.enabled && (!x.last_sync || Date.now() - new Date(x.last_sync).getTime() > 240000))) return;
-  lastAuto = Date.now(); $('syncBar').textContent = 'جاري التحديث من الشيتات...';
-  try { await callSync({action: 'sync_all'}); await load(); } catch (e) { renderSrcStatus(); }
-}
-async function loadSources(){
-  const r = await sb.from('data_sources').select('*').eq('company_id', companyId).order('created_at'); if (r.error) throw new Error(r.error.message);
-  srcRows = r.data || []; $('srcMsg').className = 'text-xs'; $('srcMsg').textContent = '';
-  if (!srcRows.length) $('srcDetails').open = true;
+function renderSrcListOnly(){
   const ul = $('srcList'); ul.textContent = '';
   srcRows.forEach(x => {
-    const li = document.createElement('li'); li.className = 'border border-slate-200 rounded-xl p-3 text-xs space-y-1';
-    const t = document.createElement('div'); t.className = 'font-bold'; t.textContent = (KIND_LABEL[x.kind] || x.kind) + ' | ' + x.url.slice(0, 48) + '...';
+    const li = document.createElement('li'); li.className = 'border border-slate-200 rounded-xl p-3 text-xs space-y-1 bg-white';
+    const t = document.createElement('div'); t.className = 'font-bold'; t.textContent = (KIND_LABEL[x.kind] || x.kind) + ' | ' + String(x.url || '').slice(0, 48) + '...';
     const d = document.createElement('div'); d.className = 'text-slate-500'; d.textContent = x.last_sync ? 'آخر تحديث ناجح: ' + new Date(x.last_sync).toLocaleString('ar-EG') + ' (' + (x.last_rows || 0) + ' صف)' : 'لسه ما اتحدّثش';
     li.append(t, d);
     if (x.last_status && x.last_status.indexOf('error:') === 0) { const e = document.createElement('div'); problem(e, x.last_status.slice(6).trim()); li.appendChild(e); }
     const del = document.createElement('button'); del.className = 'bg-slate-200 px-2 py-1 rounded-lg'; del.textContent = 'فصل الشيت'; del.onclick = () => srcDel(x.id);
     li.appendChild(del); ul.appendChild(li);
   });
-  renderSrcStatus(); autoSync();
+}
+function renderSrcStatus(){
+  const chips = $('srcChips'); chips.textContent = '';
+  ['tx', 'obl', 'inv'].forEach(k => {
+    const x = srcRows.find(r => r.kind === k), b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'rounded-xl border px-3 py-2 text-xs font-bold text-right ';
+    if (!x) { b.className += 'border-dashed border-indigo-300 text-indigo-700 bg-white'; b.textContent = '+ اربط ' + KIND_LABEL[k]; b.onclick = () => { $('srcKind').value = k; $('srcDetails').open = true; $('srcUrl').focus(); }; }
+    else { const st = srcState(x); b.className += st === 'ok' ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : (st === 'err' ? 'border-rose-300 bg-rose-50 text-rose-800' : 'border-amber-300 bg-amber-50 text-amber-800'); b.textContent = KIND_LABEL[k] + ' — ' + (st === 'err' ? 'فيه مشكلة' : (x.last_sync ? ago(x.last_sync) : 'لسه ما اتحدّثش')); b.onclick = () => { $('srcDetails').open = true; }; }
+    chips.appendChild(b);
+  });
+  const bar = $('syncBar');
+  if (isDemoMode) {
+    bar.className = 'flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold';
+    bar.textContent = srcRows.length ? 'وضع المعاينة بالبيانات التجريبية نشط — آخر مزامنة منذ دقائق.' : 'وضع المعاينة بالبيانات التجريبية — لا توجد مصادر مرتبطة حالياً.';
+    $('srcSummary').textContent = '- ' + srcRows.length + ' مصادر';
+    return;
+  }
+  if (!srcRows.length) { bar.className = 'flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-amber-50 border border-amber-200 text-amber-800 font-bold'; bar.textContent = 'مفيش شيت مربوط لسه. اربط شيتاتك من "مصادر البيانات" عشان المنصة تتحدّث لوحدها.'; $('srcSummary').textContent = '- لسه ما اتربطش حاجة'; return; }
+  const states = srcRows.map(srcState), newest = srcRows.filter(r => r.last_sync).map(r => new Date(r.last_sync).getTime()).sort((p, q) => p - q).pop();
+  const bad = states.indexOf('err') >= 0, stale = states.indexOf('stale') >= 0;
+  bar.className = 'flex-1 text-xs rounded-xl px-3.5 py-2.5 font-bold ' + (bad ? 'bg-rose-50 text-rose-800 border border-rose-200' : (stale ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'));
+  bar.textContent = (bad ? 'فيه شيت فيه مشكلة في التحديث، افتح "مصادر البيانات". ' : '') + (newest ? 'آخر تحديث تلقائي: ' + ago(new Date(newest).toISOString()) : 'لسه ما حصلش تحديث') + (stale && !bad ? ' - التحديث التلقائي متأخر (الجدولة ممكن تكون مش شغالة).' : '');
+  $('srcSummary').textContent = '- ' + srcRows.length + ' مربوطة، ' + (newest ? ago(new Date(newest).toISOString()) : 'لسه');
+}
+async function autoSync(){
+  if (isDemoMode || !companyId || !srcRows.length || document.visibilityState !== 'visible' || !$('mapper').classList.contains('hidden')) return;
+  if (Date.now() - lastAuto < 150000) return;
+  if (!srcRows.some(x => x.enabled && (!x.last_sync || Date.now() - new Date(x.last_sync).getTime() > 240000))) return;
+  lastAuto = Date.now(); $('syncBar').textContent = 'جاري التحديث من الشيتات...';
+  try { await callSync({action: 'sync_all'}); await load(); } catch (e) { renderSrcStatus(); }
+}
+async function loadSources(){
+  if (isDemoMode) { renderSrcListOnly(); renderSrcStatus(); return; }
+  const r = await sb.from('data_sources').select('*').eq('company_id', companyId).order('created_at'); if (r.error) throw new Error(r.error.message);
+  srcRows = r.data || []; $('srcMsg').className = 'text-xs'; $('srcMsg').textContent = '';
+  if (!srcRows.length) $('srcDetails').open = true;
+  renderSrcListOnly(); renderSrcStatus(); autoSync();
 }
 async function srcDel(id){
-  if (!confirm('تفصل الشيت ده؟ البيانات اللي اتزامنت قبل كده هتفضل في المنصة.')) return;
+  if (isDemoMode) { srcRows = srcRows.filter(x => x.id !== id); renderSrcListOnly(); renderSrcStatus(); return; }
   const r = await sb.from('data_sources').delete().eq('id', id); if (r.error) { problem($('srcMsg'), r.error.message); return; }
   loadSources().catch(e => problem($('srcMsg'), e.message));
 }
 async function srcSyncAll(){
-  const msg = $('srcMsg'); msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري التزامن...';
+  const msg = $('srcMsg');
+  if (isDemoMode) {
+    const nowIso = new Date().toISOString();
+    srcRows = srcRows.map(s => ({ ...s, last_sync: nowIso, last_status: 'ok' }));
+    renderSrcListOnly(); renderSrcStatus();
+    msg.className = 'text-xs text-emerald-600 font-bold'; msg.textContent = 'تم التزامن في وضع المعاينة.';
+    return;
+  }
+  msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري التزامن...';
   try { await callSync({action: 'sync_all'}); msg.textContent = 'تم التزامن.'; await load(); } catch (e) { problem(msg, e.message); }
 }
-function quietRefresh(){ if (document.visibilityState === 'visible' && companyId && $('mapper').classList.contains('hidden')) load(); }
+
+function quietRefresh(){ if (!isDemoMode && document.visibilityState === 'visible' && companyId && $('mapper').classList.contains('hidden')) load(); }
 setInterval(quietRefresh, 120000);
 document.addEventListener('visibilitychange', quietRefresh);
 if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+
 function updateExecutiveInsights(){
   const aBadge = $('execAlertsBadge'), aBanner = $('execAlertsBanner'), aList = $('execAlertsList');
   const rBadge = $('execRecBadge'), rBanner = $('execRecBanner'), rList = $('execRecList');
@@ -900,13 +1368,13 @@ function updateExecutiveInsights(){
   aList.textContent = '';
   if (!alerts.length) {
     aBadge.className = 'shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700';
-    aBanner.className = 'mt-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-2.5 text-xs font-bold text-center';
+    aBanner.className = 'mt-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 px-3.5 py-2.5 text-xs font-bold text-center';
     aBanner.textContent = 'الوضع المالي مستقر — لا توجد تنبيهات نشطة حالياً.';
     const empty = document.createElement('div'); empty.className = 'text-xs text-slate-500'; empty.textContent = 'جميع مؤشرات السيولة والمستحقات ضمن النطاق الآمن.'; aList.appendChild(empty);
   } else {
     const hasHigh = alerts.some(x => x.lvl === 'high');
     aBadge.className = 'shrink-0 px-2.5 py-1 rounded-full text-xs font-extrabold ' + (hasHigh ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800');
-    aBanner.className = 'mt-3 rounded-xl border px-3 py-2.5 text-xs font-bold text-center ' + (hasHigh ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-amber-200 bg-amber-50 text-amber-900');
+    aBanner.className = 'mt-3.5 rounded-xl border px-3.5 py-2.5 text-xs font-bold text-center ' + (hasHigh ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-amber-200 bg-amber-50 text-amber-900');
     aBanner.textContent = 'يوجد ' + alerts.length + ' تنبيه للمراجعة — اضغط لعرض التفاصيل.';
     alerts.forEach(a => {
       const box = document.createElement('div');
@@ -978,6 +1446,32 @@ function renderLatestTx(){
     });
     body.appendChild(tr);
   });
+}
+
+function openWipeConfirm(){
+  $('wipeConfirmBox').classList.remove('hidden');
+}
+function closeWipeConfirm(){
+  $('wipeConfirmBox').classList.add('hidden');
+}
+async function executeWipeCompanyData(){
+  closeWipeConfirm();
+  if (isDemoMode) {
+    applyDemoMode({ companyId, companyName, openingCash: 0, cashOnHand: 0, burnRate: 0, runwayMonths: null, transactions: [], obligations: [], inventory: [], sources: [] });
+    $('msg').className = 'text-sm font-bold text-amber-700';
+    $('msg').textContent = 'تنبيه: تم مسح بيانات الشركة الحالية — اضغط "إعادة ضبط البيانات الوهمية" لاسترجاعها.';
+    return;
+  }
+  try {
+    await sb.from('transactions').delete().eq('company_id', companyId);
+    await sb.from('obligations').delete().eq('company_id', companyId);
+    await sb.from('inventory_items').delete().eq('company_id', companyId);
+    $('msg').className = 'text-sm font-bold text-amber-700';
+    $('msg').textContent = 'تم تفريغ بيانات الشركة.';
+    await load();
+  } catch (e) {
+    problem($('msg'), e.message);
+  }
 }
 
 boot();
