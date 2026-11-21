@@ -9,15 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg-main: #070b14;
     --bg-card: #0e1626;
-    --bg-card-soft: #131e33;
     --border-subtle: rgba(148, 163, 184, 0.14);
     --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
   }
   * { box-sizing: border-box; }
   body {
@@ -41,7 +38,8 @@
     font-weight: 700;
     transition: all 0.2s ease;
   }
-  .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn-ghost {
     background: rgba(148, 163, 184, 0.1);
     border: 1px solid rgba(148, 163, 184, 0.2);
@@ -67,6 +65,7 @@
     transition: border-color 0.2s ease;
   }
   .input-dark:focus { border-color: #10b981; }
+  .input-dark:disabled { opacity: 0.5; cursor: not-allowed; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: #090f1c; }
   ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
@@ -75,7 +74,7 @@
 </head>
 <body class="antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
 
-  <!-- شريط التنبيهات العلوية (Toast / Status Banner) -->
+  <!-- شريط التنبيهات العلوية -->
   <div id="statusToast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-xl w-[92%] card px-4 py-3 border border-emerald-400/40 bg-slate-900/95 shadow-2xl flex items-center justify-between gap-3">
     <div class="flex items-center gap-2.5 text-sm">
       <span id="statusToastIcon" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
@@ -103,285 +102,362 @@
     </div>
   </div>
 
-  <!-- الهيدر الرئيسي -->
-  <header class="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+  <!-- شاشة تسجيل دخول الشركات -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="card max-w-md w-full p-6 sm:p-7 border border-emerald-500/25 space-y-5">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-slate-950 font-extrabold flex items-center justify-center shadow-lg shadow-emerald-500/20">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-slate-950 font-extrabold flex items-center justify-center shadow-lg shadow-emerald-500/20">
           TD
         </div>
         <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-base sm:text-lg font-extrabold tracking-tight text-white">تدفق | لوحة التحكم المالية التنفيذية</span>
-            <span id="demoBadge" class="hidden text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">
-              بيانات تجريبية (معاينة)
-            </span>
-          </div>
-          <p class="text-xs text-slate-400">
-            الشركة النشطة: <span id="companyNameLabel" class="text-emerald-300 font-semibold">جاري التحميل...</span>
-            <span class="mx-1.5 text-slate-600">•</span>
-            العملة: <span class="text-slate-200 font-semibold">ج.م (EGP)</span>
-          </p>
+          <h1 class="text-lg font-extrabold text-white">تسجيل دخول الشركة — تدفق</h1>
+          <p class="text-xs text-slate-400">أدخل بيانات الدخول الخاصة بشركتك للوصول إلى اللوحة المالية</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 flex-wrap">
-        <button id="resetDemoBtn" onclick="resetDemoData()" class="btn-ghost px-3 py-2 rounded-lg text-xs font-semibold">
-          إعادة ضبط البيانات الوهمية
+      <!-- شعار التنبيه عند خطأ الدخول أو نسيان البريد أو كلمة المرور -->
+      <div id="forgotCredentialsBanner" class="hidden rounded-xl bg-amber-500/15 border border-amber-400/40 p-3.5">
+        <div class="flex items-start justify-between gap-2">
+          <p id="forgotCredentialsText" class="text-xs font-bold text-amber-200 leading-relaxed">
+            ⚠️ بيانات الدخول غير صحيحة. إذا نسيت البريد أو كلمة المرور أو واجهت مشكلة في الدخول، يرجى الرجوع لصاحب المنصة.
+          </p>
+          <button type="button" onclick="hideForgotBanner()" class="text-[11px] text-amber-300/80 hover:text-white shrink-0">إخفاء</button>
+        </div>
+      </div>
+
+      <!-- بانر الإقفال المؤقت بعد أكثر من 3 محاولات خاطئة -->
+      <div id="lockoutBanner" class="hidden rounded-xl bg-rose-500/15 border border-rose-500/40 p-3.5 space-y-1">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-extrabold text-rose-200">تم إيقاف تسجيل الدخول مؤقتاً</span>
+          <span id="lockoutCountdown" class="text-xs font-mono font-bold text-rose-300 bg-rose-950/70 px-2 py-0.5 rounded">10:00</span>
+        </div>
+        <p class="text-[11px] text-rose-200/90 leading-relaxed">
+          تم تجاوز الحد المسموح من المحاولات الخاطئة (أكثر من 3 محاولات). المنصة مقفولة لمدة 10 دقائق ثم يمكنك المحاولة مرة أخرى.
+        </p>
+      </div>
+
+      <form onsubmit="handleCompanyLogin(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">اسم المستخدم أو البريد الإلكتروني للشركة</label>
+          <input id="loginUsername" type="text" required placeholder="مثال: cfo@ofoq.com أو ofoq_admin" class="input-dark w-full" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-slate-300">كلمة المرور</label>
+            <button type="button" onclick="showForgotCredentialsAlert()" class="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline">
+              نسيت اسم المستخدم أو كلمة المرور؟
+            </button>
+          </div>
+          <input id="loginPassword" type="password" required placeholder="••••••••" class="input-dark w-full" />
+        </div>
+
+        <div id="loginErrorMsg" class="hidden text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2"></div>
+
+        <button id="loginSubmitBtn" type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm">
+          دخول إلى لوحة الشركة
         </button>
-        <button onclick="openClearModal()" class="btn-danger px-3 py-2 rounded-lg text-xs font-semibold">
-          مسح بيانات الشركة
-        </button>
-        <button onclick="logoutSession()" class="btn-ghost px-3 py-2 rounded-lg text-xs font-semibold">
-          خروج
-        </button>
+      </form>
+
+      <div class="pt-3 border-t border-slate-800/80 space-y-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-400">
+          <span>حساب تجربة سريع للشركة الوهمية:</span>
+          <button type="button" onclick="fillDemoCredentials()" class="text-emerald-300 hover:text-emerald-200 font-bold underline">
+            تعبئة بيانات الشركة التجريبية
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed">
+          المستخدم التجريبي: <span class="text-slate-300 font-mono">ofoq_cfo</span> • كلمة المرور: <span class="text-slate-300 font-mono">123456</span>
+        </p>
       </div>
     </div>
-  </header>
+  </div>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-
-    <!-- قسم مصادر التحديث التلقائي والرفع اليدوي أعلى اللوحة -->
-    <section class="card p-4 sm:p-5 border border-cyan-500/20">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-            <h2 class="text-sm sm:text-base font-bold text-white">مصادر البيانات: التحديث التلقائي والرفع اليدوي</h2>
+  <!-- التطبيق الرئيسي بعد تسجيل الدخول -->
+  <div id="appShell" class="hidden">
+    <!-- الهيدر الرئيسي -->
+    <header class="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-slate-950 font-extrabold flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            TD
           </div>
-          <p class="text-xs text-slate-400 mt-1">
-            اربط رابط CSV من Google Sheets للتحديث التلقائي أو ارفع ملف CSV / JSON / Excel يدوياً لتحديث الوضع المالي فوراً.
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-wrap">
-          <div class="flex items-center gap-2">
-            <input id="sheetCsvUrl" type="url" placeholder="رابط Google Sheets المنشور بصيغة CSV..." class="input-dark w-full sm:w-72" />
-            <button onclick="syncFromGoogleSheet()" class="btn-primary px-3.5 py-2 rounded-lg text-xs whitespace-nowrap">
-              مزامنة تلقائية
-            </button>
-          </div>
-
-          <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700/70 rounded-lg px-3 py-1.5">
-            <label for="manualFileInput" class="cursor-pointer text-xs font-semibold text-cyan-300 hover:text-cyan-200 whitespace-nowrap">
-              رفع ملف يدوي (CSV / JSON)
-            </label>
-            <input id="manualFileInput" type="file" accept=".csv,.json,.txt" class="hidden" onchange="handleManualFileUpload(event)" />
-            <span id="selectedFileName" class="text-[11px] text-slate-400 truncate max-w-[140px]">لم يتم اختيار ملف</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- بطاقات المؤشرات التنفيذية الرئيسية (بما في ذلك صافي الربح) -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-      <div class="card p-4 border-t-2 border-t-emerald-400">
-        <div class="text-xs text-slate-400 font-semibold">السيولة النقدية الحالية</div>
-        <div id="kpiCash" class="text-xl sm:text-2xl font-extrabold text-white mt-1.5">0 ج.م</div>
-        <div class="text-[11px] text-emerald-300/90 mt-1">رصيد البنوك والخزينة المتاح</div>
-      </div>
-
-      <div class="card p-4 border-t-2 border-t-sky-400">
-        <div class="text-xs text-slate-400 font-semibold">صافي الربح (إجمالي الفترة)</div>
-        <div id="kpiNetProfit" class="text-xl sm:text-2xl font-extrabold text-sky-300 mt-1.5">0 ج.م</div>
-        <div id="kpiLastMonthNet" class="text-[11px] text-slate-400 mt-1">صافي آخر شهر: 0 ج.م</div>
-      </div>
-
-      <div class="card p-4 border-t-2 border-t-rose-400">
-        <div class="text-xs text-slate-400 font-semibold">معدل الحرق الشهري</div>
-        <div id="kpiBurn" class="text-xl sm:text-2xl font-extrabold text-rose-300 mt-1.5">0 ج.م</div>
-        <div class="text-[11px] text-slate-400 mt-1">صافي السحب الشهري على السيولة</div>
-      </div>
-
-      <div class="card p-4 border-t-2 border-t-amber-400">
-        <div class="text-xs text-slate-400 font-semibold">العمر النقدي (Runway)</div>
-        <div id="kpiRunway" class="text-xl sm:text-2xl font-extrabold text-amber-300 mt-1.5">—</div>
-        <div class="text-[11px] text-slate-400 mt-1">مدة استمرار السيولة بالمعدل الحالي</div>
-      </div>
-
-      <div class="card p-4 border-t-2 border-t-violet-400">
-        <div class="text-xs text-slate-400 font-semibold">قيمة المخزون الحالية</div>
-        <div id="kpiInventory" class="text-xl sm:text-2xl font-extrabold text-violet-300 mt-1.5">0 ج.م</div>
-        <div class="text-[11px] text-slate-400 mt-1">تقييم المخزون المتاح للبيع/التشغيل</div>
-      </div>
-    </section>
-
-    <!-- تنبيهات الإدارة التنفيذية وتوصيات زيادة السيولة وصافي الربح (مباشرة تحت صافي الربح والمؤشرات) -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <!-- كرت تنبيهات الإدارة التنفيذية -->
-      <div class="card p-5 border-t-4 border-t-amber-400 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-              <h2 class="text-base font-extrabold text-white">تنبيهات الإدارة التنفيذية</h2>
-            </div>
-            <span id="alertsCountBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">
-              0 تنبيه
-            </span>
-          </div>
-          <div id="executiveAlertsList" class="mt-3.5 space-y-2.5"></div>
-        </div>
-      </div>
-
-      <!-- كرت توصيات زيادة صافي السيولة وصافي الربح -->
-      <div class="card p-5 border-t-4 border-t-emerald-400 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-              <h2 class="text-base font-extrabold text-white">توصيات زيادة السيولة وصافي الربح</h2>
-            </div>
-            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
-              قرارات مقترحة
-            </span>
-          </div>
-          <div id="liquidityRecommendationsList" class="mt-3.5 space-y-2.5"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- الرسوم البيانية وتفاصيل المصروفات -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-      <!-- التدفق النقدي وصافي الربح الشهري -->
-      <div class="card p-5 lg:col-span-7">
-        <div class="flex items-center justify-between gap-2 mb-4">
           <div>
-            <h2 class="text-base font-extrabold text-white">التدفق النقدي وصافي الربح الشهري</h2>
-            <p class="text-xs text-slate-400">مقارنة الإيرادات والمصروفات وصافي الربح عبر الأشهر</p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-base sm:text-lg font-extrabold tracking-tight text-white">تدفق | لوحة التحكم المالية التنفيذية</span>
+              <span id="demoBadge" class="hidden text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">
+                بيانات تجريبية (معاينة)
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">
+              الشركة النشطة: <span id="companyNameLabel" class="text-emerald-300 font-semibold">—</span>
+              <span class="mx-1.5 text-slate-600">•</span>
+              العملة: <span class="text-slate-200 font-semibold">ج.م (EGP)</span>
+            </p>
           </div>
         </div>
-        <div class="h-72">
-          <canvas id="cashflowChart"></canvas>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openClearModal()" class="btn-danger px-3 py-2 rounded-lg text-xs font-semibold">
+            مسح بيانات الشركة
+          </button>
+          <button onclick="logoutCompany()" class="btn-ghost px-3 py-2 rounded-lg text-xs font-semibold">
+            تسجيل الخروج
+          </button>
         </div>
       </div>
+    </header>
 
-      <!-- المصروفات حسب التصنيف + زر عرض التفاصيل -->
-      <div class="card p-5 lg:col-span-5 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <div>
-              <h2 class="text-base font-extrabold text-white">المصروفات حسب التصنيف</h2>
-              <p class="text-xs text-slate-400">توزيع المصروفات لمعرفة أين تذهب الفلوس</p>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+      <!-- قسم مصادر التحديث التلقائي والرفع اليدوي أعلى اللوحة -->
+      <section class="card p-4 sm:p-5 border border-cyan-500/20">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <h2 class="text-sm sm:text-base font-bold text-white">مصادر البيانات: التحديث التلقائي والرفع اليدوي</h2>
             </div>
-            <button id="toggleExpenseDetailsBtn" onclick="toggleExpenseDetails()" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-300 border-emerald-500/30">
-              عرض التفاصيل
-            </button>
+            <p class="text-xs text-slate-400 mt-1">
+              اربط رابط CSV من Google Sheets للتحديث التلقائي أو ارفع ملف CSV / JSON يدوياً لتحديث الوضع المالي فوراً.
+            </p>
           </div>
 
-          <div class="h-52 flex items-center justify-center">
-            <canvas id="categoryChart"></canvas>
-          </div>
-
-          <!-- لوحة التفاصيل القابلة للإظهار/الإخفاء -->
-          <div id="expenseDetailsPanel" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-3">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200">تفصيل بنود المصروفات</span>
-              <span class="text-slate-400">اضغط على أي بند لعرض حركاته</span>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-2">
+              <input id="sheetCsvUrl" type="url" placeholder="رابط Google Sheets المنشور بصيغة CSV..." class="input-dark w-full sm:w-72" />
+              <button onclick="syncFromGoogleSheet()" class="btn-primary px-3.5 py-2 rounded-lg text-xs whitespace-nowrap">
+                مزامنة تلقائية
+              </button>
             </div>
-            <div id="expenseBreakdownList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
-            <div id="selectedCategoryTxBox" class="hidden bg-slate-950/80 border border-slate-800 rounded-xl p-3 space-y-2">
-              <div class="flex items-center justify-between">
-                <span id="selectedCategoryTitle" class="text-xs font-bold text-cyan-300"></span>
-                <button onclick="clearSelectedCategory()" class="text-[11px] text-slate-400 hover:text-white">إخفاء الحركات</button>
+
+            <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700/70 rounded-lg px-3 py-1.5">
+              <label for="manualFileInput" class="cursor-pointer text-xs font-semibold text-cyan-300 hover:text-cyan-200 whitespace-nowrap">
+                رفع ملف يدوي (CSV / JSON)
+              </label>
+              <input id="manualFileInput" type="file" accept=".csv,.json,.txt" class="hidden" onchange="handleManualFileUpload(event)" />
+              <span id="selectedFileName" class="text-[11px] text-slate-400 truncate max-w-[140px]">لم يتم اختيار ملف</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- بطاقات المؤشرات التنفيذية الرئيسية (بما في ذلك صافي الربح) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div class="card p-4 border-t-2 border-t-emerald-400">
+          <div class="text-xs text-slate-400 font-semibold">السيولة النقدية الحالية</div>
+          <div id="kpiCash" class="text-xl sm:text-2xl font-extrabold text-white mt-1.5">0 ج.م</div>
+          <div class="text-[11px] text-emerald-300/90 mt-1">رصيد البنوك والخزينة المتاح</div>
+        </div>
+
+        <div class="card p-4 border-t-2 border-t-sky-400">
+          <div class="text-xs text-slate-400 font-semibold">صافي الربح (إجمالي الفترة)</div>
+          <div id="kpiNetProfit" class="text-xl sm:text-2xl font-extrabold text-sky-300 mt-1.5">0 ج.م</div>
+          <div id="kpiLastMonthNet" class="text-[11px] text-slate-400 mt-1">صافي آخر شهر: 0 ج.م</div>
+        </div>
+
+        <div class="card p-4 border-t-2 border-t-rose-400">
+          <div class="text-xs text-slate-400 font-semibold">معدل الحرق الشهري</div>
+          <div id="kpiBurn" class="text-xl sm:text-2xl font-extrabold text-rose-300 mt-1.5">0 ج.م</div>
+          <div class="text-[11px] text-slate-400 mt-1">صافي السحب الشهري على السيولة</div>
+        </div>
+
+        <div class="card p-4 border-t-2 border-t-amber-400">
+          <div class="text-xs text-slate-400 font-semibold">العمر النقدي (Runway)</div>
+          <div id="kpiRunway" class="text-xl sm:text-2xl font-extrabold text-amber-300 mt-1.5">—</div>
+          <div class="text-[11px] text-slate-400 mt-1">مدة استمرار السيولة بالمعدل الحالي</div>
+        </div>
+
+        <div class="card p-4 border-t-2 border-t-violet-400">
+          <div class="text-xs text-slate-400 font-semibold">قيمة المخزون الحالية</div>
+          <div id="kpiInventory" class="text-xl sm:text-2xl font-extrabold text-violet-300 mt-1.5">0 ج.م</div>
+          <div class="text-[11px] text-slate-400 mt-1">تقييم المخزون المتاح للبيع/التشغيل</div>
+        </div>
+      </section>
+
+      <!-- تنبيهات الإدارة التنفيذية وتوصيات زيادة السيولة وصافي الربح (مباشرة تحت صافي الربح والمؤشرات) -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card p-5 border-t-4 border-t-amber-400 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                <h2 class="text-base font-extrabold text-white">تنبيهات الإدارة التنفيذية</h2>
               </div>
-              <div id="selectedCategoryTxList" class="space-y-1.5 text-xs"></div>
+              <span id="alertsCountBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">
+                0 تنبيه
+              </span>
+            </div>
+            <div id="executiveAlertsList" class="mt-3.5 space-y-2.5"></div>
+          </div>
+        </div>
+
+        <div class="card p-5 border-t-4 border-t-emerald-400 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <h2 class="text-base font-extrabold text-white">توصيات زيادة السيولة وصافي الربح</h2>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
+                قرارات مقترحة
+              </span>
+            </div>
+            <div id="liquidityRecommendationsList" class="mt-3.5 space-y-2.5"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- الرسوم البيانية وتفاصيل المصروفات -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="card p-5 lg:col-span-7">
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-base font-extrabold text-white">التدفق النقدي وصافي الربح الشهري</h2>
+              <p class="text-xs text-slate-400">مقارنة الإيرادات والمصروفات وصافي الربح عبر الأشهر</p>
+            </div>
+          </div>
+          <div class="h-72">
+            <canvas id="cashflowChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card p-5 lg:col-span-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div>
+                <h2 class="text-base font-extrabold text-white">المصروفات حسب التصنيف</h2>
+                <p class="text-xs text-slate-400">توزيع المصروفات لمعرفة أين تذهب الفلوس</p>
+              </div>
+              <button id="toggleExpenseDetailsBtn" onclick="toggleExpenseDetails()" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-300 border-emerald-500/30">
+                عرض التفاصيل
+              </button>
+            </div>
+
+            <div class="h-52 flex items-center justify-center">
+              <canvas id="categoryChart"></canvas>
+            </div>
+
+            <div id="expenseDetailsPanel" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-3">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-200">تفصيل بنود المصروفات</span>
+                <span class="text-slate-400">اضغط على أي بند لعرض حركاته</span>
+              </div>
+              <div id="expenseBreakdownList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+              <div id="selectedCategoryTxBox" class="hidden bg-slate-950/80 border border-slate-800 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span id="selectedCategoryTitle" class="text-xs font-bold text-cyan-300"></span>
+                  <button onclick="clearSelectedCategory()" class="text-[11px] text-slate-400 hover:text-white">إخفاء الحركات</button>
+                </div>
+                <div id="selectedCategoryTxList" class="space-y-1.5 text-xs"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- الالتزامات والمخزون -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <!-- الالتزامات (مستحقات العملاء والموردين) -->
-      <div class="card p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-base font-extrabold text-white">الالتزامات والمستحقات</h2>
-          <span id="obligationsCount" class="text-xs text-slate-400">0 بند</span>
+      <!-- الالتزامات والمخزون -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-extrabold text-white">الالتزامات والمستحقات</h2>
+            <span id="obligationsCount" class="text-xs text-slate-400">0 بند</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400">
+                  <th class="py-2 pr-2">الطرف / البيان</th>
+                  <th class="py-2">النوع</th>
+                  <th class="py-2">الاستحقاق</th>
+                  <th class="py-2 text-left pl-2">القيمة</th>
+                </tr>
+              </thead>
+              <tbody id="obligationsTableBody" class="divide-y divide-slate-800/70"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-extrabold text-white">حالة المخزون</h2>
+            <span id="inventoryCount" class="text-xs text-slate-400">0 صنف</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400">
+                  <th class="py-2 pr-2">الصنف</th>
+                  <th class="py-2">الكمية</th>
+                  <th class="py-2">تكلفة الوحدة</th>
+                  <th class="py-2 text-left pl-2">الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody" class="divide-y divide-slate-800/70"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- سجل الحركات المالية -->
+      <section class="card p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base font-extrabold text-white">سجل الحركات المالية</h2>
+            <p class="text-xs text-slate-400">جميع الإيرادات والمصروفات المسجلة</p>
+          </div>
+          <input id="txSearchInput" type="text" oninput="renderTransactionsTable()" placeholder="بحث بالبيان أو التصنيف..." class="input-dark w-full sm:w-64" />
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-right text-xs">
             <thead>
               <tr class="border-b border-slate-800 text-slate-400">
-                <th class="py-2 pr-2">الطرف / البيان</th>
-                <th class="py-2">النوع</th>
-                <th class="py-2">الاستحقاق</th>
-                <th class="py-2 text-left pl-2">القيمة</th>
+                <th class="py-2.5 pr-2">التاريخ</th>
+                <th class="py-2.5">النوع</th>
+                <th class="py-2.5">التصنيف</th>
+                <th class="py-2.5">البيان</th>
+                <th class="py-2.5 text-left pl-2">المبلغ</th>
               </tr>
             </thead>
-            <tbody id="obligationsTableBody" class="divide-y divide-slate-800/70"></tbody>
+            <tbody id="transactionsTableBody" class="divide-y divide-slate-800/70"></tbody>
           </table>
         </div>
-      </div>
+      </section>
 
-      <!-- المخزون -->
-      <div class="card p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-base font-extrabold text-white">حالة المخزون</h2>
-          <span id="inventoryCount" class="text-xs text-slate-400">0 صنف</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-right text-xs">
-            <thead>
-              <tr class="border-b border-slate-800 text-slate-400">
-                <th class="py-2 pr-2">الصنف</th>
-                <th class="py-2">الكمية</th>
-                <th class="py-2">تكلفة الوحدة</th>
-                <th class="py-2 text-left pl-2">الإجمالي</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTableBody" class="divide-y divide-slate-800/70"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- سجل الحركات المالية -->
-    <section class="card p-5">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h2 class="text-base font-extrabold text-white">سجل الحركات المالية</h2>
-          <p class="text-xs text-slate-400">جميع الإيرادات والمصروفات المسجلة</p>
-        </div>
-        <input id="txSearchInput" type="text" oninput="renderTransactionsTable()" placeholder="بحث بالبيان أو التصنيف..." class="input-dark w-full sm:w-64" />
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-right text-xs">
-          <thead>
-            <tr class="border-b border-slate-800 text-slate-400">
-              <th class="py-2.5 pr-2">التاريخ</th>
-              <th class="py-2.5">النوع</th>
-              <th class="py-2.5">التصنيف</th>
-              <th class="py-2.5">البيان</th>
-              <th class="py-2.5 text-left pl-2">المبلغ</th>
-            </tr>
-          </thead>
-          <tbody id="transactionsTableBody" class="divide-y divide-slate-800/70"></tbody>
-        </table>
-      </div>
-    </section>
-
-  </main>
+    </main>
+  </div>
 
 <script>
-  const SUPABASE_URL = "";
-  const SUPABASE_ANON_KEY = "";
-  const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase)
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
-
   const $ = id => document.getElementById(id);
   const fmt = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
   const fmtEgp = n => `${fmt(n)} ج.م`;
 
+  const COMPANY_ACCOUNTS = {
+    "ofoq_cfo": {
+      password: "123456",
+      companyName: "شركة الأفق للتجارة والتوزيع",
+      isDemo: true
+    },
+    "cfo@ofoq.com": {
+      password: "123456",
+      companyName: "شركة الأفق للتجارة والتوزيع",
+      isDemo: true
+    }
+  };
+
+  const MAX_FAILED_ATTEMPTS = 3;
+  const LOCKOUT_DURATION_MS = 10 * 60 * 1000;
+  const FAILED_ATTEMPTS_KEY = "tadaffuq_login_failed_attempts";
+  const LOCKOUT_UNTIL_KEY = "tadaffuq_login_lockout_until";
+
   let curCash = 0, curBurn = 0, curRunway = null, lastMonthKey = "", lastMonthNet = 0, totalNetProfit = 0;
   let obl = [], inv = [], allTx = [];
-  let companyId = "demo-company", companyName = "شركة الأفق للتجارة والتوزيع";
+  let activeUsername = "";
+  let companyName = "شركة الأفق للتجارة والتوزيع";
   let cashflowChart = null, categoryChart = null;
   let isDemoMode = true;
   let expenseDetailsOpen = false;
   let selectedExpenseCategory = null;
+  let lockoutInterval = null;
 
   function showToast(msg, type = "success") {
     const toast = $("statusToast");
@@ -400,6 +476,137 @@
     $("statusToast").classList.add("hidden");
   }
 
+  function showForgotCredentialsAlert(customNote = "") {
+    $("forgotCredentialsText").textContent = customNote
+      ? `⚠️ بيانات الدخول غير صحيحة. إذا نسيت البريد أو كلمة المرور أو واجهت مشكلة في الدخول، يرجى الرجوع لصاحب المنصة. ${customNote}`
+      : `⚠️ بيانات الدخول غير صحيحة. إذا نسيت البريد أو كلمة المرور أو واجهت مشكلة في الدخول، يرجى الرجوع لصاحب المنصة.`;
+    $("forgotCredentialsBanner").classList.remove("hidden");
+  }
+
+  function hideForgotBanner() {
+    $("forgotCredentialsBanner").classList.add("hidden");
+  }
+
+  function getLockoutUntil() {
+    return Number(localStorage.getItem(LOCKOUT_UNTIL_KEY) || "0");
+  }
+
+  function getFailedAttempts() {
+    return Number(localStorage.getItem(FAILED_ATTEMPTS_KEY) || "0");
+  }
+
+  function setLockoutStateUI(remainingMs) {
+    const locked = remainingMs > 0;
+    $("lockoutBanner").classList.toggle("hidden", !locked);
+    $("loginUsername").disabled = locked;
+    $("loginPassword").disabled = locked;
+    $("loginSubmitBtn").disabled = locked;
+
+    if (locked) {
+      const totalSec = Math.ceil(remainingMs / 1000);
+      const mins = String(Math.floor(totalSec / 60)).padStart(2, "0");
+      const secs = String(totalSec % 60).padStart(2, "0");
+      $("lockoutCountdown").textContent = `${mins}:${secs}`;
+    } else {
+      localStorage.removeItem(LOCKOUT_UNTIL_KEY);
+      localStorage.setItem(FAILED_ATTEMPTS_KEY, "0");
+      if (lockoutInterval) {
+        clearInterval(lockoutInterval);
+        lockoutInterval = null;
+      }
+    }
+  }
+
+  function startLockoutCountdown() {
+    if (lockoutInterval) clearInterval(lockoutInterval);
+    const tick = () => {
+      const rem = getLockoutUntil() - Date.now();
+      setLockoutStateUI(rem);
+    };
+    tick();
+    lockoutInterval = setInterval(tick, 1000);
+  }
+
+  function storageKeyForUser(user) {
+    return `tadaffuq_company_data_${user}`;
+  }
+
+  function fillDemoCredentials() {
+    if (getLockoutUntil() > Date.now()) return;
+    $("loginUsername").value = "ofoq_cfo";
+    $("loginPassword").value = "123456";
+    $("loginErrorMsg").classList.add("hidden");
+  }
+
+  function handleCompanyLogin(event) {
+    event.preventDefault();
+    const rem = getLockoutUntil() - Date.now();
+    if (rem > 0) {
+      startLockoutCountdown();
+      return;
+    }
+
+    const u = $("loginUsername").value.trim();
+    const p = $("loginPassword").value;
+    const errBox = $("loginErrorMsg");
+
+    const account = COMPANY_ACCOUNTS[u];
+    if (!account || account.password !== p) {
+      const nextAttempts = getFailedAttempts() + 1;
+      localStorage.setItem(FAILED_ATTEMPTS_KEY, String(nextAttempts));
+
+      if (nextAttempts > MAX_FAILED_ATTEMPTS) {
+        const until = Date.now() + LOCKOUT_DURATION_MS;
+        localStorage.setItem(LOCKOUT_UNTIL_KEY, String(until));
+        errBox.classList.add("hidden");
+        showForgotCredentialsAlert();
+        startLockoutCountdown();
+        return;
+      }
+
+      const left = MAX_FAILED_ATTEMPTS - nextAttempts;
+      showForgotCredentialsAlert(`(المحاولات المتبقية قبل الإقفال 10 دقائق: ${left + 1})`);
+      errBox.textContent = "اسم المستخدم أو كلمة المرور الخاصة بالشركة غير صحيحة.";
+      errBox.classList.remove("hidden");
+      return;
+    }
+
+    localStorage.setItem(FAILED_ATTEMPTS_KEY, "0");
+    localStorage.removeItem(LOCKOUT_UNTIL_KEY);
+    errBox.classList.add("hidden");
+    activeUsername = u;
+    sessionStorage.setItem("tadaffuq_logged_user", u);
+    enterDashboardForUser(u, account);
+  }
+
+  function enterDashboardForUser(u, account) {
+    $("loginScreen").classList.add("hidden");
+    $("appShell").classList.remove("hidden");
+
+    try {
+      const saved = localStorage.getItem(storageKeyForUser(u));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        applyDataset(parsed, parsed.companyName === account.companyName && parsed.isDemo !== false);
+        showToast(`مرحباً بك — تم تحميل بيانات ${parsed.companyName || account.companyName}.`);
+        return;
+      }
+    } catch {}
+
+    const sample = getSampleDataset(account.companyName);
+    applyDataset(sample, account.isDemo !== false);
+    showToast(`مرحباً بك في لوحة تحكم ${account.companyName}.`);
+  }
+
+  function logoutCompany() {
+    activeUsername = "";
+    sessionStorage.removeItem("tadaffuq_logged_user");
+    $("appShell").classList.add("hidden");
+    $("loginScreen").classList.remove("hidden");
+    $("loginPassword").value = "";
+    startLockoutCountdown();
+  }
+
   function openClearModal() {
     $("clearConfirmModal").classList.remove("hidden");
   }
@@ -411,27 +618,23 @@
   function confirmClearCompanyData() {
     closeClearModal();
     isDemoMode = false;
-    companyName = "شركة بدون بيانات نشطة";
+    companyName = COMPANY_ACCOUNTS[activeUsername]?.companyName || "الشركة النشطة";
     curCash = 0;
     obl = [];
     inv = [];
     allTx = [];
     selectedExpenseCategory = null;
-    localStorage.removeItem("tadaffuq_saved_dataset");
+    if (activeUsername) {
+      localStorage.removeItem(storageKeyForUser(activeUsername));
+    }
     recomputeAndRender();
     showToast("تم مسح بيانات الشركة بنجاح. يمكنك رفع ملف جديد أو مزامنة Google Sheets.", "warning");
   }
 
-  function logoutSession() {
-    if (supabaseClient) {
-      supabaseClient.auth.signOut().catch(() => {});
-    }
-    showToast("تم تسجيل الخروج من الجلسة الحالية.", "info");
-  }
-
-  function getSampleDataset() {
+  function getSampleDataset(targetCompanyName = "شركة الأفق للتجارة والتوزيع") {
     return {
-      companyName: "شركة الأفق للتجارة والتوزيع",
+      companyName: targetCompanyName,
+      isDemo: true,
       cashBalance: 1480000,
       transactions: [
         { date: "2026-08-05", type: "income", category: "مبيعات الجملة", description: "تحصيل دفعة موزعي القاهرة", amount: 640000 },
@@ -475,7 +678,7 @@
 
   function applyDataset(data, demoFlag = false) {
     isDemoMode = demoFlag;
-    companyName = data.companyName || "شركة بدون اسم";
+    companyName = data.companyName || COMPANY_ACCOUNTS[activeUsername]?.companyName || "شركة بدون اسم";
     curCash = Number(data.cashBalance || 0);
     allTx = Array.isArray(data.transactions) ? data.transactions.map((t, idx) => ({
       id: t.id || `tx-${idx}`,
@@ -498,13 +701,6 @@
     })) : [];
     selectedExpenseCategory = null;
     recomputeAndRender();
-  }
-
-  function resetDemoData() {
-    const sample = getSampleDataset();
-    localStorage.setItem("tadaffuq_saved_dataset", JSON.stringify(sample));
-    applyDataset(sample, true);
-    showToast("تمت إعادة ضبط البيانات الوهمية بنجاح.");
   }
 
   function toggleExpenseDetails() {
@@ -565,34 +761,36 @@
     reader.onload = e => {
       try {
         const content = String(e.target?.result || "");
+        let updated;
         if (file.name.endsWith(".json")) {
           const parsed = JSON.parse(content);
-          const merged = {
-            ...getSampleDataset(),
+          updated = {
+            ...getSampleDataset(companyName),
             ...parsed,
-            companyName: parsed.companyName || companyName
+            companyName: parsed.companyName || companyName,
+            isDemo: false
           };
-          localStorage.setItem("tadaffuq_saved_dataset", JSON.stringify(merged));
-          applyDataset(merged, false);
-          showToast(`تم تحميل ملف ${file.name} وتحديث اللوحة.`);
         } else {
           const txs = parseSimpleCsv(content);
           if (!txs.length) {
             showToast("لم يتم العثور على حركات صالحة في ملف CSV.", "error");
             return;
           }
-          const updated = {
-            companyName: companyName === "شركة بدون بيانات نشطة" ? "الشركة المرفوعة" : companyName,
+          updated = {
+            companyName,
+            isDemo: false,
             cashBalance: curCash || 1000000,
             transactions: txs,
             obligations: obl,
             inventory: inv
           };
-          localStorage.setItem("tadaffuq_saved_dataset", JSON.stringify(updated));
-          applyDataset(updated, false);
-          showToast(`تم استيراد ${txs.length} حركة من ${file.name}.`);
         }
-      } catch (err) {
+        if (activeUsername) {
+          localStorage.setItem(storageKeyForUser(activeUsername), JSON.stringify(updated));
+        }
+        applyDataset(updated, false);
+        showToast(`تم تحميل ملف ${file.name} وتحديث اللوحة.`);
+      } catch {
         showToast("تعذر قراءة الملف. تأكد من صحة الصيغة.", "error");
       }
     };
@@ -616,12 +814,15 @@
       }
       const updated = {
         companyName,
+        isDemo: false,
         cashBalance: curCash || 1000000,
         transactions: txs,
         obligations: obl,
         inventory: inv
       };
-      localStorage.setItem("tadaffuq_saved_dataset", JSON.stringify(updated));
+      if (activeUsername) {
+        localStorage.setItem(storageKeyForUser(activeUsername), JSON.stringify(updated));
+      }
       applyDataset(updated, false);
       showToast(`تمت مزامنة ${txs.length} حركة بنجاح من Google Sheets.`);
     } catch {
@@ -639,7 +840,6 @@
 
     const invTotal = inv.reduce((s, item) => s + (item.qty * item.unitCost), 0);
 
-    // تجميع حسب الشهر (YYYY-MM)
     const monthMap = {};
     allTx.forEach(t => {
       const m = (t.date || "").slice(0, 7) || "2026-11";
@@ -653,7 +853,6 @@
     const lastStats = months.length ? monthMap[lastMonthKey] : { income: 0, expense: 0 };
     lastMonthNet = lastStats.income - lastStats.expense;
 
-    // حساب معدل الحرق الشهري: متوسط صافي السحب الشهري على الكاش (حيث المصروفات تتجاوز الإيرادات)
     const monthlyDeficits = months.map(m => Math.max(0, monthMap[m].expense - monthMap[m].income));
     curBurn = monthlyDeficits.length
       ? Math.round(monthlyDeficits.reduce((a, b) => a + b, 0) / monthlyDeficits.length)
@@ -964,17 +1163,16 @@
     }).join("") : `<tr><td colspan="5" class="py-5 text-center text-slate-500">لا توجد حركات مطابقة للبحث</td></tr>`;
   }
 
-  (function initDashboard() {
-    try {
-      const saved = localStorage.getItem("tadaffuq_saved_dataset");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        applyDataset(parsed, parsed.companyName === "شركة الأفق للتجارة والتوزيع");
-        return;
-      }
-    } catch {}
-    const sample = getSampleDataset();
-    applyDataset(sample, true);
+  (function initAuthAndDashboard() {
+    const savedUser = sessionStorage.getItem("tadaffuq_logged_user");
+    if (savedUser && COMPANY_ACCOUNTS[savedUser]) {
+      activeUsername = savedUser;
+      enterDashboardForUser(savedUser, COMPANY_ACCOUNTS[savedUser]);
+    } else {
+      $("loginScreen").classList.remove("hidden");
+      $("appShell").classList.add("hidden");
+      startLockoutCountdown();
+    }
   })();
 </script>
 </body>
