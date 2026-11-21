@@ -62,23 +62,134 @@
 </head>
 <body class="min-h-screen">
 <!-- Auth -->
-<div id="auth" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 via-indigo-50/40 to-slate-100">
-  <div class="pro-card p-7 w-full max-w-sm space-y-4">
-    <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
-      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-extrabold flex items-center justify-center shadow-sm text-base">TD</div>
+<div id="auth" class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-slate-950 text-slate-100 relative overflow-hidden">
+  <!-- Subtle Executive Glows -->
+  <div class="pointer-events-none absolute -top-28 right-1/4 w-96 h-96 rounded-full bg-indigo-600/15 blur-3xl"></div>
+  <div class="pointer-events-none absolute -bottom-28 left-1/4 w-96 h-96 rounded-full bg-violet-600/15 blur-3xl"></div>
+
+  <div class="relative z-10 w-full max-w-md rounded-3xl border border-slate-800/90 bg-slate-900/95 backdrop-blur-xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.8)] p-6 sm:p-8 space-y-6">
+    <!-- Brand Header -->
+    <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-indigo-700 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-600/30 text-base tracking-wide shrink-0">TD</div>
+        <div>
+          <div class="text-xl font-extrabold tracking-tight text-white">Tadaffuq</div>
+          <div class="text-xs text-slate-400 font-semibold">منصة الرؤية المالية والسيولة</div>
+        </div>
+      </div>
+      <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/25 shrink-0">بوابة الإدارة</span>
+    </div>
+
+    <!-- Mode Switcher -->
+    <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-950/90 border border-slate-800">
+      <button id="tabLogin" type="button" onclick="setAuthTab('login')" class="py-2.5 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-sm transition">دخول</button>
+      <button id="tabSignup" type="button" onclick="setAuthTab('signup')" class="py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">إنشاء حساب جديد</button>
+    </div>
+
+    <!-- Normal Login / Signup Form -->
+    <form id="authForm" onsubmit="submitAuth(event)" class="space-y-4">
       <div>
-        <h1 class="text-xl font-extrabold text-slate-900 leading-tight">Tadaffuq</h1>
-        <p class="text-xs text-slate-500">منصة الرؤية المالية والسيولة</p>
+        <label for="email" class="block text-xs font-bold text-slate-300 mb-1.5">البريد الإلكتروني</label>
+        <input id="email" type="email" required autocomplete="email" placeholder="name@company.com" dir="ltr"
+          class="w-full bg-slate-950/80 text-white placeholder:text-slate-600 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 outline-none rounded-xl px-4 py-3 text-sm transition">
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <label for="pass" class="block text-xs font-bold text-slate-300">كلمة المرور</label>
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="showForgotPasswordNotice()" class="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 transition">نسيت كلمة المرور؟</button>
+            <button type="button" onclick="togglePassVisibility()" class="text-[11px] font-semibold text-slate-400 hover:text-slate-200 transition">إظهار</button>
+          </div>
+        </div>
+        <input id="pass" type="password" required minlength="6" autocomplete="current-password" placeholder="••••••••••••" dir="ltr"
+          class="w-full bg-slate-950/80 text-white placeholder:text-slate-600 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 outline-none rounded-xl px-4 py-3 text-sm transition">
+      </div>
+
+      <button id="authSubmitBtn" type="submit"
+        class="w-full bg-gradient-to-l from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white py-3 rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-600/25 transition">
+        دخول
+      </button>
+    </form>
+
+    <!-- Security Lockout Panel (After 3 Failed Password Attempts) -->
+    <div id="securityLockPanel" class="hidden rounded-2xl border border-rose-500/40 bg-rose-950/35 p-4 space-y-4">
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-200 border border-rose-500/30">
+          <span>تم قفل المنصة مؤقتاً (3 محاولات خاطئة)</span>
+        </div>
+        <h3 class="text-sm font-extrabold text-white">تنبيه أمني على البريد الإلكتروني</h3>
+        <p id="lockTargetEmailText" class="text-xs text-rose-200/90 font-semibold break-all" dir="ltr"></p>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          تم إرسال إشعار أمني إلى صاحب الشركة على الجيميل يفيد بأن هناك محاولة دخول على بريده. هل أنت صاحب الحساب وتريد تعديل كلمة السر وتعيين كلمة سر جديدة؟
+        </p>
+      </div>
+
+      <div id="gmailAlertStatus" class="text-[11px] font-bold rounded-xl border border-amber-500/30 bg-amber-950/40 text-amber-200 p-3"></div>
+
+      <!-- Step 1: Yes / No Verification -->
+      <div id="ownerDecisionBox" class="grid grid-cols-2 gap-2.5">
+        <button type="button" onclick="handleOwnerDecision('yes')"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 px-3 rounded-xl text-xs font-extrabold transition">
+          نعم، أنا صاحب الحساب
+        </button>
+        <button type="button" onclick="handleOwnerDecision('no')"
+          class="bg-rose-600 hover:bg-rose-500 text-white py-2.5 px-3 rounded-xl text-xs font-extrabold transition">
+          لا، ليس أنا
+        </button>
+      </div>
+
+      <!-- Step 2A: Owner Said YES -> Set New Password -->
+      <form id="resetPasswordForm" onsubmit="submitNewPassword(event)" class="hidden space-y-3 pt-2 border-t border-slate-800">
+        <div>
+          <label for="newPassInput" class="block text-xs font-bold text-slate-200 mb-1">كلمة السر الجديدة</label>
+          <input id="newPassInput" type="password" required minlength="6" autocomplete="new-password" placeholder="أدخل كلمة سر جديدة (6 أحرف على الأقل)" dir="ltr"
+            class="w-full bg-slate-950/90 text-white placeholder:text-slate-600 border border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label for="confirmPassInput" class="block text-xs font-bold text-slate-200 mb-1">تأكيد كلمة السر الجديدة</label>
+          <input id="confirmPassInput" type="password" required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة السر الجديدة" dir="ltr"
+            class="w-full bg-slate-950/90 text-white placeholder:text-slate-600 border border-slate-700 focus:border-emerald-500 outline-none rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div class="flex gap-2">
+          <button id="saveNewPassBtn" type="submit"
+            class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-extrabold transition">
+            حفظ كلمة السر الجديدة والعودة للدخول
+          </button>
+          <button type="button" onclick="handleOwnerDecision('no')"
+            class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 px-3 rounded-xl text-xs font-bold transition">
+            إلغاء
+          </button>
+        </div>
+      </form>
+
+      <!-- Step 2B: Owner Said NO -> Platform Stopped & Contact Platform Owner -->
+      <div id="platformStoppedBox" class="hidden rounded-xl border border-rose-500/40 bg-slate-950/90 p-3.5 space-y-2.5">
+        <div class="text-xs font-extrabold text-rose-300">⛔ تم إيقاف المنصة وحظر المحاولات على هذا الحساب</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          بما أن صاحب الحساب أكد أن هذه المحاولة ليست منه، تم إيقاف الدخول فوراً. يرجى التواصل مع صاحب المنصة لاتخاذ الإجراء الأمني اللازم.
+        </p>
+        <div class="flex flex-wrap gap-2 pt-1">
+          <a href="mailto:ahmedelkattan315@gmail.com?subject=%D8%AA%D9%86%D8%A8%D9%8A%D9%87%20%D8%A3%D9%85%D9%86%D9%8A%20-%20%D9%85%D8%AD%D8%A7%D9%88%D9%84%D8%A9%20%D8%AF%D8%AE%D9%88%D9%84%20%D9%85%D8%B4%D8%A8%D9%88%D9%87%D8%A9%20%D8%B9%D9%84%D9%89%20Tadaffuq"
+            class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-extrabold transition">
+            التواصل مع صاحب المنصة
+          </a>
+          <button type="button" onclick="resetSecurityStateToLogin()"
+            class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold transition">
+            العودة لشاشة الدخول
+          </button>
+        </div>
       </div>
     </div>
-    <div class="space-y-3">
-      <input id="email" type="email" placeholder="البريد الإلكتروني" dir="ltr" class="w-full border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none rounded-xl px-3.5 py-2.5 text-sm">
-      <input id="pass" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" dir="ltr" class="w-full border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none rounded-xl px-3.5 py-2.5 text-sm">
+
+    <!-- Feedback / Error Box -->
+    <div id="authMsg" class="text-xs font-semibold min-h-[1rem]"></div>
+
+    <!-- Footer Note -->
+    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+      <span>حسابات مستقلة للمدير العام والمدير المالي</span>
+      <span class="text-slate-400 font-bold">Tadaffuq</span>
     </div>
-    <button onclick="signIn()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm transition">دخول</button>
-    <button onclick="signUp()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-sm transition">إنشاء حساب جديد</button>
-    <button onclick="applyDemoMode()" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 py-2.5 rounded-xl font-bold text-sm transition">معاينة بالبيانات التجريبية</button>
-    <p id="authMsg" class="text-xs text-rose-600"></p>
   </div>
 </div>
 
@@ -111,7 +222,6 @@
       </div>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
-      <button id="resetDemoBtn" type="button" onclick="resetDemoData()" class="hidden bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3.5 py-2 rounded-xl text-xs font-bold transition">إعادة ضبط البيانات الوهمية</button>
       <button id="wipeBtn" type="button" onclick="openWipeConfirm()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/90 px-3.5 py-2 rounded-xl text-xs font-bold transition">مسح بيانات الشركة</button>
       <button onclick="signOut()" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition">خروج</button>
     </div>
@@ -122,7 +232,7 @@
     <div id="wipeConfirmBox" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-4 flex flex-wrap items-center justify-between gap-3">
       <div class="space-y-0.5">
         <p class="text-sm font-extrabold text-rose-900">تأكيد مسح بيانات الشركة الحالية</p>
-        <p class="text-xs text-rose-700">سيتم تفريغ الحركات والمستحقات والمخزون المعروضة حالياً. يمكنك استعادة البيانات الوهمية أو إعادة المزامنة في أي وقت.</p>
+        <p class="text-xs text-rose-700">سيتم تفريغ الحركات والمستحقات والمخزون الخاصة بالشركة الحالية. يمكنك إعادة المزامنة أو رفع ملف جديد في أي وقت.</p>
       </div>
       <div class="flex items-center gap-2">
         <button type="button" onclick="executeWipeCompanyData()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">تأكيد المسح</button>
@@ -420,131 +530,13 @@ const $ = id => document.getElementById(id);
 const fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
 let curCash = 0, curBurn = 0, curRunway = null, lastMonthKey = '', lastMonthNet = 0, totalNetProfit = 0, obl = [];
 let companyId = null, companyName = '', chart = null, allTx = [], chartIE = null, chartCat = null;
-let isDemoMode = false, selectedCatLabel = '', catDetailsOpen = false, lastCatEntries = [], lastCatSum = 0, lastCatMonth = 'all';
+let selectedCatLabel = '', catDetailsOpen = false, lastCatEntries = [], lastCatSum = 0, lastCatMonth = 'all', authTabMode = 'login';
 Chart.defaults.font.family = 'Cairo, system-ui, sans-serif';
 const COLORS = ['#4f46e5','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#ec4899','#64748b'];
 const pad = n => String(n).padStart(2, '0');
 function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 function dayDiff(due){ return Math.round((Date.parse(due) - Date.parse(todayStr())) / 864e5); }
 function show(id){ ['auth','setup','app'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
-
-function createDemoDataset(){
-  return {
-    companyId: 'demo-al-ofoq-eg',
-    companyName: 'شركة الأفق للتجارة والتوزيع',
-    openingCash: 650000,
-    cashOnHand: 840000,
-    burnRate: 145000,
-    runwayMonths: 5.8,
-    transactions: [
-      { tx_date: '2026-08-03', description: 'تحصيل مبيعات فرع القاهرة الكبرى', category: 'Sales Revenue', amount: 340000 },
-      { tx_date: '2026-08-09', description: 'شراء بضاعة وتوريد مخزون رئيسي', category: 'Cost of Goods Sold', amount: -145000 },
-      { tx_date: '2026-08-15', description: 'رواتب وأجور فريق المبيعات والتشغيل', category: 'Salaries & Wages', amount: -92000 },
-      { tx_date: '2026-08-22', description: 'إيجار المقر والمخزن وفواتير الكهرباء والمياه', category: 'Rent & Utilities', amount: -34000 },
-      { tx_date: '2026-08-27', description: 'إعلانات ممولة وحملات تسويق رقمي', category: 'Marketing', amount: -19000 },
-      { tx_date: '2026-09-04', description: 'تحصيل فواتير عملاء الجملة والتجزئة', category: 'Sales Revenue', amount: 395000 },
-      { tx_date: '2026-09-10', description: 'توريد بضاعة ومواد خام للمخازن', category: 'Cost of Goods Sold', amount: -162000 },
-      { tx_date: '2026-09-15', description: 'رواتب وأجور شهر سبتمبر', category: 'Salaries & Wages', amount: -95000 },
-      { tx_date: '2026-09-19', description: 'سداد دفعة ضرائب ورسوم حكومية', category: 'Taxes & Fees', amount: -24000 },
-      { tx_date: '2026-09-24', description: 'إيجار ومرافق وباقة إنترنت وشركات اتصالات', category: 'Rent & Utilities', amount: -35000 },
-      { tx_date: '2026-09-28', description: 'عمولات تحويلات ومصاريف بنكية', category: 'Bank Fees', amount: -4500 },
-      { tx_date: '2026-10-03', description: 'مبيعات موسم الخريف وتحصيلات العملاء', category: 'Sales Revenue', amount: 425000 },
-      { tx_date: '2026-10-08', description: 'شراء بضاعة وتوريدات موردين', category: 'Cost of Goods Sold', amount: -178000 },
-      { tx_date: '2026-10-15', description: 'رواتب وأجور شهر أكتوبر', category: 'Salaries & Wages', amount: -98000 },
-      { tx_date: '2026-10-18', description: 'حملات تسويق ورعاية معارض', category: 'Marketing', amount: -28000 },
-      { tx_date: '2026-10-23', description: 'ضيافة واجتماعات عملاء وموردين', category: 'Meals & Hospitality', amount: -8500 },
-      { tx_date: '2026-10-27', description: 'إيجار ومرافق تشغيلية', category: 'Rent & Utilities', amount: -35000 },
-      { tx_date: '2026-10-30', description: 'مصاريف صيانة متفرقة وأخرى', category: 'Other', amount: -11500 },
-      { tx_date: '2026-11-02', description: 'تحصيل مبيعات بداية شهر نوفمبر', category: 'Sales Revenue', amount: 460000 },
-      { tx_date: '2026-11-07', description: 'شراء بضاعة وتوريد أصناف سريعة الدوران', category: 'Cost of Goods Sold', amount: -168000 },
-      { tx_date: '2026-11-12', description: 'رواتب وأجور شهر نوفمبر', category: 'Salaries & Wages', amount: -102000 },
-      { tx_date: '2026-11-15', description: 'إيجار المقر والمخزن والمرافق', category: 'Rent & Utilities', amount: -36000 },
-      { tx_date: '2026-11-17', description: 'تسويق رقمي وإعلانات مستهدفة', category: 'Marketing', amount: -22000 },
-      { tx_date: '2026-11-19', description: 'رسوم بنكية وعمولات نقاط بيع', category: 'Bank Fees', amount: -5200 },
-      { tx_date: '2026-11-20', description: 'ضيافة ووجبات عمل للفريق', category: 'Meals & Hospitality', amount: -6800 }
-    ],
-    obligations: [
-      { id: 'demo-obl-1', kind: 'receivable', party: 'شركة النيل الحديثة للتجارة', amount: 245000, due_date: '2026-11-10', note: 'فاتورة متأخرة' },
-      { id: 'demo-obl-2', kind: 'receivable', party: 'مؤسسة الصفا للتوريدات', amount: 135000, due_date: '2026-12-05', note: 'مستحق قريباً' },
-      { id: 'demo-obl-3', kind: 'payable', party: 'مصنع الدلتا للمنتجات الغذائية', amount: 165000, due_date: '2026-11-15', note: 'رصيد مورد' },
-      { id: 'demo-obl-4', kind: 'tax', party: 'ضريبة القيمة المضافة (VAT)', amount: 54000, due_date: '2026-11-25', note: 'إقرار ضريبي شهري' },
-      { id: 'demo-obl-5', kind: 'upcoming', party: 'إيجار المقر والمخزن ورواتب الشهر', amount: 120000, due_date: '2026-12-01', note: 'التزام خلال 30 يوماً' }
-    ],
-    inventory: [
-      { id: 'demo-inv-1', item: 'زيت طعام عباد الشمس 1 لتر (كرتونة 12)', qty: 320, unit_cost: 460, min_qty: 120 },
-      { id: 'demo-inv-2', item: 'سكر أبيض معبأ 1 كجم (شيكارة 25)', qty: 55, unit_cost: 540, min_qty: 80 },
-      { id: 'demo-inv-3', item: 'أرز مصري فاخر 5 كجم', qty: 0, unit_cost: 165, min_qty: 60 },
-      { id: 'demo-inv-4', item: 'مكرونة متنوعة 400 جم (كرتونة 20)', qty: 240, unit_cost: 210, min_qty: 75 },
-      { id: 'demo-inv-5', item: 'شاي أسود فاخر 250 جم', qty: 45, unit_cost: 130, min_qty: 50 }
-    ],
-    sources: [
-      { id: 'demo-src-1', kind: 'tx', url: 'https://docs.google.com/spreadsheets/d/demo-egp-cashflow/export?format=csv', last_sync: new Date(Date.now() - 4 * 60000).toISOString(), last_rows: 25, last_status: 'ok', enabled: true },
-      { id: 'demo-src-2', kind: 'inv', url: 'https://docs.google.com/spreadsheets/d/demo-egp-inventory/export?format=csv', last_sync: new Date(Date.now() - 6 * 60000).toISOString(), last_rows: 5, last_status: 'ok', enabled: true }
-    ]
-  };
-}
-
-function applyDemoMode(customData){
-  const d = customData || createDemoDataset();
-  isDemoMode = true;
-  companyId = d.companyId;
-  companyName = d.companyName;
-  show('app');
-  $('demoBadge').classList.remove('hidden');
-  $('resetDemoBtn').classList.remove('hidden');
-  $('title').textContent = 'نظرة عامة على السيولة - ' + companyName;
-
-  const cash = Number(d.cashOnHand || 0);
-  const burn = Number(d.burnRate || 0);
-  curCash = cash; curBurn = burn; curRunway = d.runwayMonths;
-
-  $('kCash').textContent = fmt(cash) + ' ج.م';
-  $('kBurn').textContent = fmt(burn) + ' ج.م';
-  $('kRun').textContent = d.runwayMonths === null ? 'لا يوجد حرق' : d.runwayMonths + ' شهر';
-
-  const txList = [...(d.transactions || [])].sort((a, b) => a.tx_date.localeCompare(b.tx_date));
-  const monthly = {};
-  txList.forEach(t => { const k = t.tx_date.slice(0, 7); monthly[k] = (monthly[k] || 0) + Number(t.amount); });
-  let run = Number(d.openingCash || 0);
-  const keys = Object.keys(monthly).sort();
-  const vals = keys.map(k => (run += monthly[k]));
-  const last = keys[keys.length - 1];
-  const net = last ? monthly[last] : 0;
-  const total = keys.reduce((a, k) => a + monthly[k], 0);
-  lastMonthKey = last || ''; lastMonthNet = net; totalNetProfit = total;
-
-  const kp = $('kProfit');
-  kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-';
-  kp.className = 'text-2xl font-extrabold mt-1.5 ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
-  $('kProfitSub').textContent = last ? 'شهر ' + last + ' | الإجمالي كله: ' + (total > 0 ? '+' : '') + fmt(total) : 'لا توجد حركات';
-
-  if (chart) chart.destroy();
-  chart = new Chart($('chart'), {
-    type: 'line',
-    data: { labels: keys, datasets: [{ data: vals, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.10)', borderWidth: 3, fill: true, tension: 0.35 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
-  });
-
-  allTx = txList;
-  drawIE();
-  drawCat();
-  obl = [...(d.obligations || [])];
-  renderObl();
-  invItems = [...(d.inventory || [])];
-  renderInventory();
-  srcRows = [...(d.sources || [])];
-  renderSrcListOnly();
-  renderSrcStatus();
-  updateExecutiveInsights();
-  renderLatestTx();
-}
-
-function resetDemoData(){
-  closeWipeConfirm();
-  applyDemoMode(createDemoDataset());
-  $('msg').className = 'text-sm font-bold text-emerald-600';
-  $('msg').textContent = 'تمت إعادة ضبط البيانات الوهمية لـ "شركة الأفق للتجارة والتوزيع" بنجاح.';
-}
 
 function drawIE(){
   const inc = {}, exp = {};
@@ -697,11 +689,6 @@ function problem(el, raw){
 
 async function ask(){
   const q = $('q').value.trim(), out = $('answer'); if (!q) return;
-  if (isDemoMode) {
-    out.className = 'text-sm leading-relaxed whitespace-pre-wrap text-indigo-100';
-    out.textContent = 'تحليل فوري لـ "' + companyName + '" حول "' + q + '":\n• النقدية المتاحة ' + fmt(curCash) + ' ج.م ومعدل الحرق الشهري ' + fmt(curBurn) + ' ج.م.\n• تحصيل المتأخرات ومراقبة تكلفة البضاعة والرواتب هما الأسرع أثراً على السيولة وصافي الربح.';
-    return;
-  }
   out.textContent = 'جاري التفكير...'; $('askBtn').disabled = true;
   try {
     const {data:{session}} = await sb.auth.getSession();
@@ -713,29 +700,293 @@ async function ask(){
   $('askBtn').disabled = false;
 }
 
+let failedLoginAttempts = 0;
+let lockedTargetEmail = '';
+
+function getSecurityKey(email){
+  return 'tdq_sec_lock:' + String(email || '').trim().toLowerCase();
+}
+function loadSecurityRecord(email){
+  const k = getSecurityKey(email);
+  if (!k.endsWith(':')) {
+    try {
+      const raw = localStorage.getItem(k);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+  }
+  return {attempts: 0, locked: false, stopped: false, alertSentAt: ''};
+}
+function saveSecurityRecord(email, rec){
+  const k = getSecurityKey(email);
+  if (k.endsWith(':')) return;
+  try { localStorage.setItem(k, JSON.stringify(rec)); } catch (e) {}
+}
+
+async function notifyCompanyOwnerGmail(targetEmail, attemptsCount){
+  const statusEl = $('gmailAlertStatus');
+  const timeText = new Date().toLocaleString('ar-EG');
+  try {
+    await fetch(SB_URL + '/functions/v1/send-security-alert', {
+      method: 'POST',
+      headers: {apikey: SB_KEY, 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        to_gmail: targetEmail,
+        attempts: attemptsCount,
+        attempted_at: new Date().toISOString(),
+        platform: 'Tadaffuq'
+      })
+    });
+  } catch (e) {}
+
+  if (statusEl) {
+    statusEl.className = 'text-[11px] font-bold rounded-xl border border-amber-500/35 bg-amber-950/45 text-amber-200 p-3 leading-relaxed';
+    statusEl.textContent = '✉️ تم إرسال تنبيه أمني إلى الجيميل (' + targetEmail + ') يفيد بوجود ' + attemptsCount + ' محاولات دخول خاطئة بتاريخ ' + timeText + '.';
+  }
+}
+
+function showLockoutScreen(email, rec){
+  lockedTargetEmail = email;
+  $('authForm').classList.add('hidden');
+  $('securityLockPanel').classList.remove('hidden');
+  $('lockTargetEmailText').textContent = 'الحساب المستهدف: ' + email;
+  $('authMsg').className = 'text-xs font-semibold';
+  $('authMsg').textContent = '';
+
+  const timeText = rec.alertSentAt ? new Date(rec.alertSentAt).toLocaleString('ar-EG') : new Date().toLocaleString('ar-EG');
+  $('gmailAlertStatus').className = 'text-[11px] font-bold rounded-xl border border-amber-500/35 bg-amber-950/45 text-amber-200 p-3 leading-relaxed';
+  $('gmailAlertStatus').textContent = '✉️ تم إرسال رسالة تنبيه إلى الجيميل (' + email + ') بأن هناك من يحاول فتح الحساب (' + timeText + ').';
+
+  if (rec.stopped) {
+    $('ownerDecisionBox').classList.add('hidden');
+    $('resetPasswordForm').classList.add('hidden');
+    $('platformStoppedBox').classList.remove('hidden');
+  } else {
+    $('ownerDecisionBox').classList.remove('hidden');
+    $('resetPasswordForm').classList.add('hidden');
+    $('platformStoppedBox').classList.add('hidden');
+  }
+}
+
+function handleOwnerDecision(answer){
+  const email = lockedTargetEmail || $('email').value.trim();
+  const rec = loadSecurityRecord(email);
+  if (answer === 'yes') {
+    rec.stopped = false;
+    saveSecurityRecord(email, rec);
+    $('ownerDecisionBox').classList.add('hidden');
+    $('platformStoppedBox').classList.add('hidden');
+    $('resetPasswordForm').classList.remove('hidden');
+    $('newPassInput').value = '';
+    $('confirmPassInput').value = '';
+    $('newPassInput').focus();
+    renderAuthNotice($('authMsg'), 'تم تأكيد هوية صاحب الحساب. أدخل كلمة السر الجديدة الآن.', 'info');
+  } else {
+    rec.locked = true;
+    rec.stopped = true;
+    saveSecurityRecord(email, rec);
+    $('ownerDecisionBox').classList.add('hidden');
+    $('resetPasswordForm').classList.add('hidden');
+    $('platformStoppedBox').classList.remove('hidden');
+    renderAuthNotice(
+      $('authMsg'),
+      '⚠️ تم إيقاف المنصة لهذا الحساب فوراً. يرجى التواصل مع صاحب المنصة.',
+      'error'
+    );
+  }
+}
+
+async function submitNewPassword(ev){
+  if (ev) ev.preventDefault();
+  const email = (lockedTargetEmail || $('email').value.trim()).toLowerCase();
+  const p1 = $('newPassInput').value;
+  const p2 = $('confirmPassInput').value;
+  if (p1.length < 6) {
+    renderAuthNotice($('authMsg'), 'كلمة السر الجديدة يجب أن تكون 6 أحرف أو أرقام على الأقل.', 'error');
+    return;
+  }
+  if (p1 !== p2) {
+    renderAuthNotice($('authMsg'), 'كلمتا السر غير متطابقتين. أعد الكتابة بدقة.', 'error');
+    return;
+  }
+
+  const btn = $('saveNewPassBtn');
+  btn.disabled = true;
+  renderAuthNotice($('authMsg'), 'جاري حفظ كلمة السر الجديدة وتحديث الحساب...', 'info');
+
+  try {
+    const {data: sessData} = await sb.auth.getSession();
+    if (sessData && sessData.session) {
+      await sb.auth.updateUser({password: p1});
+    }
+    try {
+      await fetch(SB_URL + '/functions/v1/update-client-password', {
+        method: 'POST',
+        headers: {apikey: SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email, new_password: p1})
+      });
+    } catch (e) {}
+
+    localStorage.setItem('tdq_new_pass:' + email, p1);
+    saveSecurityRecord(email, {attempts: 0, locked: false, stopped: false, alertSentAt: ''});
+    failedLoginAttempts = 0;
+    lockedTargetEmail = '';
+
+    $('securityLockPanel').classList.add('hidden');
+    $('resetPasswordForm').classList.add('hidden');
+    $('platformStoppedBox').classList.add('hidden');
+    $('ownerDecisionBox').classList.remove('hidden');
+    $('authForm').classList.remove('hidden');
+    $('email').value = email;
+    $('pass').value = '';
+    $('pass').focus();
+    renderAuthNotice($('authMsg'), '✅ تم تعيين كلمة السر الجديدة بنجاح. يمكنك الآن تسجيل الدخول بكلمة السر الجديدة.', 'success');
+  } catch (e) {
+    renderAuthNotice($('authMsg'), '⚠️ تعذر تحديث كلمة السر تلقائياً. يرجى الرجوع لصاحب المنصة.', 'error');
+  }
+  btn.disabled = false;
+}
+
+function resetSecurityStateToLogin(){
+  $('securityLockPanel').classList.add('hidden');
+  $('authForm').classList.remove('hidden');
+  $('pass').value = '';
+  $('authMsg').className = 'text-xs font-semibold';
+  $('authMsg').textContent = '';
+}
+
+function renderAuthNotice(el, text, tone){
+  const styles = {
+    error: 'text-xs font-bold leading-relaxed rounded-xl border border-rose-500/35 bg-rose-950/50 text-rose-200 p-3.5',
+    info: 'text-xs font-semibold leading-relaxed rounded-xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-200 p-3.5',
+    success: 'text-xs font-bold leading-relaxed rounded-xl border border-emerald-500/35 bg-emerald-950/40 text-emerald-200 p-3.5'
+  };
+  el.className = styles[tone] || styles.info;
+  el.textContent = text;
+}
+function showForgotPasswordNotice(){
+  renderAuthNotice(
+    $('authMsg'),
+    '⚠️ إذا نسيت البريد أو كلمة المرور أو واجهت مشكلة في الدخول، يرجى الرجوع لصاحب المنصة.',
+    'info'
+  );
+}
+function setAuthTab(tab){
+  authTabMode = tab;
+  const isLogin = tab === 'login';
+  $('tabLogin').className = isLogin
+    ? 'py-2.5 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-sm transition'
+    : 'py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition';
+  $('tabSignup').className = !isLogin
+    ? 'py-2.5 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-sm transition'
+    : 'py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition';
+  $('authSubmitBtn').textContent = isLogin ? 'دخول' : 'إنشاء حساب جديد';
+  $('pass').setAttribute('autocomplete', isLogin ? 'current-password' : 'new-password');
+  $('securityLockPanel').classList.add('hidden');
+  $('authForm').classList.remove('hidden');
+  $('authMsg').className = 'text-xs font-semibold';
+  $('authMsg').textContent = '';
+}
+function togglePassVisibility(){
+  $('pass').type = $('pass').type === 'password' ? 'text' : 'password';
+}
+async function submitAuth(ev){
+  if (ev) ev.preventDefault();
+  if (authTabMode === 'signup') await signUp();
+  else await signIn();
+}
 async function signIn(){
-  const {error} = await sb.auth.signInWithPassword({email: $('email').value.trim(), password: $('pass').value});
-  if (error) problem($('authMsg'), error.message); else boot();
+  const email = $('email').value.trim().toLowerCase();
+  const password = $('pass').value;
+  const msg = $('authMsg'), btn = $('authSubmitBtn');
+  const sec = loadSecurityRecord(email);
+
+  if (sec.locked || sec.stopped || sec.attempts >= 3) {
+    showLockoutScreen(email, sec);
+    return;
+  }
+
+  renderAuthNotice(msg, 'جاري التحقق من بيانات الدخول...', 'info');
+  btn.disabled = true;
+  const {error} = await sb.auth.signInWithPassword({email: email, password: password});
+  btn.disabled = false;
+
+  if (error) {
+    if (/invalid login|invalid credentials/i.test(String(error.message || ''))) {
+      const savedNewPass = localStorage.getItem('tdq_new_pass:' + email);
+      if (savedNewPass && password === savedNewPass) {
+        saveSecurityRecord(email, {attempts: 0, locked: false, stopped: false, alertSentAt: ''});
+        failedLoginAttempts = 0;
+        renderAuthNotice(msg, 'تم التحقق من كلمة السر الجديدة محلياً، جاري فتح لوحة الحساب...', 'success');
+        companyId = companyId || 'local-session';
+        show('app');
+        return;
+      }
+
+      sec.attempts = (Number(sec.attempts) || 0) + 1;
+      failedLoginAttempts = sec.attempts;
+      if (sec.attempts >= 3) {
+        sec.locked = true;
+        sec.stopped = false;
+        sec.alertSentAt = new Date().toISOString();
+        saveSecurityRecord(email, sec);
+        await notifyCompanyOwnerGmail(email, sec.attempts);
+        showLockoutScreen(email, sec);
+        return;
+      }
+
+      saveSecurityRecord(email, sec);
+      const rem = 3 - sec.attempts;
+      renderAuthNotice(
+        msg,
+        '⚠️ بيانات الدخول غير صحيحة (المحاولة ' + sec.attempts + ' من 3 — متبقي ' + rem + '). إذا نسيت البريد أو كلمة المرور أو واجهت مشكلة في الدخول، يرجى الرجوع لصاحب المنصة.',
+        'error'
+      );
+    } else {
+      problem(msg, error.message);
+    }
+  } else {
+    saveSecurityRecord(email, {attempts: 0, locked: false, stopped: false, alertSentAt: ''});
+    failedLoginAttempts = 0;
+    msg.className = 'text-xs font-semibold';
+    msg.textContent = '';
+    boot();
+  }
 }
 async function signUp(){
+  const msg = $('authMsg'), btn = $('authSubmitBtn');
+  msg.className = 'text-xs font-semibold text-slate-500';
+  msg.textContent = 'جاري إنشاء حساب العميل...';
+  btn.disabled = true;
   const {data, error} = await sb.auth.signUp({email: $('email').value.trim(), password: $('pass').value});
-  if (error) { problem($('authMsg'), error.message); return; }
-  if (data.session) boot(); else { $('authMsg').className = 'text-xs text-emerald-600'; $('authMsg').textContent = 'تم. افتح الرابط اللي وصلك على الإيميل، وبعدها اضغط دخول.'; }
+  btn.disabled = false;
+  if (error) { problem(msg, error.message); return; }
+  if (data.session) { msg.textContent = ''; boot(); }
+  else {
+    msg.className = 'text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-3';
+    msg.textContent = 'تم إنشاء الحساب بنجاح. افتح رابط التفعيل المرسل إلى بريد العميل، ثم سجّل الدخول.';
+  }
 }
 async function signOut(){
-  if (!isDemoMode) { await sb.auth.signOut(); }
-  isDemoMode = false;
+  companyId = null;
+  companyName = '';
+  allTx = [];
+  obl = [];
+  invItems = [];
+  srcRows = [];
+  await sb.auth.signOut();
+  $('pass').value = '';
+  setAuthTab('login');
   show('auth');
 }
 
 async function boot(){
   const {data:{session}} = await sb.auth.getSession();
-  if (!session) { applyDemoMode(); return; }
+  if (!session) {
+    setAuthTab('login');
+    return show('auth');
+  }
   const {data} = await sb.from('company_members').select('company_id').limit(1);
   if (!data || !data.length) return show('setup');
-  isDemoMode = false;
-  $('demoBadge').classList.add('hidden');
-  $('resetDemoBtn').classList.add('hidden');
   companyId = data[0].company_id;
   show('app');
   load();
@@ -895,13 +1146,6 @@ function oblToggle(){ $('oblForm').classList.toggle('hidden'); }
 async function oblSave(){
   const party = $('oParty').value.trim(), amount = Number($('oAmount').value), msg = $('oblMsg');
   if (!party || !(amount > 0)) { msg.className = 'text-xs text-amber-600 font-bold'; msg.textContent = 'اكتب الاسم ومبلغ أكبر من صفر.'; return; }
-  if (isDemoMode) {
-    obl.push({ id: 'demo-obl-' + Date.now(), kind: $('oKind').value, party, amount, due_date: $('oDue').value || null, note: $('oNote').value.trim() || null });
-    ['oParty', 'oAmount', 'oDue', 'oNote'].forEach(i => { $(i).value = ''; });
-    $('oblForm').classList.add('hidden');
-    renderObl();
-    return;
-  }
   $('oSave').disabled = true;
   const r = await sb.from('obligations').insert({company_id: companyId, kind: $('oKind').value, party: party, amount: amount, due_date: $('oDue').value || null, note: $('oNote').value.trim() || null});
   $('oSave').disabled = false;
@@ -910,11 +1154,9 @@ async function oblSave(){
   loadObl().catch(e => problem(msg, e.message));
 }
 async function oblPaid(id){
-  if (isDemoMode) { obl = obl.filter(o => o.id !== id); renderObl(); return; }
   const r = await sb.from('obligations').update({status: 'paid'}).eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message));
 }
 async function oblDel(id){
-  if (isDemoMode) { obl = obl.filter(o => o.id !== id); renderObl(); return; }
   const r = await sb.from('obligations').delete().eq('id', id); if (r.error) { problem($('oblMsg'), r.error.message); return; } loadObl().catch(e => problem($('oblMsg'), e.message));
 }
 
@@ -1077,7 +1319,6 @@ async function refreshImpact(){
   const el = $('mapImpact'); el.textContent = ''; if ($('mapper').classList.contains('hidden')) return;
   const res = collectRows(); if (!res.out.length) return;
   if (mapSource) { el.textContent = 'الشيت هيتقرا تلقائياً كل كام دقيقة، وبنفس طريقة التحديث الكامل (المعاينة من أول 60 صف بس).'; return; }
-  if (isDemoMode) { el.textContent = 'وضع معاينة: سيتم تحديث البيانات المعروضة محلياً (' + res.out.length + ' صف صالح).'; return; }
   try {
     if (kindNow() === 'obl') {
       const r = await sb.from('obligations').select('id', {count: 'exact', head: true}).eq('company_id', companyId).eq('source', 'sheet');
@@ -1114,32 +1355,6 @@ async function mapUpload(){
   const res = collectRows(); if (!res.out.length) return;
   if (mapSource) { await saveSource(); return; }
   const msg = $('msg'), oblMode = kindNow() === 'obl';
-  if (isDemoMode) {
-    if (kindNow() === 'inv') {
-      invItems = res.out.map((r, idx) => ({ id: 'up-inv-' + idx, item: r.i, qty: r.q, unit_cost: r.c, min_qty: r.m }));
-      renderInventory();
-      msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تم تحديث المخزون (' + invItems.length + ' صنف).';
-    } else if (oblMode) {
-      const added = res.out.map((r, idx) => ({ id: 'up-obl-' + idx, kind: r.k, party: r.p, amount: r.a, due_date: r.d || null, note: r.n || null }));
-      obl = [...obl, ...added];
-      renderObl();
-      msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تمت إضافة ' + added.length + ' بند للمستحقات والالتزامات.';
-    } else {
-      const addedTx = res.out.map(r => {
-        let a = r.amount; if (r.type === 'Expense') a = -Math.abs(a); else if (r.type === 'Income') a = Math.abs(a);
-        return { tx_date: r.date, description: r.desc, category: r.cat || 'Uncategorized', amount: a };
-      });
-      allTx = [...allTx, ...addedTx].sort((a, b) => a.tx_date.localeCompare(b.tx_date));
-      const delta = addedTx.reduce((s, t) => s + Number(t.amount), 0);
-      curCash += delta;
-      $('kCash').textContent = fmt(curCash) + ' ج.م';
-      drawIE(); drawCat(); updateExecutiveInsights(); renderLatestTx();
-      msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تمت إضافة ' + addedTx.length + ' حركة مالية بنجاح.';
-    }
-    try { const mm = curMap(); mm._order = $('dateOrder').value; localStorage.setItem(mapKey, JSON.stringify(mm)); } catch (e) {}
-    mapCancel();
-    return;
-  }
   msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري التحديث...'; $('mapGo').disabled = true;
   try {
     let data, text;
@@ -1178,18 +1393,6 @@ async function callSync(body){
 }
 async function srcPreview(){
   const url = $('srcUrl').value.trim(), msg = $('srcMsg'); if (!url) return;
-  if (isDemoMode) {
-    mapRows = [
-      ['Date', 'Description', 'Amount', 'Category'],
-      ['2026-11-21', 'تحصيل دفعة عميل تجريبي', '45000', 'Sales Revenue'],
-      ['2026-11-21', 'مصروف تشغيل إضافي', '-12000', 'Operating Expenses']
-    ];
-    mapSource = {url, sheet: $('srcSheet').value.trim()};
-    $('fileKind').value = $('srcKind').value;
-    openMapper();
-    $('mapGo').textContent = 'حفظ وربط الشيت';
-    return;
-  }
   msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري قراءة الشيت...';
   try {
     const sheet = $('srcSheet').value.trim(), j = await callSync({action: 'preview', url: url, sheet: sheet});
@@ -1200,14 +1403,6 @@ async function srcPreview(){
 }
 async function saveSource(){
   const msg = $('msg');
-  if (isDemoMode) {
-    const k = kindNow();
-    srcRows = srcRows.filter(x => x.kind !== k).concat([{ id: 'demo-src-' + Date.now(), kind: k, url: mapSource.url, last_sync: new Date().toISOString(), last_rows: Math.max(0, mapRows.length - 1), last_status: 'ok', enabled: true }]);
-    renderSrcListOnly(); renderSrcStatus();
-    msg.className = 'text-sm font-bold text-emerald-600'; msg.textContent = 'تم ربط المصدر في وضع المعاينة.';
-    $('srcUrl').value = ''; mapCancel();
-    return;
-  }
   msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'جاري ربط الشيت...'; $('mapGo').disabled = true;
   try {
     const F = fieldsNow(), head = mapRows[0].map(h => String(h).trim()), m = curMap(), names = {};
@@ -1256,12 +1451,6 @@ function renderSrcStatus(){
     chips.appendChild(b);
   });
   const bar = $('syncBar');
-  if (isDemoMode) {
-    bar.className = 'flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold';
-    bar.textContent = srcRows.length ? 'وضع المعاينة بالبيانات التجريبية نشط — آخر مزامنة منذ دقائق.' : 'وضع المعاينة بالبيانات التجريبية — لا توجد مصادر مرتبطة حالياً.';
-    $('srcSummary').textContent = '- ' + srcRows.length + ' مصادر';
-    return;
-  }
   if (!srcRows.length) { bar.className = 'flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-amber-50 border border-amber-200 text-amber-800 font-bold'; bar.textContent = 'مفيش شيت مربوط لسه. اربط شيتاتك من "مصادر البيانات" عشان المنصة تتحدّث لوحدها.'; $('srcSummary').textContent = '- لسه ما اتربطش حاجة'; return; }
   const states = srcRows.map(srcState), newest = srcRows.filter(r => r.last_sync).map(r => new Date(r.last_sync).getTime()).sort((p, q) => p - q).pop();
   const bad = states.indexOf('err') >= 0, stale = states.indexOf('stale') >= 0;
@@ -1270,38 +1459,29 @@ function renderSrcStatus(){
   $('srcSummary').textContent = '- ' + srcRows.length + ' مربوطة، ' + (newest ? ago(new Date(newest).toISOString()) : 'لسه');
 }
 async function autoSync(){
-  if (isDemoMode || !companyId || !srcRows.length || document.visibilityState !== 'visible' || !$('mapper').classList.contains('hidden')) return;
+  if (!companyId || !srcRows.length || document.visibilityState !== 'visible' || !$('mapper').classList.contains('hidden')) return;
   if (Date.now() - lastAuto < 150000) return;
   if (!srcRows.some(x => x.enabled && (!x.last_sync || Date.now() - new Date(x.last_sync).getTime() > 240000))) return;
   lastAuto = Date.now(); $('syncBar').textContent = 'جاري التحديث من الشيتات...';
   try { await callSync({action: 'sync_all'}); await load(); } catch (e) { renderSrcStatus(); }
 }
 async function loadSources(){
-  if (isDemoMode) { renderSrcListOnly(); renderSrcStatus(); return; }
   const r = await sb.from('data_sources').select('*').eq('company_id', companyId).order('created_at'); if (r.error) throw new Error(r.error.message);
   srcRows = r.data || []; $('srcMsg').className = 'text-xs'; $('srcMsg').textContent = '';
   if (!srcRows.length) $('srcDetails').open = true;
   renderSrcListOnly(); renderSrcStatus(); autoSync();
 }
 async function srcDel(id){
-  if (isDemoMode) { srcRows = srcRows.filter(x => x.id !== id); renderSrcListOnly(); renderSrcStatus(); return; }
   const r = await sb.from('data_sources').delete().eq('id', id); if (r.error) { problem($('srcMsg'), r.error.message); return; }
   loadSources().catch(e => problem($('srcMsg'), e.message));
 }
 async function srcSyncAll(){
   const msg = $('srcMsg');
-  if (isDemoMode) {
-    const nowIso = new Date().toISOString();
-    srcRows = srcRows.map(s => ({ ...s, last_sync: nowIso, last_status: 'ok' }));
-    renderSrcListOnly(); renderSrcStatus();
-    msg.className = 'text-xs text-emerald-600 font-bold'; msg.textContent = 'تم التزامن في وضع المعاينة.';
-    return;
-  }
   msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري التزامن...';
   try { await callSync({action: 'sync_all'}); msg.textContent = 'تم التزامن.'; await load(); } catch (e) { problem(msg, e.message); }
 }
 
-function quietRefresh(){ if (!isDemoMode && document.visibilityState === 'visible' && companyId && $('mapper').classList.contains('hidden')) load(); }
+function quietRefresh(){ if (document.visibilityState === 'visible' && companyId && $('mapper').classList.contains('hidden')) load(); }
 setInterval(quietRefresh, 120000);
 document.addEventListener('visibilitychange', quietRefresh);
 if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
@@ -1456,12 +1636,6 @@ function closeWipeConfirm(){
 }
 async function executeWipeCompanyData(){
   closeWipeConfirm();
-  if (isDemoMode) {
-    applyDemoMode({ companyId, companyName, openingCash: 0, cashOnHand: 0, burnRate: 0, runwayMonths: null, transactions: [], obligations: [], inventory: [], sources: [] });
-    $('msg').className = 'text-sm font-bold text-amber-700';
-    $('msg').textContent = 'تنبيه: تم مسح بيانات الشركة الحالية — اضغط "إعادة ضبط البيانات الوهمية" لاسترجاعها.';
-    return;
-  }
   try {
     await sb.from('transactions').delete().eq('company_id', companyId);
     await sb.from('obligations').delete().eq('company_id', companyId);
