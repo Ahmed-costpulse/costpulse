@@ -48,7 +48,7 @@
       </p>
     </div>
 
-    <input id="email" type="email" placeholder="البريد الإلكتروني" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm disabled:opacity-50">
+    <input id="email" type="email" placeholder="البريد الإلكتروني" dir="ltr" autocomplete="email" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm disabled:opacity-50">
     <div>
       <div class="flex items-center justify-between mb-1">
         <span class="text-[11px] text-slate-500">كلمة السر</span>
@@ -56,10 +56,11 @@
           نسيت البريد أو كلمة المرور؟
         </button>
       </div>
-      <input id="pass" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm disabled:opacity-50">
+      <input id="pass" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" dir="ltr" autocomplete="current-password" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm disabled:opacity-50">
     </div>
-    <button id="signInBtn" onclick="signIn()" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm disabled:opacity-45">دخول</button>
-    <button id="signUpBtn" onclick="signUp()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-bold text-sm disabled:opacity-45">إنشاء حساب جديد</button>
+    <button id="signInBtn" type="button" onclick="signIn()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm disabled:opacity-45">دخول</button>
+    <button id="signUpBtn" type="button" onclick="signUp()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-sm disabled:opacity-45">إنشاء حساب جديد</button>
+    <p id="authStatus" class="text-[11px] text-slate-500 font-semibold"></p>
     <p id="authMsg" class="text-xs text-rose-600"></p>
   </div>
 </div>
@@ -269,9 +270,27 @@
 <script>
 const SB_URL = 'https://oorsnupcxmdqimuancsz.supabase.co';
 const SB_KEY = 'sb_publishable_nvrHdiBa-OmGnPHAXk0L1w_ZjkA8d5f';
-const sb = (window.supabase && typeof window.supabase.createClient === 'function')
-  ? window.supabase.createClient(SB_URL, SB_KEY)
-  : null;
+
+function initSupabaseClient() {
+  if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
+  try {
+    return window.supabase.createClient(SB_URL, SB_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+  } catch (e) {
+    try {
+      return window.supabase.createClient(SB_URL, SB_KEY);
+    } catch (e2) {
+      return null;
+    }
+  }
+}
+
+const sb = initSupabaseClient();
 const AR = {'Sales Revenue':'مبيعات وإيرادات','Cost of Goods Sold':'تكلفة البضاعة (COGS)','Operating Expenses':'مصاريف تشغيلية','Salaries & Wages':'رواتب وأجور','Marketing':'تسويق','Taxes & Fees':'ضرائب ورسوم','Other':'أخرى','Rent & Utilities':'إيجار ومرافق','Bank Fees':'رسوم بنكية','Loans & Installments':'قروض وأقساط','Other Income':'إيرادات أخرى','Meals & Hospitality':'ضيافة وأكل','Uncategorized':'غير مصنف'};
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n || 0).toLocaleString('en-US', {maximumFractionDigits: 0});
@@ -289,6 +308,11 @@ const FAILED_ATTEMPTS_KEY = 'tadaffuq_login_failed_attempts';
 const LOCKOUT_UNTIL_KEY = 'tadaffuq_login_lockout_until';
 let lockoutTimer = null;
 
+function setAuthStatus(text) {
+  const el = $('authStatus');
+  if (el) el.textContent = text || '';
+}
+
 function showForgotCredentialsAlert(extraNote = '') {
   const txt = $('forgotCredentialsText');
   const box = $('forgotCredentialsBanner');
@@ -304,11 +328,20 @@ function hideForgotBanner() {
 }
 
 function getFailedAttempts() {
-  return Number(localStorage.getItem(FAILED_ATTEMPTS_KEY) || '0');
+  try { return Number(localStorage.getItem(FAILED_ATTEMPTS_KEY) || '0'); } catch (e) { return 0; }
 }
 
 function getLockoutUntil() {
-  return Number(localStorage.getItem(LOCKOUT_UNTIL_KEY) || '0');
+  try { return Number(localStorage.getItem(LOCKOUT_UNTIL_KEY) || '0'); } catch (e) { return 0; }
+}
+
+function setAuthButtonsBusy(busy) {
+  const locked = getLockoutUntil() > Date.now();
+  ['email', 'pass', 'signInBtn', 'signUpBtn'].forEach(id => {
+    const el = $(id);
+    if (el) el.disabled = locked || busy;
+  });
+  if ($('signInBtn')) $('signInBtn').textContent = busy ? 'جاري الدخول...' : 'دخول';
 }
 
 function updateLockoutUI(remainingMs) {
@@ -325,8 +358,10 @@ function updateLockoutUI(remainingMs) {
     const ss = String(totalSec % 60).padStart(2, '0');
     if ($('lockoutCountdown')) $('lockoutCountdown').textContent = `${mm}:${ss}`;
   } else {
-    localStorage.removeItem(LOCKOUT_UNTIL_KEY);
-    localStorage.setItem(FAILED_ATTEMPTS_KEY, '0');
+    try {
+      localStorage.removeItem(LOCKOUT_UNTIL_KEY);
+      localStorage.setItem(FAILED_ATTEMPTS_KEY, '0');
+    } catch (e) {}
     if (lockoutTimer) {
       clearInterval(lockoutTimer);
       lockoutTimer = null;
@@ -346,10 +381,10 @@ function startLockoutCountdown() {
 
 function recordFailedLoginAttempt() {
   const next = getFailedAttempts() + 1;
-  localStorage.setItem(FAILED_ATTEMPTS_KEY, String(next));
+  try { localStorage.setItem(FAILED_ATTEMPTS_KEY, String(next)); } catch (e) {}
   if (next > MAX_FAILED_ATTEMPTS) {
     const until = Date.now() + LOCKOUT_DURATION_MS;
-    localStorage.setItem(LOCKOUT_UNTIL_KEY, String(until));
+    try { localStorage.setItem(LOCKOUT_UNTIL_KEY, String(until)); } catch (e) {}
     showForgotCredentialsAlert();
     startLockoutCountdown();
   } else {
@@ -359,8 +394,10 @@ function recordFailedLoginAttempt() {
 }
 
 function resetLoginAttempts() {
-  localStorage.setItem(FAILED_ATTEMPTS_KEY, '0');
-  localStorage.removeItem(LOCKOUT_UNTIL_KEY);
+  try {
+    localStorage.setItem(FAILED_ATTEMPTS_KEY, '0');
+    localStorage.removeItem(LOCKOUT_UNTIL_KEY);
+  } catch (e) {}
   updateLockoutUI(0);
 }
 
@@ -395,7 +432,7 @@ function drawCat(){
   if ($('catNote')) $('catNote').textContent = ent.length ? 'أكبر بند: ' + ent[0][0] + ' (' + Math.round(ent[0][1] / sum * 100) + '% من المصروفات)' + (othPct >= 20 ? ' — تنبيه: بند "أخرى" ' + othPct + '% من المصروفات، راجع التصنيف' : '') : 'مفيش مصروفات في الفترة دي';
 }
 const FIXES = [
- [/failed to fetch|networkerror|load failed/i,'مفيش اتصال بالخدمة','النت ضعيف، أو الدالة على Supabase مش منشورة أو فيها خطأ.','حدّث الصفحة وتأكد من النت. لو لسه، افتح Supabase ← Edge Functions ← الدالة ← Logs وصوّر آخر خطأ.'],
+ [/failed to fetch|networkerror|load failed|timed out/i,'مفيش اتصال بالخدمة','النت ضعيف أو المتصفح/الشبكة حجب الاتصال بـ Supabase، أو الدالة مش منشورة.','حدّث الصفحة وتأكد من النت أو جرّب متصفح تاني. لو لسه، افتح Supabase ← Edge Functions ← الدالة ← Logs وصوّر آخر خطأ.'],
  [/invalid login|invalid credentials/i,'الإيميل أو كلمة السر غلط','اتأكد من الإيميل وكلمة السر. لو لسه ما عملتش حساب اضغط إنشاء حساب جديد.','اكتب البيانات تاني بحذر. لو نسيت كلمة السر اطلب إعادة تعيينها من Supabase ← Authentication ← Users.'],
  [/email not confirmed/i,'الإيميل لسه ما اتأكدش','لازم تفتح لينك التأكيد اللي اتبعت على إيميلك.','افتح Gmail ودوّر في الوارد وSpam، اضغط اللينك، وبعدها ارجع واضغط دخول.'],
  [/already registered|already been registered/i,'الإيميل ده متسجل قبل كده','فيه حساب بنفس الإيميل.','اضغط دخول بدل إنشاء حساب جديد.'],
@@ -466,108 +503,239 @@ function show(id){
   if (id === 'auth') startLockoutCountdown();
 }
 
+function withTimeout(promise, ms = 9000, label = 'timed out') {
+  let timerId = null;
+  const timeoutPromise = new Promise((_, reject) => {
+    timerId = setTimeout(() => reject(new Error(label)), ms);
+  });
+  return Promise.resolve(promise)
+    .then(val => { clearTimeout(timerId); return val; })
+    .catch(err => { clearTimeout(timerId); throw err; });
+}
+
 async function signIn(){
   if (getLockoutUntil() > Date.now()) {
     startLockoutCountdown();
     return;
   }
-  $('authMsg').textContent = '';
+  const emailVal = ($('email') && $('email').value ? $('email').value.trim() : '');
+  const passVal = ($('pass') && $('pass').value ? $('pass').value : '');
+  if ($('authMsg')) { $('authMsg').className = 'text-xs text-rose-600'; $('authMsg').textContent = ''; }
+  setAuthStatus('جاري التحقق من البيانات...');
+  if (!emailVal || !passVal) {
+    setAuthStatus('');
+    recordFailedLoginAttempt();
+    problem($('authMsg'), 'invalid login');
+    return;
+  }
   if (!sb) {
+    setAuthStatus('');
     recordFailedLoginAttempt();
     problem($('authMsg'), 'failed to fetch');
     return;
   }
-  const {error} = await sb.auth.signInWithPassword({email: $('email').value.trim(), password: $('pass').value});
-  if (error) {
-    recordFailedLoginAttempt();
-    problem($('authMsg'), error.message);
-  } else {
+  setAuthButtonsBusy(true);
+  try {
+    setAuthStatus('جاري تسجيل الدخول على الخادم...');
+    const res = await withTimeout(
+      sb.auth.signInWithPassword({email: emailVal, password: passVal}),
+      9000,
+      'timed out'
+    );
+    const data = res && res.data ? res.data : null;
+    const error = res && res.error ? res.error : null;
+    if (error) {
+      setAuthStatus('');
+      recordFailedLoginAttempt();
+      problem($('authMsg'), error.message || 'invalid login');
+      return;
+    }
     hideForgotBanner();
     resetLoginAttempts();
-    boot();
+    setAuthStatus('تم تسجيل الدخول، جاري فتح لوحة التحكم...');
+    await boot(data && data.session ? data.session : null);
+  } catch (e) {
+    setAuthStatus('');
+    const msg = e && e.message ? e.message : 'failed to fetch';
+    if (!/timed out|failed to fetch|networkerror/i.test(msg)) {
+      recordFailedLoginAttempt();
+    }
+    problem($('authMsg'), msg);
+  } finally {
+    setAuthButtonsBusy(false);
   }
 }
+
 async function signUp(){
   if (getLockoutUntil() > Date.now()) {
     startLockoutCountdown();
     return;
   }
-  $('authMsg').textContent = '';
-  if (!sb) { problem($('authMsg'), 'failed to fetch'); return; }
-  const {data, error} = await sb.auth.signUp({email: $('email').value.trim(), password: $('pass').value});
-  if (error) { problem($('authMsg'), error.message); return; }
-  if (data && data.session) {
-    hideForgotBanner();
-    resetLoginAttempts();
-    boot();
-  } else {
-    $('authMsg').className = 'text-xs text-emerald-600';
-    $('authMsg').textContent = 'تم. افتح الرابط اللي وصلك على الإيميل، وبعدها اضغط دخول.';
+  const emailVal = ($('email') && $('email').value ? $('email').value.trim() : '');
+  const passVal = ($('pass') && $('pass').value ? $('pass').value : '');
+  if ($('authMsg')) { $('authMsg').className = 'text-xs text-rose-600'; $('authMsg').textContent = ''; }
+  setAuthStatus('جاري إنشاء الحساب...');
+  if (!sb) { setAuthStatus(''); problem($('authMsg'), 'failed to fetch'); return; }
+  setAuthButtonsBusy(true);
+  try {
+    const res = await withTimeout(sb.auth.signUp({email: emailVal, password: passVal}), 9000, 'timed out');
+    const data = res && res.data ? res.data : null;
+    const error = res && res.error ? res.error : null;
+    if (error) {
+      setAuthStatus('');
+      problem($('authMsg'), error.message);
+      return;
+    }
+    if (data && data.session) {
+      hideForgotBanner();
+      resetLoginAttempts();
+      setAuthStatus('تم إنشاء الحساب، جاري الفتح...');
+      await boot(data.session);
+    } else {
+      setAuthStatus('');
+      if ($('authMsg')) {
+        $('authMsg').className = 'text-xs text-emerald-600';
+        $('authMsg').textContent = 'تم. افتح الرابط اللي وصلك على الإيميل، وبعدها اضغط دخول.';
+      }
+    }
+  } catch (e) {
+    setAuthStatus('');
+    problem($('authMsg'), e && e.message ? e.message : 'failed to fetch');
+  } finally {
+    setAuthButtonsBusy(false);
   }
 }
+
 async function signOut(){
-  if (sb) await sb.auth.signOut().catch(() => {});
+  if (sb) {
+    try { await withTimeout(sb.auth.signOut(), 4000, 'timed out'); } catch (e) {}
+  }
   companyId = null;
+  setAuthStatus('');
   show('auth');
 }
 
-async function boot(){
+async function boot(prefetchedSession = null){
   startLockoutCountdown();
   if (!sb) {
+    setAuthStatus('');
     show('auth');
     problem($('authMsg'), 'failed to fetch');
     return;
   }
   try {
-    const {data:{session}, error: sErr} = await sb.auth.getSession();
-    if (sErr || !session) return show('auth');
-    const {data, error: mErr} = await sb.from('company_members').select('company_id').limit(1);
+    let session = prefetchedSession;
+    if (!session) {
+      const sRes = await withTimeout(sb.auth.getSession(), 7000, 'timed out');
+      if (sRes && sRes.error) {
+        setAuthStatus('');
+        show('auth');
+        problem($('authMsg'), sRes.error.message);
+        return;
+      }
+      session = sRes && sRes.data ? sRes.data.session : null;
+    }
+    if (!session) {
+      setAuthStatus('');
+      show('auth');
+      return;
+    }
+    setAuthStatus('جاري التحقق من بيانات الشركة...');
+    const mRes = await withTimeout(
+      sb.from('company_members').select('company_id').limit(1),
+      7000,
+      'timed out'
+    );
+    const data = mRes && mRes.data ? mRes.data : null;
+    const mErr = mRes && mRes.error ? mRes.error : null;
     if (mErr) {
+      setAuthStatus('');
       show('app');
       problem($('msg'), mErr.message);
       return;
     }
-    if (!data || !data.length) return show('setup');
+    if (!data || !data.length) {
+      setAuthStatus('');
+      show('setup');
+      return;
+    }
     companyId = data[0].company_id;
+    setAuthStatus('');
     show('app');
-    load();
+    await load();
   } catch (e) {
-    show('auth');
-    problem($('authMsg'), e && e.message ? e.message : 'failed to fetch');
+    setAuthStatus('');
+    if (prefetchedSession && prefetchedSession.user) {
+      show('app');
+      problem($('msg'), e && e.message ? e.message : 'failed to fetch');
+    } else {
+      show('auth');
+      problem($('authMsg'), e && e.message ? e.message : 'failed to fetch');
+    }
   }
 }
+
 async function createCompany(){
   const name = $('cName').value.trim(), cash = Number($('cCash').value || 0);
   if (!name) { $('setupMsg').textContent = 'اكتب اسم الشركة'; return; }
-  const {error} = await sb.rpc('create_company', {p_name: name, p_opening_cash: cash});
-  if (error) problem($('setupMsg'), error.message); else boot();
+  try {
+    const res = await withTimeout(sb.rpc('create_company', {p_name: name, p_opening_cash: cash}), 8000, 'timed out');
+    if (res && res.error) problem($('setupMsg'), res.error.message); else boot();
+  } catch (e) {
+    problem($('setupMsg'), e && e.message ? e.message : 'failed to fetch');
+  }
 }
 
-async function load(){ try { await loadInner(); } catch (e) { problem($('msg'), e && e.message ? e.message : e); } }
+async function safeQuery(builder, fallback) {
+  try {
+    const r = await withTimeout(builder, 7000, 'timed out');
+    return r;
+  } catch (e) {
+    return { data: fallback, error: e };
+  }
+}
+
+async function load(){
+  show('app');
+  try { await loadInner(); } catch (e) { problem($('msg'), e && e.message ? e.message : e); }
+}
+
 async function loadInner(){
-  const {data: co} = await sb.from('companies').select('name').eq('id', companyId).maybeSingle();
-  $('title').textContent = 'نظرة عامة على السيولة - ' + (co && co.name ? co.name : 'الشركة');
-  const {data: m} = await sb.from('company_metrics').select('*').eq('company_id', companyId).maybeSingle();
-  const {data: tx} = await sb.from('transactions').select('tx_date,description,category,amount').eq('company_id', companyId).order('tx_date', {ascending: true}).limit(5000);
-  const metrics = m || {};
+  const coRes = await safeQuery(sb.from('companies').select('name').eq('id', companyId).maybeSingle(), null);
+  const co = coRes && coRes.data ? coRes.data : null;
+  if ($('title')) $('title').textContent = 'نظرة عامة على السيولة - ' + (co && co.name ? co.name : 'الشركة');
+
+  const mRes = await safeQuery(sb.from('company_metrics').select('*').eq('company_id', companyId).maybeSingle(), null);
+  const txRes = await safeQuery(sb.from('transactions').select('tx_date,description,category,amount').eq('company_id', companyId).order('tx_date', {ascending: true}).limit(5000), []);
+
+  const metrics = (mRes && mRes.data) ? mRes.data : {};
+  const tx = (txRes && Array.isArray(txRes.data)) ? txRes.data : [];
+
   const cash = Number(metrics.cash_on_hand || 0), burn = Number(metrics.burn_rate || 0); curCash = cash;
-  $('kCash').textContent = fmt(cash) + ' ج.م';
-  $('kBurn').textContent = fmt(burn) + ' ج.م';
-  $('kRun').textContent = metrics.runway_months === null || metrics.runway_months === undefined ? (burn > 0 ? (cash / burn).toFixed(1) + ' شهر' : 'لا يوجد حرق') : metrics.runway_months + ' شهر';
+  if ($('kCash')) $('kCash').textContent = fmt(cash) + ' ج.م';
+  if ($('kBurn')) $('kBurn').textContent = fmt(burn) + ' ج.م';
+  if ($('kRun')) $('kRun').textContent = metrics.runway_months === null || metrics.runway_months === undefined ? (burn > 0 ? (cash / burn).toFixed(1) + ' شهر' : 'لا يوجد حرق') : metrics.runway_months + ' شهر';
+
   const monthly = {};
-  (tx || []).forEach(t => { if (!t || !t.tx_date) return; const k = String(t.tx_date).slice(0,7); monthly[k] = (monthly[k] || 0) + Number(t.amount || 0); });
+  tx.forEach(t => { if (!t || !t.tx_date) return; const k = String(t.tx_date).slice(0,7); monthly[k] = (monthly[k] || 0) + Number(t.amount || 0); });
   let run = Number(metrics.opening_cash || 0);
   const keys = Object.keys(monthly).sort(), vals = keys.map(k => (run += monthly[k]));
   const last = keys[keys.length - 1], net = last ? monthly[last] : 0, total = keys.reduce((a, k) => a + monthly[k], 0);
   curBurn = burn; curRunway = metrics.runway_months; lastMonthKey = last || ''; lastMonthNet = net; totalNetProfit = total;
-  const kp = $('kProfit'); kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-'; kp.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
-  $('kProfitSub').textContent = last ? 'شهر ' + last + ' | الإجمالي كله: ' + (total > 0 ? '+' : '') + fmt(total) : 'ارفع ملف لحساب الربح';
+
+  const kp = $('kProfit');
+  if (kp) {
+    kp.textContent = last ? (net > 0 ? '+' : '') + fmt(net) + ' ج.م' : '-';
+    kp.className = 'text-2xl font-extrabold ' + (net >= 0 ? 'text-emerald-600' : 'text-rose-600');
+  }
+  if ($('kProfitSub')) $('kProfitSub').textContent = last ? 'شهر ' + last + ' | الإجمالي كله: ' + (total > 0 ? '+' : '') + fmt(total) : 'ارفع ملف لحساب الربح';
+
   if (chart) chart.destroy();
   if ($('chart') && window.Chart) {
     chart = new Chart($('chart'), {type:'line', data:{labels: keys, datasets:[{data: vals, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.08)', borderWidth:3, fill:true, tension:.35}]},
       options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}}}});
   }
-  allTx = tx || []; drawIE(); drawCat();
+  allTx = tx; drawIE(); drawCat();
   updateExecutiveInsights();
   loadObl().catch(e => problem($('oblMsg'), e.message));
   loadInventory().catch(e => problem($('invMsg'), e.message));
@@ -614,13 +782,13 @@ function toDate(v, order){
 const RULES = [
  ['Salaries & Wages', false, /(رواتب|مرتبات|راتب|مرتب|اجور|أجور|salary|salaries|payroll|wages)/i],
  ['Rent & Utilities', false, /(كهرباء|كهربا|مياه|غاز|ايجار|إيجار|انترنت|إنترنت|تليفون|اتصالات|فودافون|اورنج|rent|electric|water|utility|vodafone|orange|etisalat)/i],
- ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات|tax|vat|customs)/i],
+ ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات| tax | vat |customs)/i],
  ['Bank Fees', false, /(عمولة|عمولات|مصاريف بنكية|رسوم بنكية|رسوم بنك|bank charge|commission|bank fee)/i],
- ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads|ads|marketing)/i],
+ ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads| ads |marketing)/i],
  ['Loans & Installments', false, /(قسط|اقساط|أقساط|قرض|تمويل|loan|installment)/i],
  ['Meals & Hospitality', false, /(اكل|أكل|مطعم|مطاعم|قهوة|كافيه|بوفيه|ضيافة|وجبات|restaurant|cafe|coffee|meal|catering)/i],
  ['Cost of Goods Sold', false, /(توريد|بضاعة|بضائع|مورد|موردين|مشتريات|خامات|شراء|supplier|purchase|inventory|goods)/i],
- ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع|pos|تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
+ ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع| pos |تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
 ];
 function autoCat(desc, isIncome){
   const d = String(desc).toLowerCase();
@@ -1170,6 +1338,13 @@ function renderLatestTx(){
     });
     body.appendChild(tr);
   });
+}
+
+if ($('pass')) {
+  $('pass').addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+}
+if ($('email')) {
+  $('email').addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
 }
 
 boot();
