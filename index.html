@@ -63,10 +63,12 @@
 <body class="min-h-screen">
 <!-- Auth -->
 <div id="auth" class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-slate-950 text-slate-100 relative overflow-hidden">
+  <!-- Subtle Executive Glows -->
   <div class="pointer-events-none absolute -top-28 right-1/4 w-96 h-96 rounded-full bg-indigo-600/15 blur-3xl"></div>
   <div class="pointer-events-none absolute -bottom-28 left-1/4 w-96 h-96 rounded-full bg-violet-600/15 blur-3xl"></div>
 
   <div class="relative z-10 w-full max-w-md rounded-3xl border border-slate-800/90 bg-slate-900/95 backdrop-blur-xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.8)] p-6 sm:p-8 space-y-6">
+    <!-- Brand Header -->
     <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
       <div class="flex items-center gap-3.5">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-indigo-700 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-600/30 text-base tracking-wide shrink-0">TD</div>
@@ -78,11 +80,13 @@
       <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/25 shrink-0">بوابة الإدارة</span>
     </div>
 
+    <!-- Mode Switcher -->
     <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-950/90 border border-slate-800">
       <button id="tabLogin" type="button" onclick="setAuthTab('login')" class="py-2.5 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-sm transition">دخول</button>
       <button id="tabSignup" type="button" onclick="setAuthTab('signup')" class="py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">إنشاء حساب جديد</button>
     </div>
 
+    <!-- Normal Login / Signup Form -->
     <form id="authForm" onsubmit="submitAuth(event)" class="space-y-4">
       <div>
         <label for="email" class="block text-xs font-bold text-slate-300 mb-1.5">البريد الإلكتروني</label>
@@ -108,6 +112,7 @@
       </button>
     </form>
 
+    <!-- Security Lockout Panel (After 3 Failed Password Attempts) -->
     <div id="securityLockPanel" class="hidden rounded-2xl border border-rose-500/40 bg-rose-950/35 p-4 space-y-4">
       <div class="space-y-1.5">
         <div class="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-200 border border-rose-500/30">
@@ -122,6 +127,7 @@
 
       <div id="gmailAlertStatus" class="text-[11px] font-bold rounded-xl border border-amber-500/30 bg-amber-950/40 text-amber-200 p-3"></div>
 
+      <!-- Step 1: Yes / No Verification -->
       <div id="ownerDecisionBox" class="grid grid-cols-2 gap-2.5">
         <button type="button" onclick="handleOwnerDecision('yes')"
           class="bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 px-3 rounded-xl text-xs font-extrabold transition">
@@ -133,6 +139,7 @@
         </button>
       </div>
 
+      <!-- Step 2A: Owner Said YES -> Set New Password -->
       <form id="resetPasswordForm" onsubmit="submitNewPassword(event)" class="hidden space-y-3 pt-2 border-t border-slate-800">
         <div>
           <label for="newPassInput" class="block text-xs font-bold text-slate-200 mb-1">كلمة السر الجديدة</label>
@@ -156,6 +163,7 @@
         </div>
       </form>
 
+      <!-- Step 2B: Owner Said NO -> Platform Stopped & Contact Platform Owner -->
       <div id="platformStoppedBox" class="hidden rounded-xl border border-rose-500/40 bg-slate-950/90 p-3.5 space-y-2.5">
         <div class="text-xs font-extrabold text-rose-300">⛔ تم إيقاف المنصة وحظر المحاولات على هذا الحساب</div>
         <p class="text-xs text-slate-300 leading-relaxed">
@@ -174,8 +182,10 @@
       </div>
     </div>
 
+    <!-- Feedback / Error Box -->
     <div id="authMsg" class="text-xs font-semibold min-h-[1rem]"></div>
 
+    <!-- Footer Note -->
     <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
       <span>حسابات مستقلة للمدير العام والمدير المالي (حد أقصى جهازين)</span>
       <span class="text-slate-400 font-bold">Tadaffuq</span>
@@ -218,6 +228,7 @@
   </header>
 
   <div class="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
+    <!-- Wipe Confirmation Banner -->
     <div id="wipeConfirmBox" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-4 flex flex-wrap items-center justify-between gap-3">
       <div class="space-y-0.5">
         <p class="text-sm font-extrabold text-rose-900">تأكيد مسح وتصفير جميع بيانات الشركة الحالية</p>
@@ -229,11 +240,13 @@
       </div>
     </div>
 
+    <!-- Sync Status & Feedback -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
       <div id="syncBar" class="flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-600"></div>
     </div>
     <p id="msg" class="text-sm font-bold"></p>
 
+    <!-- Unified Data Sources & Manual Upload Card -->
     <div class="pro-card p-5 space-y-4 border-t-4 border-t-indigo-600">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
         <div>
@@ -274,6 +287,7 @@
       </details>
     </div>
 
+    <!-- Primary KPIs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 tabular-nums">
       <div class="pro-card kpi-accent-blue p-5">
         <p class="text-xs font-bold text-slate-500">النقدية المتاحة</p>
@@ -294,6 +308,7 @@
       </div>
     </div>
 
+    <!-- Executive Alerts & Recommendations (Directly under Net Profit) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <details id="execAlertsCard" open class="pro-card p-5 border-t-4 border-t-amber-500 bg-gradient-to-b from-amber-50/35 to-white">
         <summary class="list-none cursor-pointer select-none">
@@ -328,6 +343,7 @@
       </details>
     </div>
 
+    <!-- Column Mapper -->
     <div id="mapper" class="hidden pro-card p-6 border-indigo-200 space-y-4">
       <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
@@ -353,6 +369,7 @@
       <div class="flex gap-2 pt-1"><button id="mapGo" onclick="mapUpload()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40">رفع</button><button onclick="mapCancel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold">إلغاء</button></div>
     </div>
 
+    <!-- Receivables, Payables, Taxes & Upcoming -->
     <div class="pro-card p-6 space-y-4">
       <div class="flex justify-between items-center gap-2 flex-wrap border-b border-slate-100 pb-4">
         <div>
@@ -394,6 +411,7 @@
       <div id="oblDetailsBox" class="hidden overflow-x-auto pt-2 border-t border-slate-100"><table class="w-full text-right text-sm tabular-nums"><thead class="bg-slate-50 text-slate-600 text-xs"><tr><th class="p-2.5 rounded-r-lg">النوع</th><th class="p-2.5">الاسم</th><th class="p-2.5">المبلغ</th><th class="p-2.5">الاستحقاق</th><th class="p-2.5 rounded-l-lg"></th></tr></thead><tbody id="oblRows" class="divide-y divide-slate-100"></tbody></table></div>
     </div>
 
+    <!-- Inventory -->
     <div class="pro-card p-6 space-y-4">
       <div class="flex justify-between items-start gap-2 flex-wrap border-b border-slate-100 pb-4">
         <div>
@@ -424,6 +442,7 @@
       </div>
     </div>
 
+    <!-- Charts -->
     <div class="pro-card p-6">
       <div class="flex items-center justify-between gap-2 mb-4">
         <div>
@@ -466,6 +485,7 @@
       </div>
     </div>
 
+    <!-- AI Assistant -->
     <div class="rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 shadow-md space-y-3.5">
       <div class="flex items-center justify-between gap-2">
         <h2 class="font-extrabold text-base">المساعد المالي الذكي</h2>
@@ -479,6 +499,7 @@
       <div id="answer" class="text-sm leading-relaxed whitespace-pre-wrap"></div>
     </div>
 
+    <!-- Latest Transactions -->
     <div class="pro-card p-6 space-y-3">
       <div class="flex items-center justify-between gap-2 flex-wrap">
         <div>
@@ -492,6 +513,7 @@
       </div>
     </div>
 
+    <!-- Help -->
     <details class="pro-card p-5 text-sm">
       <summary class="font-extrabold text-slate-900 cursor-pointer">مشكلة؟ أشهر المشاكل وحلولها</summary>
       <ul id="helpList" class="mt-3 space-y-3"></ul>
@@ -516,6 +538,7 @@ function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.
 function dayDiff(due){ return Math.round((Date.parse(due) - Date.parse(todayStr())) / 864e5); }
 function show(id){ ['auth','setup','app'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
 
+/* ===== منظومة حصر المقعدين والجهازين وإشعارات المالك اللحظية ===== */
 function getOrCreateDeviceId(){
   const k = 'tadaffuq_device_id';
   let id = '';
@@ -566,10 +589,14 @@ async function verifySeatAndDevicePolicy(email, targetCompanyId){
   if (!cleanEmail) return {ok: true};
 
   try {
-    let q = sb.from('company_users').select('id, company_id, email, full_name, role, status, companies(id, name, max_seats, max_company_devices, is_active)').eq('email', cleanEmail);
-    if (targetCompanyId) q = q.eq('company_id', targetCompanyId);
-    const {data: members, error: mErr} = await q.limit(1);
+    // 1) البحث المباشر بالإيميل في جدول company_users لتفادي تعارض company_id عند تعدد الشركات
+    const {data: members, error: mErr} = await sb
+      .from('company_users')
+      .select('id, company_id, email, full_name, role, status, companies(id, name, max_seats, max_company_devices, is_active)')
+      .ilike('email', cleanEmail)
+      .limit(1);
 
+    // إذا لم يُنشأ جدول company_users بعد، نسمح بالمرور دون كسر الجلسة الحالية
     if (mErr && /does not exist|schema cache/i.test(String(mErr.message || ''))) {
       return {ok: true};
     }
@@ -607,6 +634,7 @@ async function verifySeatAndDevicePolicy(email, targetCompanyId){
       };
     }
 
+    // 2) التحقق من حد الجهازين على مستوى الشركة بالكامل
     const {data: compDevices, error: dErr} = await sb
       .from('user_devices')
       .select('id, company_user_id, device_id, is_approved')
@@ -793,7 +821,7 @@ const FIXES = [
  [/invalid login|invalid credentials/i,'الإيميل أو كلمة السر غلط','اتأكد من الإيميل وكلمة السر. لو لسه ما عملتش حساب اضغط إنشاء حساب جديد.','اكتب البيانات تاني بحذر. لو نسيت كلمة السر اطلب إعادة تعيينها من Supabase ← Authentication ← Users.'],
  [/email not confirmed/i,'الإيميل لسه ما اتأكدش','لازم تفتح لينك التأكيد اللي اتبعت على إيميلك.','افتح Gmail ودوّر في الوارد وSpam، اضغط اللينك، وبعدها ارجع واضغط دخول.'],
  [/already registered|already been registered/i,'الإيميل ده متسجل قبل كده','فيه حساب بنفس الإيميل.','اضغط دخول بدل إنشاء حساب جديد.'],
- [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
+ [/rate limit|too many|security purposes/i,'طلبات كتير في وقت قصير','Supabase حدّ من عدد المحاولات أو إيميلات التأكيد.','استنى كام دقيقة وجرّب تاني.'],
  [/at least 6|password should|weak password/i,'كلمة السر ضعيفة','لازم 6 أحرف على الأقل.','اختار كلمة سر أطول فيها حروف وأرقام.'],
  [/inventory_items|replace_inventory|data_sources_kind_check/i,'جدول المخزون لسه ما اتعملش','كود SQL بتاع المخزون ما اتشغّلش في Supabase.','افتح Supabase ← SQL Editor وشغّل أكواد المخزون واحد واحد، وبعدين حدّث الصفحة.'],
  [/data_sources/i,'جدول ربط الشيت لسه ما اتعملش','الجدول مش موجود في قاعدة البيانات.','شغّل كود SQL بتاع ربط الشيت في Supabase ← SQL Editor، وبعدين حدّث الصفحة.'],
@@ -875,6 +903,7 @@ async function notifyCompanyOwnerGmail(targetEmail, attemptsCount){
   const statusEl = $('gmailAlertStatus');
   const timeText = new Date().toLocaleString('ar-EG');
 
+  // تسجيل تنبيه فوري في صفحتك الخاصة (super-admin-dashboard)
   await sendAdminPageAlert({
     email: targetEmail,
     alertType: 'wrong_password_streak',
@@ -1159,6 +1188,7 @@ async function boot(){
   if (!data || !data.length) return show('setup');
   const candidateCompanyId = data[0].company_id;
 
+  // التحقق من حصر الحسابين (المدير العام والمدير المالي) وحد الجهازين للشركة
   const guard = await verifySeatAndDevicePolicy(session.user && session.user.email, candidateCompanyId);
   if (!guard.ok) {
     await sb.auth.signOut();
@@ -1168,7 +1198,7 @@ async function boot(){
     return;
   }
 
-  companyId = candidateCompanyId;
+  companyId = guard.companyId || candidateCompanyId;
   try { localStorage.setItem('tadaffuq_company_id', companyId); } catch (e) {}
   show('app');
   load();
@@ -1249,13 +1279,13 @@ function toDate(v, order){
 const RULES = [
  ['Salaries & Wages', false, /(رواتب|مرتبات|راتب|مرتب|اجور|أجور|salary|salaries|payroll|wages)/i],
  ['Rent & Utilities', false, /(كهرباء|كهربا|مياه|غاز|ايجار|إيجار|انترنت|إنترنت|تليفون|اتصالات|فودافون|اورنج|rent|electric|water|utility|vodafone|orange|etisalat)/i],
- ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات|\btax\b|\bvat\b|customs)/i],
+ ['Taxes & Fees', false, /(ضريبة|ضرائب|جمارك|تأمينات|تامينات|tax|vat|customs)/i],
  ['Bank Fees', false, /(عمولة|عمولات|مصاريف بنكية|رسوم بنكية|رسوم بنك|bank charge|commission|bank fee)/i],
- ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads|\bads\b|marketing)/i],
+ ['Marketing', false, /(اعلان|إعلان|تسويق|فيسبوك|facebook|google ads|meta ads|ads|marketing)/i],
  ['Loans & Installments', false, /(قسط|اقساط|أقساط|قرض|تمويل|loan|installment)/i],
  ['Meals & Hospitality', false, /(اكل|أكل|مطعم|مطاعم|قهوة|كافيه|بوفيه|ضيافة|وجبات|restaurant|cafe|coffee|meal|catering)/i],
  ['Cost of Goods Sold', false, /(توريد|بضاعة|بضائع|مورد|موردين|مشتريات|خامات|شراء|supplier|purchase|inventory|goods)/i],
- ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع|\bpos\b|تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
+ ['Sales Revenue', true, /(مبيعات|ايراد|إيراد|نقاط البيع|pos|تحصيل|عميل|عملاء|فاتورة|sales|revenue|invoice)/i]
 ];
 function autoCat(desc, isIncome){
   const d = String(desc).toLowerCase();
@@ -1862,11 +1892,13 @@ async function executeWipeCompanyData(){
   $('msg').textContent = 'جاري مسح جميع بيانات الشركة وتصفير الواجهة...';
 
   try {
+    // 1. مسح كل بيانات الشركة من جداول Supabase
     await sb.from('transactions').delete().eq('company_id', companyId);
     await sb.from('obligations').delete().eq('company_id', companyId);
     await sb.from('inventory_items').delete().eq('company_id', companyId);
     await sb.from('data_sources').delete().eq('company_id', companyId);
 
+    // 2. تصفير الرصيد الافتتاحي وإعادة حساب مؤشرات الشركة لتكون صفر بالكامل
     try {
       await sb.from('company_metrics').update({
         opening_cash: 0,
@@ -1877,6 +1909,7 @@ async function executeWipeCompanyData(){
     } catch (e) {}
     try { await sb.rpc('recalc_metrics', {p_company: companyId}); } catch (e) {}
 
+    // 3. مسح أي تخزين محلي أو خرائط أعمدة محفوظة للشركة
     try {
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const k = localStorage.key(i);
@@ -1886,6 +1919,7 @@ async function executeWipeCompanyData(){
       }
     } catch (e) {}
 
+    // 4. تصفير فوري لكل الكروت والرسوم البيانية في الواجهة
     resetAllDashboardCardsToZero();
 
     $('msg').className = 'text-sm font-bold text-emerald-700';
