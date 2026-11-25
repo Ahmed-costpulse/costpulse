@@ -255,6 +255,33 @@
       </div>
     </div>
 
+    <!-- Demo hero -->
+    <div id="demoHero" class="hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-900 text-white p-6 md:p-8 shadow-xl space-y-5">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-1.5">
+          <div class="text-[11px] font-extrabold tracking-wide text-indigo-200">TADAFFUQ</div>
+          <h2 class="text-xl md:text-2xl font-extrabold leading-snug">فلوس شركتك كلها في مكان واحد، وإنت قاعد في بيتك</h2>
+          <p class="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">السيولة والمصاريف والمستحقات والمخزون والتنبيهات، بأرقام النهارده. اضغط على أي كارت وشوف التفاصيل.</p>
+        </div>
+        <div class="flex flex-col items-start gap-1.5">
+          <button type="button" onclick="srcSyncAll()" class="bg-white text-indigo-700 hover:bg-indigo-50 px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition">مزامنة الآن</button>
+          <span id="demoSyncMsg" class="text-[11px] font-bold text-emerald-300 min-h-[1rem]"></span>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="rounded-2xl bg-white/10 border border-white/15 p-4"><div class="text-[11px] text-indigo-200 font-bold">النقدية المتاحة</div><div class="text-xl md:text-2xl font-extrabold mt-1 tabular-nums">250,000 <span class="text-xs font-bold">ج.م</span></div></div>
+        <div class="rounded-2xl bg-white/10 border border-white/15 p-4"><div class="text-[11px] text-indigo-200 font-bold">صافي ربح الشهر</div><div class="text-xl md:text-2xl font-extrabold mt-1 text-emerald-300 tabular-nums">+68,000 <span class="text-xs font-bold">ج.م</span></div></div>
+        <div class="rounded-2xl bg-white/10 border border-white/15 p-4"><div class="text-[11px] text-indigo-200 font-bold">صافي وضعك بعد المستحقات</div><div class="text-xl md:text-2xl font-extrabold mt-1 text-emerald-300 tabular-nums">+369,500 <span class="text-xs font-bold">ج.م</span></div></div>
+        <div class="rounded-2xl bg-white/10 border border-white/15 p-4"><div class="text-[11px] text-indigo-200 font-bold">قيمة المخزون</div><div class="text-xl md:text-2xl font-extrabold mt-1 tabular-nums">180,000 <span class="text-xs font-bold">ج.م</span></div></div>
+      </div>
+      <div class="flex flex-wrap gap-2 text-[11px] font-bold">
+        <span class="px-3 py-1 rounded-full bg-white/10 border border-white/15">📱 من التليفون أو الكمبيوتر</span>
+        <span class="px-3 py-1 rounded-full bg-white/10 border border-white/15">🔄 أي تعديل تشوفه بضغطة مزامنة</span>
+        <span class="px-3 py-1 rounded-full bg-white/10 border border-white/15">🔔 تنبيهات للمتأخرات والمخزون</span>
+        <span class="px-3 py-1 rounded-full bg-white/10 border border-white/15">🤖 مساعد مالي تسأله بالعربي</span>
+      </div>
+    </div>
+
     <!-- Sync Status & Feedback -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
       <div id="syncBar" class="flex-1 text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-600"></div>
@@ -507,6 +534,12 @@
         <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">تحليل فوري</span>
       </div>
       <p class="text-xs text-slate-300 leading-relaxed">اسأل عن أرقامك، مثلاً: ليه الحرق عالي؟ أو أكبر بند مصروفات؟ (بيشوف الإجماليات الشهرية حسب التصنيف بس، مش أوصاف الحركات. الخدمة مجانية من Google، وممكن Google تستخدم الأسئلة لتحسين منتجاتها.)</p>
+      <div id="demoAskChips" class="hidden flex flex-wrap gap-2">
+        <button type="button" onclick="demoAsk('أكبر بند مصروفات؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أكبر بند مصروفات؟</button>
+        <button type="button" onclick="demoAsk('ليه صافي الربح 68,000؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">ليه صافي الربح 68,000؟</button>
+        <button type="button" onclick="demoAsk('أقدر أسدد الالتزامات؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أقدر أسدد الالتزامات؟</button>
+        <button type="button" onclick="demoAsk('إزاي أزود الربح؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">إزاي أزود الربح؟</button>
+      </div>
       <div class="flex gap-2">
         <input id="q" maxlength="300" placeholder="اكتب سؤالك" class="flex-1 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none">
         <button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-5 rounded-xl font-bold text-sm shrink-0">اسأل</button>
@@ -886,7 +919,7 @@ function problem(el, raw){
 (function(){ const ul = $('helpList'); FIXES.slice(0, 15).forEach(f => { const li = document.createElement('li'); const a = document.createElement('div'); a.className = 'font-bold'; a.textContent = f[1]; const b = document.createElement('div'); b.className = 'text-slate-600'; b.textContent = f[3]; li.append(a, b); ul.appendChild(li); }); })();
 
 async function ask(){
-  if (DEMO) { demoNotice(); return; }
+  if (DEMO) { demoAsk($('q').value); return; }
   const q = $('q').value.trim(), out = $('answer'); if (!q) return;
   out.textContent = 'جاري التفكير...'; $('askBtn').disabled = true;
   try {
@@ -1691,6 +1724,7 @@ function renderSrcStatus(){
   $('srcSummary').textContent = '- ' + srcRows.length + ' مربوطة، ' + (newest ? ago(new Date(newest).toISOString()) : 'لسه');
 }
 async function autoSync(){
+  if (DEMO) return;
   if (!companyId || !srcRows.length || document.visibilityState !== 'visible' || !$('mapper').classList.contains('hidden')) return;
   if (Date.now() - lastAuto < 150000) return;
   if (!srcRows.some(x => x.enabled && (!x.last_sync || Date.now() - new Date(x.last_sync).getTime() > 240000))) return;
@@ -1709,7 +1743,7 @@ async function srcDel(id){
   loadSources().catch(e => problem($('srcMsg'), e.message));
 }
 async function srcSyncAll(){
-  if (DEMO) { $('srcMsg').className = 'text-xs text-emerald-700 font-bold'; $('srcMsg').textContent = 'تم التزامن (عرض تجريبي): كل الأرقام اتحدّثت.'; await load(); return; }
+  if (DEMO) { $('srcMsg').className = 'text-xs text-emerald-700 font-bold'; $('srcMsg').textContent = 'تم التزامن (عرض تجريبي): كل الأرقام اتحدّثت.'; await load(); const m = $('demoSyncMsg'); if (m) { m.textContent = '✓ اتحدّثت البيانات الآن'; setTimeout(() => { m.textContent = ''; }, 4000); } return; }
   const msg = $('srcMsg');
   msg.className = 'text-xs text-slate-500'; msg.textContent = 'جاري التزامن...';
   try { await callSync({action: 'sync_all'}); msg.textContent = 'تم التزامن.'; await load(); } catch (e) { problem(msg, e.message); }
@@ -1968,29 +2002,28 @@ function buildDemoData(){
   const day = (back, want) => pad(back === 0 ? Math.max(1, Math.min(want, tdy, 28)) : Math.min(want, 28));
   const tx = [];
   const add = (back, want, desc, cat, amt) => tx.push({tx_date: mk(back) + '-' + day(back, want), description: desc, category: cat, amount: amt});
-  const scale = [0.78, 0.86, 0.92, 0.88, 0.96, 1];
-  for (let i = 0; i < 6; i++) {
-    const back = 5 - i, f = scale[i];
-    const r = (v) => Math.round(v * f / 100) * 100;
-    if (back === 0) {
-      add(0, 3, 'مبيعات - عميل الشركة المتحدة', 'Sales Revenue', 90000);
-      add(0, 11, 'مبيعات - معرض النيل', 'Sales Revenue', 70000);
-      add(0, 18, 'مبيعات - متجر الأمل', 'Sales Revenue', 50000);
-      add(0, 4, 'شراء بضاعة - مورد الدلتا', 'Cost of Goods Sold', -30000);
-      add(0, 14, 'شراء بضاعة - مورد القاهرة', 'Cost of Goods Sold', -24000);
-      add(0, 1, 'رواتب الشهر', 'Salaries & Wages', -38000);
-      add(0, 2, 'إيجار المقر', 'Rent & Utilities', -18000);
-      add(0, 8, 'حملة إعلانات', 'Marketing', -12000);
-      add(0, 9, 'مصاريف تشغيل متنوعة', 'Operating Expenses', -20000);
-    } else {
-      add(back, 3, 'مبيعات الشهر', 'Sales Revenue', r(210000));
-      add(back, 5, 'شراء بضاعة', 'Cost of Goods Sold', -r(54000));
-      add(back, 1, 'رواتب الشهر', 'Salaries & Wages', -38000);
-      add(back, 2, 'إيجار المقر', 'Rent & Utilities', -18000);
-      add(back, 8, 'حملة إعلانات', 'Marketing', -r(12000));
-      add(back, 9, 'مصاريف تشغيل متنوعة', 'Operating Expenses', -r(20000));
-    }
+  const growth = [0.45, 0.55, 0.62, 0.70, 0.78, 0.86, 0.93];
+  const custs = ['شركة النور للتجارة','مجموعة الأهرام','معرض النيل','متجر الأمل','مصنع الدلتا','شركة الواحة'];
+  for (let back = 7; back >= 1; back--) {
+    const f = growth[7 - back], r = (v) => Math.round(v * f / 100) * 100;
+    add(back, 3, 'مبيعات - ' + custs[back % 6], 'Sales Revenue', r(120000));
+    add(back, 12, 'مبيعات - ' + custs[(back + 2) % 6], 'Sales Revenue', r(90000));
+    add(back, 5, 'شراء بضاعة - مورد الدلتا', 'Cost of Goods Sold', -r(54000));
+    add(back, 1, 'رواتب الشهر', 'Salaries & Wages', -38000);
+    add(back, 2, 'إيجار المقر', 'Rent & Utilities', -18000);
+    add(back, 8, 'حملة إعلانات', 'Marketing', -r(12000));
+    add(back, 9, 'مصاريف تشغيل متنوعة', 'Operating Expenses', -r(20000));
+    add(back, 20, 'قسط قرض التمويل', 'Loans & Installments', -10000);
   }
+  add(0, 3, 'مبيعات - شركة النور للتجارة', 'Sales Revenue', 90000);
+  add(0, 11, 'مبيعات - معرض النيل', 'Sales Revenue', 70000);
+  add(0, 18, 'مبيعات - متجر الأمل', 'Sales Revenue', 50000);
+  add(0, 4, 'شراء بضاعة - مورد الدلتا', 'Cost of Goods Sold', -30000);
+  add(0, 14, 'شراء بضاعة - مورد القاهرة', 'Cost of Goods Sold', -24000);
+  add(0, 1, 'رواتب الشهر', 'Salaries & Wages', -38000);
+  add(0, 2, 'إيجار المقر', 'Rent & Utilities', -18000);
+  add(0, 8, 'حملة إعلانات', 'Marketing', -12000);
+  add(0, 9, 'مصاريف تشغيل متنوعة', 'Operating Expenses', -20000);
   const total = tx.reduce((a, t) => a + t.amount, 0), cash = 250000;
   const iso = (n) => { const d = new Date(now.getTime() + n * 864e5); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
   let n = 1;
@@ -2013,11 +2046,19 @@ function buildDemoData(){
   const rest = items.slice(0, 47).reduce((a, x) => a + x.qty * x.unit_cost, 0);
   last.unit_cost = 180000 - rest;
   items[3].min_qty = items[3].qty + 5; items[10].min_qty = items[10].qty;
+  const src = () => {
+    const t = (m) => new Date(Date.now() - m * 60000).toISOString();
+    return [
+      {id: 's1', kind: 'tx', url: 'https://docs.google.com/spreadsheets/d/demo-cash-sheet/export?format=csv', enabled: true, last_sync: t(2), last_rows: tx.length, last_status: 'ok'},
+      {id: 's2', kind: 'obl', url: 'https://docs.google.com/spreadsheets/d/demo-dues-sheet/export?format=csv', enabled: true, last_sync: t(2), last_rows: obls.length, last_status: 'ok'},
+      {id: 's3', kind: 'inv', url: 'https://docs.google.com/spreadsheets/d/demo-stock-sheet/export?format=csv', enabled: true, last_sync: t(2), last_rows: items.length, last_status: 'ok'}
+    ];
+  };
   return {
     companies: [{name: 'شركة تدفق (عرض تجريبي)'}],
-    company_metrics: [{company_id: 'demo', cash_on_hand: cash, burn_rate: 0, runway_months: null, opening_cash: cash - total}],
+    company_metrics: [{company_id: 'demo', cash_on_hand: cash, burn_rate: 56000, runway_months: 4.5, opening_cash: cash - total}],
     transactions: tx.sort((a, b) => a.tx_date < b.tx_date ? -1 : 1),
-    obligations: obls, inventory_items: items, data_sources: []
+    obligations: obls, inventory_items: items, data_sources: src
   };
 }
 function makeDemoClient(){
@@ -2026,7 +2067,7 @@ function makeDemoClient(){
     ['select','eq','ilike','order','limit','in','neq','gte','lte'].forEach(f => { o[f] = () => o; });
     o.single = () => { single = true; return o; };
     ['insert','update','delete','upsert'].forEach(f => { o[f] = () => ({then: (res, rej) => Promise.resolve({data: null, error: {message: 'عرض تجريبي'}}).then(res, rej)}); });
-    o.then = (res, rej) => { const rows = T[t] || []; return Promise.resolve({data: single ? rows[0] : rows, error: null}).then(res, rej); };
+    o.then = (res, rej) => { const rows = typeof T[t] === 'function' ? T[t]() : (T[t] || []); return Promise.resolve({data: single ? rows[0] : rows, error: null}).then(res, rej); };
     return o; };
   return {
     from: q,
@@ -2034,7 +2075,29 @@ function makeDemoClient(){
     auth: { getSession: () => Promise.resolve({data: {session: null}}), signOut: () => Promise.resolve({}) }
   };
 }
+function demoCardNotes(){
+  [['kBurn','التكاليف الثابتة الشهرية: رواتب 38,000 + إيجار 18,000'],['kRun','النقدية 250,000 ÷ 56,000 = حوالي 4.5 شهر لو الإيرادات وقفت']].forEach(([id, t]) => {
+    const h = $(id); if (!h || h.parentNode.querySelector('.demoNote')) return;
+    const d = document.createElement('div'); d.className = 'demoNote text-[11px] text-slate-500 mt-1'; d.textContent = t; h.after(d);
+  });
+}
+function demoAsk(q){
+  q = String(q || '').trim(); const out = $('answer'); if (!q) return;
+  $('q').value = q; out.className = 'text-sm leading-relaxed whitespace-pre-wrap'; out.textContent = 'جاري التفكير...';
+  const A = [
+    [/حرق|عمر|runway|يكفي/i, 'معدل الحرق الشهري 56,000 ج.م وهو التكاليف الثابتة (رواتب 38,000 + إيجار 18,000). النقدية 250,000 تكفيها حوالي 4.5 شهر حتى لو الإيرادات وقفت خالص، وإنت أصلاً ربحان 68,000 الشهر ده.'],
+    [/مصروف|بند|اكبر|أكبر/, 'أكبر بند مصروفات الشهر ده هو تكلفة البضاعة: 54,000 ج.م، يعني 38% من إجمالي المصروفات (142,000 ج.م). بعده الرواتب 38,000 (27%) وبعدها الإيجار 18,000 (13%).'],
+    [/ربح|68/, 'صافي الربح 68,000 ج.م هو الإيرادات (210,000) ناقص المصروفات (142,000). هامش الربح حوالي 32.4%.'],
+    [/التزام|سدد|مستحق|ضريب/, 'أيوه تقدر. النقدية 250,000 ج.م، والمطلوب منك 65,500 (موردين 45,000 + ضرائب 12,000 + التزام جاي 8,500). هيفضل معاك 184,500 قبل ما تحصّل 185,000 مستحقة ليك، منها 60,000 متأخرة.'],
+    [/ربح|زود|زيادة|تحسين|وفر/, 'أسرع حاجتين: (1) حصّل الـ 60,000 ج.م المتأخرة عند شركة النور. (2) لو قلّلت تكلفة البضاعة 5% هتوفر حوالي 2,700 ج.م في الشهر من غير ما تأثر على المبيعات.']
+  ];
+  let ans = null; for (const [re, t] of A) { if (re.test(q)) { ans = t; break; } }
+  if (!ans) ans = 'ده عرض تجريبي، والمساعد بيرد على أسئلة جاهزة. جرّب واحد من الأسئلة اللي فوق. في حسابك الفعلي بيجاوب على أي سؤال عن أرقام شركتك.';
+  setTimeout(() => { out.textContent = '(إجابة تجريبية) ' + ans; }, 700);
+}
 function setDemoUi(on){
+  const hero = $('demoHero'); if (hero) hero.classList.toggle('hidden', !on);
+  const ch = $('demoAskChips'); if (ch) ch.classList.toggle('hidden', !on);
   $('demoBanner').classList.toggle('hidden', !on);
   const wipe = $('wipeBtn'); if (wipe) wipe.classList.toggle('hidden', on);
   const out = document.querySelector('button[onclick="signOut()"]'); if (out) out.classList.toggle('hidden', on);
@@ -2043,7 +2106,8 @@ function setDemoUi(on){
 }
 function enterDemo(){
   DEMO = true; sb = makeDemoClient(); companyId = 'demo';
-  setDemoUi(true); show('app'); load();
+  setDemoUi(true); show('app');
+  load().then(() => { demoCardNotes(); if (!txDetailsOpen) toggleTxDetails(); if (!oblDetailsOpen) toggleOblDetails(); if (!invDetailsOpen) toggleInvDetails(); if (!catDetailsOpen) toggleCatDetails(); });
 }
 function showLogin(){
   DEMO = false; sb = realSb; companyId = null; setDemoUi(false);
