@@ -330,6 +330,26 @@
           <ul id="srcList" class="space-y-2"></ul>
         </div>
       </details>
+
+      <!-- المبيعات والمشتريات -->
+      <!-- المبيعات والمشتريات -->
+      <!-- المبيعات والمشتريات -->
+      <!-- التحديث التلقائي لكل الشيتات -->
+      <div id="extraPanel" class="hidden rounded-xl border border-emerald-200/80 bg-emerald-50/40 p-4 space-y-3">
+        <div>
+          <div class="text-sm font-extrabold text-slate-900">التحديث التلقائي للخمس شيتات</div>
+          <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">كل شيت من الخمسة ليه مصدره اللي بيتحدث منه لوحده، واربطهم واحد ورا التاني من أي مكان. لكل شيت طريقتين: اختار ملف Excel من الكمبيوتر (أي Save في Excel بيوصل هنا خلال ثواني، بس صفحة المنصة لازم تفضل مفتوحة)، أو الصق لينك مشاركة Google Sheet أو Excel على OneDrive (بيتحدث لوحده من الموبايل أو الكمبيوتر حتى والصفحة مقفولة). أسماء المنتجات والموردين والعملاء لازم تتكتب بنفس الشكل في كل الشيتات، والصفوف اللي مكتوب فيها "مثال" بتتجاهل.</p>
+        </div>
+        <div id="slotBox" class="space-y-2"></div>
+        <div class="text-[11px] text-amber-700 leading-relaxed"><b>تنبيه خصوصية:</b> أي شخص معاه لينك المشاركة يقدر يفتح الشيت، فلو لينك اتسرب اقفل المشاركة من Google Sheets أو OneDrive. اللينك بيتخزن عندنا ومحدش من برّه شركتك بيشوفه.</div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-[11px] font-bold text-slate-500">قالب جاهز لأي شيت:</span>
+          <select id="tplSel" class="border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white"><option value="1">1-حركات الفلوس</option><option value="2">2-المستحقات</option><option value="3">3-المخزون</option><option value="4" selected>4-المبيعات</option><option value="5">5-المشتريات</option></select>
+          <button type="button" onclick="tplDownload()" class="underline text-[11px] text-slate-600">تنزيل القالب</button>
+        </div>
+        <div id="extraStatus" class="text-[11px] text-slate-600"></div>
+        <div id="extraMsg" class="text-[11px] font-bold"></div>
+      </div>
     </div>
 
     <!-- Primary KPIs -->
@@ -552,53 +572,6 @@
       <div class="flex gap-2">
         <input id="q" maxlength="300" placeholder="اكتب سؤالك" class="flex-1 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none">
         <button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-5 rounded-xl font-bold text-sm shrink-0">اسأل</button>
-      </div>
-      <div id="extraPanel" class="hidden rounded-xl bg-white/5 border border-white/15 p-3 space-y-3">
-        <div class="text-xs font-bold">بيانات المبيعات والمشتريات (للمساعد الذكي)</div>
-        <div class="text-[11px] text-slate-300 leading-relaxed">المخزون والحركات والمستحقات بترفعهم من "رفع ملف" فوق. الثلاث جداول دول بتتخزن على الجهاز ده بس ومش بتتبعت لأي خدمة. أسماء المنتجات والموردين والعملاء لازم تتكتب بنفس الشكل في كل الجداول. الصفوف اللي مكتوب فيها "مثال" بتتجاهل.</div>
-        <div id="odBox" class="rounded-lg border border-emerald-400/40 p-2.5 space-y-2">
-          <div class="text-xs font-bold">ربط ملف من OneDrive (Excel) أو Google Sheets (بيشتغل من الموبايل)</div>
-          <div class="text-[11px] text-slate-300 leading-relaxed">اختار واحد: ملف Excel على OneDrive، أو Google Sheet. في الاتنين الشيتات تكون اسمها 4-المبيعات و5-المشتريات. اضغط مشاركة ثم "أي شخص معاه الرابط" بصلاحية "عرض فقط" (Viewer) وانسخ الرابط والصقه هنا. أي حفظ للملف من الموبايل بيوصل المنصة خلال دقيقتين تقريباً. <b>تنبيه خصوصية:</b> أي شخص معاه الرابط يقدر يفتح الملف كله، فخلّي الملف ده فيه الشيتات الثلاثة دول بس (من غير حركات الفلوس)، ولو الرابط اتسرب اقفل المشاركة من OneDrive (إدارة الوصول) أو من Google Sheets (مشاركة ثم تقييد الوصول). الرابط بيتخزن عندنا ومحدش من برّه شركتك بيشوفه.</div>
-          <input id="odUrl" type="url" inputmode="url" dir="ltr" placeholder="https://1drv.ms/... أو https://docs.google.com/spreadsheets/d/..." class="w-full rounded-lg px-2 py-1.5 text-xs text-slate-900">
-          <div class="flex flex-wrap gap-2 items-center">
-            <button id="odSave" type="button" onclick="odSave()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ الرابط وتحديث دلوقتي</button>
-            <button id="odNow" type="button" onclick="odSyncNow()" class="hidden bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">تحديث دلوقتي</button>
-            <button id="odOff" type="button" onclick="odUnlink()" class="hidden underline text-[11px]">فصل الرابط</button>
-          </div>
-          <div id="odStatus" class="text-[11px] text-slate-200"></div>
-        </div>
-        <div class="text-center text-[11px] font-bold text-slate-300">أو</div>
-        <div class="rounded-lg border border-indigo-400/40 p-2.5 space-y-2">
-          <div class="text-xs font-bold">رفع ملف Excel بإيدك</div>
-          <div class="flex flex-wrap gap-2 items-center">
-          <label class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer">رفع ملف Excel الكامل (المبيعات + المشتريات)<input type="file" accept=".xlsx,.xls" class="hidden" onchange="loadExtraWorkbook(this)"></label>
-          <select id="tplSel" class="rounded-lg px-2 py-1.5 text-xs text-slate-900"><option value="1">1-حركات الفلوس</option><option value="2">2-المستحقات</option><option value="3">3-المخزون</option><option value="4" selected>4-المبيعات</option><option value="5">5-المشتريات</option></select>
-          <button type="button" onclick="tplDownload()" class="underline text-[11px]">تنزيل القالب</button>
-        </div>
-        </div>
-        <div id="fsBox" class="rounded-lg border border-white/15 p-2.5 space-y-2">
-          <div class="text-xs font-bold">متابعة ملف Excel تلقائياً (كمبيوتر: Chrome أو Edge)</div>
-          <div class="text-[11px] text-slate-300 leading-relaxed">اختار الملف مرة واحدة، وأي تعديل تحفظه في Excel (Ctrl+S) بيظهر هنا خلال ثواني من غير رفع. صفحة المنصة لازم تفضل مفتوحة. الملف بيتقرا على جهازك ومش بيتبعت لأي حد.</div>
-          <div class="flex flex-wrap gap-2 items-center">
-            <button id="fsPick" type="button" onclick="fsPick()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-bold text-xs">اختار ملف Excel وتابعه</button>
-            <button id="fsResume" type="button" onclick="fsResume()" class="hidden bg-amber-500 hover:bg-amber-400 text-slate-900 px-3 py-1.5 rounded-lg font-bold text-xs">استئناف المتابعة</button>
-            <button id="fsStop" type="button" onclick="fsStop()" class="hidden underline text-[11px]">إيقاف المتابعة</button>
-          </div>
-          <div id="fsStatus" class="text-[11px] text-slate-200"></div>
-          <div id="fsCore" class="hidden text-[11px] space-y-1.5"></div>
-        </div>
-        <div id="extraStatus" class="text-[11px] text-slate-200"></div>
-        <details class="text-[11px]"><summary class="cursor-pointer text-slate-300">رفع أو لصق كل جدول لوحده (CSV)</summary>
-          <div class="space-y-2 mt-2">
-            <div class="font-bold">المبيعات: التاريخ, المنتج, العميل, الكمية, سعر البيع, تكلفة الوحدة</div>
-            <textarea id="extraSalesTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
-            <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('sales')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ المبيعات</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('sales', this)"></label></div>
-            <div class="font-bold">المشتريات: التاريخ, المورد, المنتج, الكمية, تكلفة الوحدة</div>
-            <textarea id="extraPurTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
-            <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('purchases')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ المشتريات</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('purchases', this)"></label></div>
-          </div>
-        </details>
-        <div id="extraMsg" class="text-[11px] font-bold"></div>
       </div>
       <div id="answer" class="text-sm leading-relaxed whitespace-pre-wrap"></div>
     </div>
@@ -1486,7 +1459,7 @@ const MAPV = [
  ['price','سعر البيع (اختياري)',/(price|سعر البيع|السعر|البيع)/i],
  ['min','حد الطلب (اختياري)',/(min|reorder|حد الطلب|الحد الأدنى|حد أدنى)/i]
 ];
-const KIND_NAMES = {tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون'};
+const KIND_NAMES = {tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون', sales: 'مبيعات', purchases: 'مشتريات'};
 function guessKind(head){
   const h = head.map(x => String(x === null || x === undefined ? '' : x).trim()), has = re => h.some(x => re.test(x));
   if (has(/(الصنف|المنتج|item|product|sku)/i) && has(/(الكمية|كمية|qty|quantity|stock|الرصيد|on hand)/i)) return 'inv';
@@ -1748,7 +1721,89 @@ async function saveSource(){
   } catch (e) { problem(msg, e.message); $('mapGo').disabled = false; }
 }
 
-const KIND_LABEL = {tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون'};
+const KIND_LABEL = {tx: 'حركات فلوس', obl: 'مستحقات والتزامات', inv: 'مخزون', sales: 'مبيعات', purchases: 'مشتريات'};
+const SLOT_DEFS = [['tx', '1-حركات الفلوس'], ['obl', '2-المستحقات'], ['inv', '3-المخزون'], ['sales', '4-المبيعات'], ['purchases', '5-المشتريات']];
+const X_FIELD_AR = {d: 'التاريخ', p: 'المنتج', c: 'العميل', q: 'الكمية', u: 'السعر/التكلفة', k: 'تكلفة الوحدة', s: 'المورد'};
+function renderSlotBox(){
+  const box = $('slotBox'); if (!box || box.dataset.done) return; box.dataset.done = '1';
+  SLOT_DEFS.forEach(([k, label]) => {
+    const d = document.createElement('div'); d.className = 'rounded-xl border border-slate-200 bg-white p-3 space-y-2';
+    const hd = document.createElement('div'); hd.className = 'flex items-center justify-between gap-2';
+    const t = document.createElement('div'); t.className = 'text-xs font-extrabold text-slate-900'; t.textContent = label;
+    const st = document.createElement('div'); st.id = 'slotSt_' + k; st.className = 'text-[11px] font-bold text-slate-400'; st.textContent = 'غير مربوط لسه';
+    hd.append(t, st);
+    const pick = document.createElement('button'); pick.type = 'button'; pick.id = 'fsPick_' + k;
+    pick.className = 'w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold text-xs transition';
+    pick.textContent = 'اختار ملف Excel من الكمبيوتر'; pick.onclick = () => fsPickKind(k);
+    const lb = document.createElement('div'); lb.className = 'text-[10px] font-bold text-slate-500';
+    lb.textContent = 'أو لينك مشاركة: Google Sheet أو Excel OneDrive';
+    const row = document.createElement('div'); row.className = 'flex gap-2';
+    const inp = document.createElement('input'); inp.id = 'lnk_' + k; inp.type = 'url'; inp.inputMode = 'url'; inp.dir = 'ltr';
+    inp.placeholder = 'لينك Google Sheet أو OneDrive';
+    inp.className = 'flex-1 min-w-0 border border-slate-300 bg-white rounded-xl px-3 py-2 text-xs';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl font-bold text-xs transition whitespace-nowrap'; b.textContent = 'ربط اللينك'; b.onclick = () => slotLinkSave(k);
+    row.append(inp, b); d.append(hd, pick, lb, row); box.appendChild(d);
+  });
+}
+function renderSlots(){
+  SLOT_DEFS.forEach(([k]) => {
+    if (fsW[k]) return;
+    const el = $('slotSt_' + k); if (!el) return;
+    const x = srcRows.find(r => r.kind === k);
+    if (!x) { el.className = 'text-[11px] font-bold text-slate-400'; el.textContent = 'غير مربوط لسه'; return; }
+    const st = srcState(x);
+    el.className = 'text-[11px] font-bold ' + (st === 'err' ? 'text-rose-600' : 'text-emerald-700');
+    el.textContent = st === 'err' ? 'مربوط لينك — فيه مشكلة في آخر تحديث' : 'مربوط لينك' + (x.last_sync ? ' — آخر تحديث ' + ago(x.last_sync) + ' (' + (x.last_rows || 0) + ' صف)' : ' — لسه ما اتحدّثش');
+  });
+}
+function FIELDS_FOR(k){ if (k === 'obl') return MAPO; if (k === 'inv') return MAPV; if (k === 'tx') return MAPF; return SPECS[k].map(f => [f[0], '', f[1]]); }
+function autoMapFields(F, head){
+  const used = new Set(), m = {};
+  F.forEach(([key, , re]) => { const i = head.findIndex((h, j) => !used.has(j) && re.test(String(h).trim())); m[key] = i; if (i >= 0) used.add(i); });
+  return m;
+}
+function slotMissing(k, m){
+  const r = [];
+  if (k === 'tx') { if (m.date < 0) r.push('التاريخ'); if (m.desc < 0) r.push('البيان'); if (m.amount < 0 && m.debit < 0 && m.credit < 0) r.push('المبلغ'); return r; }
+  if (k === 'obl') { if (m.party < 0) r.push('الاسم / الجهة'); if (m.amount < 0) r.push('المبلغ'); return r; }
+  if (k === 'inv') { if (m.item < 0) r.push('الصنف'); if (m.qty < 0) r.push('الكمية'); if (m.cost < 0) r.push('تكلفة الوحدة'); return r; }
+  return SPECS[k].filter(f => f[3] && m[f[0]] < 0).map(f => X_FIELD_AR[f[0]]);
+}
+async function slotLinkSave(kind){
+  if (DEMO) { demoNotice(); return; }
+  const inp = $('lnk_' + kind); if (!inp) return; const url = inp.value.trim();
+  if (!url) { slotSay(kind, 'الصق اللينك الأول.', 'amber'); return; }
+  slotSay(kind, 'جاري قراءة الشيت...', '');
+  try {
+    const j = await callSync({action: 'preview', url: url, sheet: ''});
+    if (!j.rows || j.rows.length < 2) throw new Error('SHEET_NO_ROWS');
+    const head = j.rows[0].map(h => String(h).trim());
+    const F = FIELDS_FOR(kind), m = autoMapFields(F, head), miss = slotMissing(kind, m);
+    if (miss.length && (kind === 'sales' || kind === 'purchases')) { slotSay(kind, 'مش لاقي الأعمدة دي في الشيت: ' + miss.join('، ') + '. ظبط أسماء الأعمدة أو نزّل القالب الجاهز تحت.', 'amber'); return; }
+    if (miss.length) {
+      mapRows = j.rows; mapSource = {url: url, sheet: ''}; $('fileKind').value = kind; openMapper(); $('mapGo').textContent = 'حفظ وربط الشيت';
+      slotSay(kind, 'راجع الأعمدة في نافذة تحديد الأعمدة واضغط "حفظ وربط الشيت".', 'amber'); return;
+    }
+    const names = {};
+    F.forEach(([k]) => { names[k] = m[k] >= 0 ? head[m[k]] : null; });
+    Object.keys(names).forEach(k => {
+      if (names[k] === '') throw new Error('SHEET_HEADER_EMPTY');
+      if (names[k] && head.filter(h => h === names[k]).length > 1) throw new Error('عمود مكرر في الشيت: ' + names[k]);
+    });
+    slotSay(kind, 'جاري ربط الشيت...', '');
+    const dups = srcRows.filter(x => x.kind === kind);
+    const ins = await sb.from('data_sources').insert({company_id: companyId, kind: kind, url: url, mapping: names, date_order: ($('dateOrder') || {}).value || 'dmy', def_kind: ($('defKind') || {}).value || 'upcoming', mode: 'replace'}).select().single();
+    if (ins.error) throw new Error(ins.error.message);
+    for (const d of dups) await sb.from('data_sources').delete().eq('id', d.id);
+    inp.value = '';
+    try { const jj = await callSync({action: 'sync', source_id: ins.data.id}); slotSay(kind, 'مربوط لينك — اتحدّث (' + jj.rows + ' صف) وبيتحدث لوحده من دلوقتي', 'ok'); }
+    catch (e) { slotSay(kind, 'اتربط، بس أول تحديث فشل. هيحاول تاني لوحده.', 'amber'); }
+    load();
+  } catch (e) {
+    const t = String((e && e.message) || e);
+    slotSay(kind, (t.indexOf('SHEET_') === 0 || t.indexOf('ONEDRIVE_FAIL') === 0) ? 'مقدرتش أفتح اللينك. لازم يكون لينك مشاركة عامة بصلاحية عرض: في Google Sheet من مشاركة ثم "أي حد معاه اللينك"، وفي Excel OneDrive من مشاركة ثم "أي شخص لديه الارتباط".' : t.slice(0, 120), 'amber');
+  }
+}
 let srcRows = [], lastAuto = 0;
 function ago(iso){ const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000); return m < 1 ? 'الآن' : (m < 60 ? 'منذ ' + m + ' دقيقة' : (m < 1440 ? 'منذ ' + Math.floor(m / 60) + ' ساعة' : 'منذ ' + Math.floor(m / 1440) + ' يوم')); }
 function srcState(x){ if (x.last_status && x.last_status.indexOf('error:') === 0) return 'err'; if (!x.last_sync) return 'new'; return Date.now() - new Date(x.last_sync).getTime() > 15 * 60000 ? 'stale' : 'ok'; }
@@ -1795,7 +1850,7 @@ async function loadSources(){
   const r = await sb.from('data_sources').select('*').eq('company_id', companyId).order('created_at'); if (r.error) throw new Error(r.error.message);
   srcRows = r.data || []; $('srcMsg').className = 'text-xs'; $('srcMsg').textContent = '';
   if (!srcRows.length) $('srcDetails').open = true;
-  renderSrcListOnly(); renderSrcStatus(); autoSync();
+  renderSrcListOnly(); renderSrcStatus(); renderSlots(); autoSync();
 }
 async function srcDel(id){
   if (DEMO) { demoNotice(); return; }
@@ -2269,7 +2324,7 @@ const SPECS = {
   sales: [['d', /(تاريخ|date)/i, 'date'], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['c', /(العميل|عميل|customer|client)/i, 'str'], ['q', /(الكمية|كمية|qty|quantity)/i, 'num', 1], ['u', /(سعر البيع|سعر الوحدة|السعر|price)/i, 'num', 1], ['k', /(تكلفة|cost)/i, 'num']],
   purchases: [['d', /(تاريخ|date)/i, 'date'], ['s', /(المورد|مورد|supplier|vendor)/i, 'str', 1], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['q', /(الكمية|كمية|qty|quantity)/i, 'num'], ['u', /(تكلفة|سعر|cost|price)/i, 'num', 1]],
 };
-const KIND_AR = {sales: 'المبيعات', purchases: 'المشتريات'};
+const KIND_AR = {sales: 'المبيعات', purchases: 'المشتريات', tx: 'حركات الفلوس', obl: 'المستحقات', inv: 'المخزون'};
 function extraKey(){ return 'tdq_extra:' + (companyId || ''); }
 function getExtra(){
   let j = {}; try { j = JSON.parse(localStorage.getItem(extraKey()) || '{}'); } catch (e) {}
@@ -2307,9 +2362,9 @@ function showExtraStatus(){
 }
 function commitExtra(kind, res){
   const m = $('extraMsg'); const ex = getExtra();
-  if (res.err) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = KIND_AR[kind] + ': ' + res.err; return false; }
+  if (res.err) { m.className = 'text-[11px] font-bold text-amber-700'; m.textContent = KIND_AR[kind] + ': ' + res.err; return false; }
   ex[kind] = res.out; const ok = setExtra(ex);
-  m.className = 'text-[11px] font-bold ' + (ok ? 'text-emerald-300' : 'text-amber-300');
+  m.className = 'text-[11px] font-bold ' + (ok ? 'text-emerald-700' : 'text-amber-700');
   m.textContent = ok ? ('اتحفظ ' + KIND_AR[kind] + ': ' + res.out.length + ' سطر. اسأل المساعد دلوقتي.') : 'المتصفح رفض الحفظ (المساحة ممتلئة).';
   showExtraStatus(); return ok;
 }
@@ -2328,9 +2383,9 @@ async function loadExtraWorkbook(inp){
       const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}); if (commitExtra(k, parseTable(rows, k))) found.push(KIND_AR[k]);
     });
-    if (!found.length) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'ما لقيتش شيتات باسم: مبيعات، مشتريات.'; }
-    else { m.className = 'text-[11px] font-bold text-emerald-300'; m.textContent = 'اتحفظ: ' + found.join('، ') + '. اسأل المساعد دلوقتي.'; }
-  } catch (e) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'مقدرتش أقرأ الملف: ' + e.message; }
+    if (!found.length) { m.className = 'text-[11px] font-bold text-amber-700'; m.textContent = 'ما لقيتش شيتات باسم: مبيعات، مشتريات.'; }
+    else { m.className = 'text-[11px] font-bold text-emerald-700'; m.textContent = 'اتحفظ: ' + found.join('، ') + '. اسأل المساعد دلوقتي.'; }
+  } catch (e) { m.className = 'text-[11px] font-bold text-amber-700'; m.textContent = 'مقدرتش أقرأ الملف: ' + e.message; }
   inp.value = '';
 }
 function fillExtraBoxes(){
@@ -2340,90 +2395,71 @@ function fillExtraBoxes(){
   showExtraStatus();
 }
 
-/* ===== متابعة ملف Excel على الجهاز (File System Access API) ===== */
+/* ===== متابعة ملفات Excel على الجهاز (File System Access API): لكل شيت ملفه ===== */
 const FS_OK = (typeof window !== 'undefined') && ('showOpenFilePicker' in window);
-let fsHandle = null, fsLast = '', fsBusy = false, fsTimer = null, fsCoreRows = {}, fsInitFor = null;
+const FS_RE = {tx: /حركات|transactions/i, obl: /مستحقات|obligations/i, inv: /مخزون|inventory/i, sales: /مبيعات|sales/i, purchases: /مشتريات|purchases/i};
+let fsW = {}, fsTimer = null, fsQ = Promise.resolve(), fsInitFor = null;
 function idbOpen(){ return new Promise((res, rej) => { const r = indexedDB.open('tdq-fs', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
 async function idbGet(k){ const d = await idbOpen(); return new Promise((res, rej) => { const q = d.transaction('h').objectStore('h').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
 async function idbSet(k, v){ const d = await idbOpen(); return new Promise((res, rej) => { const t = d.transaction('h', 'readwrite'); if (v === null) t.objectStore('h').delete(k); else t.objectStore('h').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
-function fsSay(t, cls){ const el = $('fsStatus'); if (el) { el.className = 'text-[11px] ' + (cls || 'text-slate-200'); el.textContent = t; } }
-function fsButtons(state){ // state: none | running | paused
-  const g = id => $(id); if (!g('fsPick')) return;
-  g('fsPick').classList.toggle('hidden', !FS_OK || state !== 'none');
-  g('fsResume').classList.toggle('hidden', state !== 'paused');
-  g('fsStop').classList.toggle('hidden', state === 'none');
-}
-function hashStr(t){ let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return String(h); }
-const CORE_SHEETS = [['tx', /حركات|transactions/i, 'حركات الفلوس'], ['obl', /مستحقات|obligations/i, 'المستحقات'], ['inv', /مخزون|inventory/i, 'المخزون']];
-function fsProcess(wb){
-  const done = [];
-  [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i]].forEach(([k, re]) => {
-    const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
-    const res = parseTable(XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}), k);
-    if (!res.err) { const ex = getExtra(); ex[k] = res.out; setExtra(ex); done.push(KIND_AR[k] + ' ' + res.out.length); } else done.push(KIND_AR[k] + ': ' + res.err);
-  });
-  const box = $('fsCore'); let changed = [];
-  CORE_SHEETS.forEach(([k, re, label]) => {
-    const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}).filter(r => r.some(c => String(c).trim() !== '') && !r.some(c => /^\s*مثال/.test(String(c))));
-    if (rows.length < 2) return; fsCoreRows[k] = rows;
-    const h = hashStr(JSON.stringify(rows, (kk, v) => v instanceof Date ? v.toISOString() : v)), key = 'tdq_corehash:' + (companyId || '') + ':' + k;
-    if (localStorage.getItem(key) !== h) changed.push([k, label, h, key]);
-  });
-  if (box) {
-    box.textContent = '';
-    if (changed.length) { box.classList.remove('hidden');
-      const t = document.createElement('div'); t.className = 'font-bold text-amber-300'; t.textContent = 'في شيتات اتغيرت وبتتحفظ في الحسابات بعد تأكيدك:'; box.appendChild(t);
-      changed.forEach(([k, label, h, key]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'bg-amber-500 hover:bg-amber-400 text-slate-900 px-3 py-1.5 rounded-lg font-bold text-xs ml-2'; b.textContent = 'حدّث ' + label; b.onclick = () => { fsApplyCore(k); try { localStorage.setItem(key, h); } catch (e) {} b.remove(); if (!box.querySelector('button')) box.classList.add('hidden'); }; box.appendChild(b); }); }
-    else box.classList.add('hidden');
-  }
-  return done;
-}
-function fsApplyCore(k){
-  const rows = fsCoreRows[k]; if (!rows) return;
-  mapRows = rows; mapSource = null; $('mapGo').textContent = 'رفع'; $('fileKind').value = k; openMapper();
-  const m = $('mapper'); if (m && m.scrollIntoView) m.scrollIntoView({block: 'center'});
-  const msg = $('msg'); if (msg) { msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'راجع الأعمدة واضغط "رفع" لتأكيد تحديث ' + KIND_NAMES[k] + '.'; }
-}
-async function fsRead(force){
-  if (!fsHandle || fsBusy) return; fsBusy = true;
-  try {
-    const file = await fsHandle.getFile(), sig = file.lastModified + ':' + file.size;
-    if (!force && sig === fsLast) { fsBusy = false; return; }
-    if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded');
-    if (file.size > 20000000) throw new Error('الملف كبير');
-    const wb = XLSX.read(await file.arrayBuffer(), {type: 'array', cellDates: true});
-    fsLast = sig; const done = fsProcess(wb), t = new Date().toLocaleTimeString('ar-EG');
-    fsSay('بيتابع: ' + fsHandle.name + ' | آخر قراءة ' + t + ' | ' + done.join('، '), 'text-emerald-300'); showExtraStatus();
-  } catch (e) {
-    if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) { fsPause('محتاج إذنك تاني عشان يكمل متابعة الملف.'); }
-    else if (e && (e.name === 'NotFoundError')) { fsSay('الملف اتنقل أو اتمسح. اختار الملف تاني.', 'text-amber-300'); fsStop(true); }
-    else fsSay('الملف مقفول أو بيتحفظ دلوقتي، هحاول تاني تلقائياً. (' + (e && e.message ? e.message : e) + ')', 'text-amber-300');
-  }
-  fsBusy = false;
-}
-function fsStart(){ clearInterval(fsTimer); fsButtons('running'); fsRead(true); fsTimer = setInterval(() => { if (document.visibilityState === 'visible') fsRead(false); }, 3000); }
-function fsPause(msg){ clearInterval(fsTimer); fsButtons('paused'); fsSay(msg, 'text-amber-300'); }
-async function fsPick(){
-  if (!FS_OK) return;
+function slotSay(k, t, tone){ const el = $('slotSt_' + k); if (!el) return; el.className = 'text-[11px] font-bold ' + (tone === 'ok' ? 'text-emerald-700' : (tone === 'amber' ? 'text-amber-700' : 'text-slate-500')); el.textContent = t; }
+async function fsPickKind(kind){
+  if (DEMO) { demoNotice(); return; }
+  if (!FS_OK) { slotSay(kind, 'المتصفح ده مش بيدعم متابعة الملفات. على الكمبيوتر استخدم Chrome أو Edge، أو الصق لينك Google Sheet / OneDrive تحته.', 'amber'); return; }
   try {
     const [h] = await window.showOpenFilePicker({types: [{description: 'Excel', accept: {'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']}}], multiple: false});
-    fsHandle = h; fsLast = ''; await idbSet('h:' + (companyId || ''), h); fsStart();
-  } catch (e) { if (!e || e.name !== 'AbortError') fsSay('مقدرتش أفتح الملف: ' + (e && e.message ? e.message : e), 'text-amber-300'); }
+    fsW[kind] = {handle: h, last: '', busy: false};
+    try { await idbSet('h2:' + (companyId || '') + ':' + kind, h); } catch (e) {}
+    slotSay(kind, 'بيتابع: ' + h.name, 'ok'); fsEnsureTimer(); fsEnqueue(kind, true);
+  } catch (e) { if (!e || e.name !== 'AbortError') slotSay(kind, 'مقدرتش أفتح الملف.', 'amber'); }
 }
-async function fsResume(){
-  try { if (fsHandle && (await fsHandle.requestPermission({mode: 'read'})) === 'granted') fsStart(); else fsSay('لازم توافق على الإذن عشان المتابعة تشتغل.', 'text-amber-300'); } catch (e) { fsSay('مقدرتش آخد الإذن: ' + e.message, 'text-amber-300'); }
+function fsEnsureTimer(){ if (!fsTimer) fsTimer = setInterval(() => { if (document.visibilityState === 'visible') SLOT_DEFS.forEach(([k]) => { if (fsW[k]) fsEnqueue(k, false); }); }, 3000); }
+function fsEnqueue(kind, force){ fsQ = fsQ.then(() => fsReadKind(kind, force)).catch(() => {}); }
+async function fsApplyCoreAuto(kind, rows){
+  mapRows = rows; mapSource = null; $('mapGo').textContent = 'رفع'; $('fileKind').value = kind; openMapper();
+  const cfg = PREV[kind], mm = curMap();
+  if (cfg && !cfg.need(mm)) { const rr = collectRows(); if (rr.out.length) { await mapUpload(); return true; } }
+  const mp = $('mapper'); if (mp && mp.scrollIntoView) mp.scrollIntoView({block: 'center'});
+  const msg = $('msg'); if (msg) { msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'راجع الأعمدة واضغط "رفع" لتأكيد تحديث ' + KIND_NAMES[kind] + '.'; }
+  return false;
 }
-async function fsStop(keepMsg){
-  clearInterval(fsTimer); fsHandle = null; fsLast = ''; try { await idbSet('h:' + (companyId || ''), null); } catch (e) {}
-  fsButtons('none'); if (!keepMsg) fsSay('المتابعة وقفت. الأرقام المحفوظة فضلت زي ما هي.');
+async function fsReadKind(kind, force){
+  const w = fsW[kind]; if (!w || w.busy) return; w.busy = true;
+  try {
+    const file = await w.handle.getFile(), sig = file.lastModified + ':' + file.size;
+    if (!force && sig === w.last) { w.busy = false; return; }
+    if (typeof XLSX === 'undefined') throw new Error('xlsx');
+    if (file.size > 20000000) throw new Error('big');
+    const wb = XLSX.read(await file.arrayBuffer(), {type: 'array', cellDates: true});
+    w.last = sig;
+    const nm = wb.SheetNames.find(n => FS_RE[kind].test(n)) || wb.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}).filter(r => r.some(c => String(c).trim() !== ''));
+    if (rows.length < 2) { slotSay(kind, 'الملف فاضي أو مفيش فيه صفوف.', 'amber'); w.busy = false; return; }
+    const t = new Date().toLocaleTimeString('ar-EG');
+    if (kind === 'sales' || kind === 'purchases') {
+      const res = parseTable(rows, kind);
+      if (res.err) { slotSay(kind, KIND_AR[kind] + ': ' + res.err, 'amber'); w.busy = false; return; }
+      slotSay(kind, 'بيتحدث ' + KIND_AR[kind] + ' (' + res.out.length + ' صف)...', '');
+      await callSync({action: 'extra_push', company_id: companyId, kind: kind, rows: res.out});
+      const ex = getExtra(); ex[kind] = res.out; setExtra(ex); showExtraStatus();
+      slotSay(kind, 'بيتابع: ' + w.handle.name + ' — اتحدّث ' + t + ' (' + res.out.length + ' صف)', 'ok');
+    } else {
+      slotSay(kind, 'بيتحدث ' + KIND_NAMES[kind] + '...', '');
+      const ok = await fsApplyCoreAuto(kind, rows);
+      slotSay(kind, ok ? ('بيتابع: ' + w.handle.name + ' — اتحدّث ' + t) : 'راجع الأعمدة في نافذة تحديد الأعمدة واضغط رفع.', ok ? 'ok' : 'amber');
+    }
+  } catch (e) {
+    if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) slotSay(kind, 'محتاج إذنك تاني. اضغط "اختار ملف Excel" من جديد.', 'amber');
+    else if (e && e.name === 'NotFoundError') { slotSay(kind, 'الملف اتنقل أو اتمسح. اختاره تاني.', 'amber'); delete fsW[kind]; try { await idbSet('h2:' + (companyId || '') + ':' + kind, null); } catch (x) {} }
+    else slotSay(kind, 'الملف مقفول أو بيتحفظ دلوقتي، هحاول تاني تلقائياً.', 'amber');
+  }
+  w.busy = false;
 }
-
 /* ---- OneDrive server sync (v13) ---- */
 let odLinked = false, odBusy = false;
-function odSay(t, cls){ const e = $('odStatus'); if (e) { e.className = 'text-[11px] ' + (cls || 'text-slate-200'); e.textContent = t; } }
+function odSay(t, cls){ const e = $('odStatus'); if (e) { e.className = 'text-[11px] ' + (cls || 'text-slate-600'); e.textContent = t; } }
 function odButtons(){ const l = odLinked; const n = $('odNow'), o = $('odOff'), f = $('fsBox'); if (n) n.classList.toggle('hidden', !l); if (o) o.classList.toggle('hidden', !l); if (f) f.classList.toggle('hidden', l); }
-const OD_ERR = {BAD_LINK: 'الرابط ده مش رابط OneDrive أو Google Sheets صالح (لازم يبدأ بـ https://1drv.ms أو onedrive.live.com أو sharepoint.com أو docs.google.com/spreadsheets).', NOT_ACCESSIBLE: 'مقدرتش أفتح الملف. اتأكد إن الرابط "أي شخص معاه الرابط" بصلاحية عرض، وإن الملف Excel على OneDrive أو Google Sheet حقيقي (مش ملف Excel مرفوع على Drive من غير تحويل).', TOO_BIG: 'الملف كبير (أقصى حجم 10 ميجا).', NO_SHEETS: 'ما لقيتش شيتات اسمها المبيعات أو المشتريات في الملف.', DB_ERROR: 'حصلت مشكلة في الحفظ. جرّب تاني.', FORBIDDEN: 'مش مسموح لحسابك بالشركة دي.', UNAUTHORIZED: 'سجّل دخول تاني.', SERVER: 'خطأ مؤقت في الخدمة. جرّب بعد شوية.'};
+const OD_ERR = {BAD_LINK: 'الرابط ده مش رابط OneDrive أو Google Sheets صالح (لازم يبدأ بـ https://1drv.ms أو onedrive.live.com أو sharepoint.com أو docs.google.com/spreadsheets).', NOT_ACCESSIBLE: 'مقدرتش أفتح الملف. اتأكد إن الرابط "أي شخص معاه الرابط" بصلاحية عرض، وإن الملف Excel على OneDrive أو Google Sheet حقيقي (مش ملف Excel مرفوع على Drive من غير تحويل).', TOO_BIG: 'الملف كبير (أقصى حجم 10 ميجا).', NO_SHEETS: 'ما لقيتش في الملف أي شيت من الخمسة: 1-حركات الفلوس، 2-المستحقات، 3-المخزون، 4-المبيعات، 5-المشتريات.', DB_ERROR: 'حصلت مشكلة في الحفظ. جرّب تاني.', FORBIDDEN: 'مش مسموح لحسابك بالشركة دي.', UNAUTHORIZED: 'سجّل دخول تاني.', SERVER: 'خطأ مؤقت في الخدمة. جرّب بعد شوية.'};
 async function odCall(body){
   const {data:{session}} = await sb.auth.getSession(); if (!session) throw new Error('UNAUTHORIZED');
   body.company_id = companyId; body.action = 'extra_' + body.action;
@@ -2431,7 +2467,7 @@ async function odCall(body){
   let j = {}; try { j = await r.json(); } catch (e) {}
   if (!r.ok) throw new Error(j.error || 'SERVER'); return j;
 }
-function odSummary(c){ c = c || {}; return 'مبيعات ' + (c.sales || 0) + ' | مشتريات ' + (c.purchases || 0); }
+function odSummary(c){ c = c || {}; const p = []; if (c.tx !== undefined) p.push('حركات ' + c.tx); if (c.obl !== undefined) p.push('مستحقات ' + c.obl); if (c.inv !== undefined) p.push('مخزون ' + c.inv); p.push('مبيعات ' + (c.sales || 0)); p.push('مشتريات ' + (c.purchases || 0)); return p.join(' | '); }
 async function odFetchAll(table, cols){
   const out = []; for (let from = 0; from < 20000; from += 1000) {
     const {data, error} = await sb.from(table).select(cols).eq('company_id', companyId).order('id', {ascending: true}).range(from, from + 999);
@@ -2440,20 +2476,15 @@ async function odFetchAll(table, cols){
 }
 async function pullServerExtra(){
   if (DEMO || !companyId) return false;
-  const {data: lk, error: e0} = await sb.from('sheet_links').select('last_status,last_synced_at,last_counts').eq('company_id', companyId).maybeSingle();
-  if (e0 || !lk) { odLinked = false; odButtons(); return false; }
-  odLinked = true; odButtons();
   const [sa, pu] = await Promise.all([odFetchAll('sales', 'sale_date,product,customer,qty,unit_price,unit_cost'), odFetchAll('purchases', 'purchase_date,supplier,product,qty,unit_cost')]);
   const num = v => (v === null || v === undefined) ? null : Number(v);
+  const ex = getExtra();
   setExtra({
-    sales: sa.map(r => ({d: r.sale_date || '', p: r.product, c: r.customer || '', q: num(r.qty) || 0, u: num(r.unit_price) || 0, k: num(r.unit_cost)})),
-    purchases: pu.map(r => ({d: r.purchase_date || '', s: r.supplier, p: r.product, q: num(r.qty), u: num(r.unit_cost) || 0})),
+    sales: sa.length ? sa.map(r => ({d: r.sale_date || '', p: r.product, c: r.customer || '', q: num(r.qty) || 0, u: num(r.unit_price) || 0, k: num(r.unit_cost)})) : (ex.sales || []),
+    purchases: pu.length ? pu.map(r => ({d: r.purchase_date || '', s: r.supplier, p: r.product, q: num(r.qty), u: num(r.unit_cost) || 0})) : (ex.purchases || []),
   });
   showExtraStatus();
-  const t = lk.last_synced_at ? new Date(lk.last_synced_at).toLocaleString('ar-EG') : '';
-  if (lk.last_status && lk.last_status !== 'ok' && lk.last_status !== 'new') odSay('آخر تحديث فشل: ' + (OD_ERR[lk.last_status] || lk.last_status) + ' الأرقام المعروضة هي آخر نسخة ناجحة.', 'text-amber-300');
-  else odSay('مربوط بالملف. آخر تحديث ' + t + '. ' + odSummary({sales: sa.length, purchases: pu.length}));
-  return true;
+  return sa.length + pu.length > 0;
 }
 async function odRun(body, busyMsg){
   if (odBusy) return; odBusy = true; odSay(busyMsg);
@@ -2462,22 +2493,26 @@ async function odRun(body, busyMsg){
     if (j.status === 'error') throw new Error(j.code || 'SERVER');
     await pullServerExtra();
     if (body.action === 'set_link') { odSay('اتربط واتحدّث. ' + odSummary(j.counts)); }
-    const bad = j.errors ? Object.keys(j.errors) : []; if (bad.length) odSay($('odStatus').textContent + ' (مشكلة في شيت: ' + bad.map(k => KIND_AR[k]).join('، ') + ' - اتأكد من أسماء الأعمدة)', 'text-amber-300');
-  } catch (e) { odSay(OD_ERR[e.message] || 'تعذر الاتصال. جرّب تاني.', 'text-amber-300'); }
+    const bad = j.errors ? Object.keys(j.errors) : []; if (bad.length) odSay($('odStatus').textContent + ' (مشكلة في شيت: ' + bad.map(k => KIND_AR[k]).join('، ') + ' - اتأكد من أسماء الأعمدة)', 'text-amber-700');
+  } catch (e) { odSay(OD_ERR[e.message] || 'تعذر الاتصال. جرّب تاني.', 'text-amber-700'); }
   finally { odBusy = false; }
 }
-function odSave(){ if (DEMO) { demoNotice(); return; } const u = $('odUrl').value.trim(); if (!u) { odSay('الصق رابط OneDrive الأول.', 'text-amber-300'); return; } odRun({action: 'set_link', url: u}, 'جاري قراءة الملف...').then(() => { if (odLinked) $('odUrl').value = ''; }); }
+function odSave(inpId){ if (DEMO) { demoNotice(); return; } const inp = $(inpId || 'odUrl'); const u = inp.value.trim(); if (!u) { odSay('الصق الرابط الأول.', 'text-amber-700'); return; } odRun({action: 'set_link', url: u}, 'جاري قراءة الملف...').then(() => { if (odLinked) inp.value = ''; }); }
 function odSyncNow(){ odRun({action: 'sync', force: true}, 'جاري التحديث...'); }
-async function odUnlink(){ if (!confirm('تفصل الرابط؟ البيانات المحفوظة هتفضل زي ما هي.')) return; try { await odCall({action: 'unlink'}); odLinked = false; odButtons(); odSay('الرابط اتفصل.'); } catch (e) { odSay(OD_ERR[e.message] || 'تعذر الفصل.', 'text-amber-300'); } }
-async function odInit(){
-  if (DEMO || !companyId || odBusy) return;
-  try { const was = odLinked; const has = await pullServerExtra(); if (has) { odBusy = true; try { const j = await odCall({action: 'sync'}); if (j.status === 'ok') await pullServerExtra(); } finally { odBusy = false; } } } catch (e) { odBusy = false; }
-}
+async function odUnlink(){ if (!confirm('تفصل الرابط؟ البيانات المحفوظة هتفضل زي ما هي.')) return; try { await odCall({action: 'unlink'}); odLinked = false; odButtons(); odSay('الرابط اتفصل.'); } catch (e) { odSay(OD_ERR[e.message] || 'تعذر الفصل.', 'text-amber-700'); } }
+async function odInit(){ if (DEMO || !companyId) return; try { await pullServerExtra(); } catch (e) {} }
 async function fsInit(){
-  if (!$('fsBox') || fsInitFor === companyId) return; fsInitFor = companyId;
-  if (!FS_OK) { fsButtons('none'); $('fsPick').classList.add('hidden'); fsSay('المتابعة التلقائية للملفات مش مدعومة في المتصفح ده (زي الموبايل وسفاري). على الكمبيوتر استخدم Chrome أو Edge. دلوقتي ارفع الملف بإيدك من الزر اللي فوق.', 'text-amber-300'); return; }
-  try { const h = await idbGet('h:' + (companyId || '')); if (!h) { fsButtons('none'); return; } fsHandle = h;
-    if ((await h.queryPermission({mode: 'read'})) === 'granted') fsStart(); else fsPause('كان بيتابع ' + h.name + '. اضغط "استئناف المتابعة" لإكمال التحديث التلقائي.'); } catch (e) { fsButtons('none'); }
+  if (fsInitFor === companyId) return; fsInitFor = companyId;
+  if (!FS_OK) return;
+  for (const [kind] of SLOT_DEFS) {
+    try {
+      const h = await idbGet('h2:' + (companyId || '') + ':' + kind);
+      if (!h) continue;
+      if ((await h.queryPermission({mode: 'read'})) === 'granted') { fsW[kind] = {handle: h, last: '', busy: false}; slotSay(kind, 'بيتابع: ' + h.name, 'ok'); fsEnqueue(kind, true); }
+      else slotSay(kind, 'كان بيتابع ' + h.name + '. اضغط "اختار ملف Excel" تاني عشان يكمل.', 'amber');
+    } catch (e) {}
+  }
+  fsEnsureTimer();
 }
 function tplDownload(){
   const t = TPL[$('tplSel').value]; if (!t) return;
@@ -2631,6 +2666,7 @@ function demoAsk(q){
   if (!ans) ans = 'ده عرض تجريبي، والمساعد بيرد على أسئلة جاهزة. جرّب واحد من الأسئلة اللي فوق. في حسابك الفعلي بيجاوب على أي سؤال عن أرقام شركتك.';
   setTimeout(() => { out.textContent = '(إجابة تجريبية) ' + ans; }, 700);
 }
+renderSlotBox();
 function setDemoUi(on){
   document.querySelectorAll('.demoOnly').forEach(e => e.classList.toggle('hidden', !on));
   const ch = $('demoAskChips'); if (ch) ch.classList.toggle('hidden', !on);
