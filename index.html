@@ -554,16 +554,11 @@
         <button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-5 rounded-xl font-bold text-sm shrink-0">اسأل</button>
       </div>
       <div id="extraPanel" class="hidden rounded-xl bg-white/5 border border-white/15 p-3 space-y-3">
-        <div class="text-xs font-bold">بيانات المبيعات والمشتريات وعروض الموردين (للمساعد الذكي)</div>
+        <div class="text-xs font-bold">بيانات المبيعات والمشتريات (للمساعد الذكي)</div>
         <div class="text-[11px] text-slate-300 leading-relaxed">المخزون والحركات والمستحقات بترفعهم من "رفع ملف" فوق. الثلاث جداول دول بتتخزن على الجهاز ده بس ومش بتتبعت لأي خدمة. أسماء المنتجات والموردين والعملاء لازم تتكتب بنفس الشكل في كل الجداول. الصفوف اللي مكتوب فيها "مثال" بتتجاهل.</div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <label class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer">رفع ملف Excel الكامل (المبيعات + المشتريات + العروض)<input type="file" accept=".xlsx,.xls" class="hidden" onchange="loadExtraWorkbook(this)"></label>
-          <select id="tplSel" class="rounded-lg px-2 py-1.5 text-xs text-slate-900"><option value="1">1-حركات الفلوس</option><option value="2">2-المستحقات</option><option value="3">3-المخزون</option><option value="4" selected>4-المبيعات</option><option value="5">5-المشتريات</option><option value="6">6-عروض الموردين</option></select>
-          <button type="button" onclick="tplDownload()" class="underline text-[11px]">تنزيل القالب</button>
-        </div>
         <div id="odBox" class="rounded-lg border border-emerald-400/40 p-2.5 space-y-2">
           <div class="text-xs font-bold">ربط ملف من OneDrive (Excel) أو Google Sheets (بيشتغل من الموبايل)</div>
-          <div class="text-[11px] text-slate-300 leading-relaxed">اختار واحد: ملف Excel على OneDrive، أو Google Sheet. في الاتنين الشيتات تكون اسمها 4-المبيعات و5-المشتريات و6-عروض الموردين. اضغط مشاركة ثم "أي شخص معاه الرابط" بصلاحية "عرض فقط" (Viewer) وانسخ الرابط والصقه هنا. أي حفظ للملف من الموبايل بيوصل المنصة خلال دقيقتين تقريباً. <b>تنبيه خصوصية:</b> أي شخص معاه الرابط يقدر يفتح الملف كله، فخلّي الملف ده فيه الشيتات الثلاثة دول بس (من غير حركات الفلوس)، ولو الرابط اتسرب اقفل المشاركة من OneDrive (إدارة الوصول) أو من Google Sheets (مشاركة ثم تقييد الوصول). الرابط بيتخزن عندنا ومحدش من برّه شركتك بيشوفه.</div>
+          <div class="text-[11px] text-slate-300 leading-relaxed">اختار واحد: ملف Excel على OneDrive، أو Google Sheet. في الاتنين الشيتات تكون اسمها 4-المبيعات و5-المشتريات. اضغط مشاركة ثم "أي شخص معاه الرابط" بصلاحية "عرض فقط" (Viewer) وانسخ الرابط والصقه هنا. أي حفظ للملف من الموبايل بيوصل المنصة خلال دقيقتين تقريباً. <b>تنبيه خصوصية:</b> أي شخص معاه الرابط يقدر يفتح الملف كله، فخلّي الملف ده فيه الشيتات الثلاثة دول بس (من غير حركات الفلوس)، ولو الرابط اتسرب اقفل المشاركة من OneDrive (إدارة الوصول) أو من Google Sheets (مشاركة ثم تقييد الوصول). الرابط بيتخزن عندنا ومحدش من برّه شركتك بيشوفه.</div>
           <input id="odUrl" type="url" inputmode="url" dir="ltr" placeholder="https://1drv.ms/... أو https://docs.google.com/spreadsheets/d/..." class="w-full rounded-lg px-2 py-1.5 text-xs text-slate-900">
           <div class="flex flex-wrap gap-2 items-center">
             <button id="odSave" type="button" onclick="odSave()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ الرابط وتحديث دلوقتي</button>
@@ -571,6 +566,15 @@
             <button id="odOff" type="button" onclick="odUnlink()" class="hidden underline text-[11px]">فصل الرابط</button>
           </div>
           <div id="odStatus" class="text-[11px] text-slate-200"></div>
+        </div>
+        <div class="text-center text-[11px] font-bold text-slate-300">أو</div>
+        <div class="rounded-lg border border-indigo-400/40 p-2.5 space-y-2">
+          <div class="text-xs font-bold">رفع ملف Excel بإيدك</div>
+          <div class="flex flex-wrap gap-2 items-center">
+          <label class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer">رفع ملف Excel الكامل (المبيعات + المشتريات)<input type="file" accept=".xlsx,.xls" class="hidden" onchange="loadExtraWorkbook(this)"></label>
+          <select id="tplSel" class="rounded-lg px-2 py-1.5 text-xs text-slate-900"><option value="1">1-حركات الفلوس</option><option value="2">2-المستحقات</option><option value="3">3-المخزون</option><option value="4" selected>4-المبيعات</option><option value="5">5-المشتريات</option></select>
+          <button type="button" onclick="tplDownload()" class="underline text-[11px]">تنزيل القالب</button>
+        </div>
         </div>
         <div id="fsBox" class="rounded-lg border border-white/15 p-2.5 space-y-2">
           <div class="text-xs font-bold">متابعة ملف Excel تلقائياً (كمبيوتر: Chrome أو Edge)</div>
@@ -592,9 +596,6 @@
             <div class="font-bold">المشتريات: التاريخ, المورد, المنتج, الكمية, تكلفة الوحدة</div>
             <textarea id="extraPurTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
             <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('purchases')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ المشتريات</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('purchases', this)"></label></div>
-            <div class="font-bold">عروض موردين جدد: المورد, المنتج, سعر الوحدة, التاريخ</div>
-            <textarea id="extraOffersTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
-            <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('offers')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ العروض</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('offers', this)"></label></div>
           </div>
         </details>
         <div id="extraMsg" class="text-[11px] font-bold"></div>
@@ -2248,7 +2249,7 @@ function localAsk0(q){
       r.slice(0, 5).forEach((x, i) => L.push((i + 1) + '. ' + x.name + ': ' + fmt(x.sum) + ' ج.م (' + Math.round(x.sum / tot * 100) + '% من المشتريات، ' + (x.n === 1 ? 'عملية واحدة' : x.n + ' عمليات') + '، آخرها ' + x.last + ')'));
       if (r.length > 5) L.push('وفي ' + (r.length - 5) + ' موردين تانيين أقل.');
       if (r[0].sum / tot > 0.6) L.push('تنبيه: ' + Math.round(r[0].sum / tot * 100) + '% من مشترياتك عند مورد واحد، وده خطر لو تأخر أو رفع السعر.'); }
-    L.push('حدود الإجابة: بترتب الموردين من تاريخ مشترياتك أنت بس، ومعنديش أسعار السوق ولا بيانات موردين خارج شيتاتك، فمقدرش أرشحلك مورد جديد. قارن عروض الأسعار قبل ما تتعاقد.');
+    L.push('حدود الإجابة: بترتب الموردين من تاريخ مشترياتك أنت بس، ومعنديش أسعار السوق ولا بيانات موردين خارج شيتاتك، فمقدرش أرشحلك مورد جديد.');
   }
   if (isCust) {
     const r = rankParties('cust');
@@ -2261,21 +2262,19 @@ function localAsk0(q){
   return L.join('\n');
 }
 
-const TPL = {"1": ["1-حركات الفلوس", "التاريخ,البيان,المبلغ,التصنيف,ملاحظة\n2026-11-01,رواتب الشهر,-38000,رواتب وأجور,مثال - امسح الصف\n2026-11-02,إيجار المقر,-18000,إيجار ومرافق,مثال - امسح الصف\n2026-11-02,شراء بضاعة - مورد الدلتا,-10000,تكلفة البضاعة (COGS),مثال - امسح الصف\n2026-11-04,مبيعات - معرض النيل,4320,مبيعات وإيرادات,مثال - امسح الصف\n2026-11-08,حملة إعلانات,-3000,تسويق,مثال - امسح الصف\n2026-11-10,مصاريف تشغيل متنوعة,-2500,مصاريف تشغيلية,مثال - امسح الصف\n"], "2": ["2-المستحقات", "الجهة,المبلغ,تاريخ الاستحقاق,النوع,الحالة,ملاحظة\nمعرض النيل,15000,2026-12-05,لينا,مفتوح,مثال - امسح الصف\nمورد الدلتا,9000,2026-12-10,علينا,مفتوح,مثال - امسح الصف\nمصلحة الضرائب,4000,2026-12-15,ضريبة,مفتوح,مثال - امسح الصف\n"], "3": ["3-المخزون", "الصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب,ملاحظة\nزيت 1 لتر,320,40,48,100,مثال - امسح الصف\nسكر 1 كيلو,150,22,27,100,مثال - امسح الصف\nأرز 5 كيلو,260,105,120,30,مثال - امسح الصف\nشاي 100 كيس,40,50,60,50,مثال - امسح الصف\n"], "4": ["4-المبيعات", "التاريخ,المنتج,العميل,الكمية,سعر البيع,تكلفة الوحدة,ملاحظة\n2026-10-03,زيت 1 لتر,معرض النيل,120,45,38,مثال - امسح الصف\n2026-10-17,زيت 1 لتر,متجر الأمل,100,45,38,مثال - امسح الصف\n2026-10-05,سكر 1 كيلو,معرض النيل,200,27,22,مثال - امسح الصف\n2026-10-20,سكر 1 كيلو,مجموعة الأهرام,180,27,22,مثال - امسح الصف\n2026-10-08,أرز 5 كيلو,متجر الأمل,60,120,105,مثال - امسح الصف\n2026-10-12,شاي 100 كيس,معرض النيل,80,60,50,مثال - امسح الصف\n2026-11-04,زيت 1 لتر,معرض النيل,90,48,38,مثال - امسح الصف\n2026-11-15,زيت 1 لتر,متجر الأمل,60,48,38,مثال - امسح الصف\n2026-11-06,سكر 1 كيلو,معرض النيل,210,27,22,مثال - امسح الصف\n2026-11-18,سكر 1 كيلو,مجموعة الأهرام,190,27,22,مثال - امسح الصف\n2026-11-10,أرز 5 كيلو,متجر الأمل,20,120,105,مثال - امسح الصف\n2026-11-12,شاي 100 كيس,معرض النيل,100,60,50,مثال - امسح الصف\n"], "5": ["5-المشتريات", "التاريخ,المورد,المنتج,الكمية,تكلفة الوحدة,ملاحظة\n2026-10-02,مورد الدلتا,زيت 1 لتر,300,38,مثال - امسح الصف\n2026-10-02,مورد الدلتا,سكر 1 كيلو,500,22,مثال - امسح الصف\n2026-10-06,مورد القاهرة,أرز 5 كيلو,100,105,مثال - امسح الصف\n2026-11-02,مورد الدلتا,زيت 1 لتر,250,41,مثال - امسح الصف\n2026-11-02,مورد الدلتا,سكر 1 كيلو,450,22,مثال - امسح الصف\n2026-11-05,مورد القاهرة,شاي 100 كيس,150,50,مثال - امسح الصف\n"], "6": ["6-عروض الموردين", "المورد,المنتج,سعر الوحدة,التاريخ,ملاحظة\nمورد الشرق,زيت 1 لتر,37,2026-11-20,مثال - امسح الصف\nمورد النيل,سكر 1 كيلو,23,2026-11-20,مثال - امسح الصف\n"]};
+const TPL = {"1": ["1-حركات الفلوس", "التاريخ,البيان,المبلغ,التصنيف,ملاحظة\n2026-11-01,رواتب الشهر,-38000,رواتب وأجور,مثال - امسح الصف\n2026-11-02,إيجار المقر,-18000,إيجار ومرافق,مثال - امسح الصف\n2026-11-02,شراء بضاعة - مورد الدلتا,-10000,تكلفة البضاعة (COGS),مثال - امسح الصف\n2026-11-04,مبيعات - معرض النيل,4320,مبيعات وإيرادات,مثال - امسح الصف\n2026-11-08,حملة إعلانات,-3000,تسويق,مثال - امسح الصف\n2026-11-10,مصاريف تشغيل متنوعة,-2500,مصاريف تشغيلية,مثال - امسح الصف\n"], "2": ["2-المستحقات", "الجهة,المبلغ,تاريخ الاستحقاق,النوع,الحالة,ملاحظة\nمعرض النيل,15000,2026-12-05,لينا,مفتوح,مثال - امسح الصف\nمورد الدلتا,9000,2026-12-10,علينا,مفتوح,مثال - امسح الصف\nمصلحة الضرائب,4000,2026-12-15,ضريبة,مفتوح,مثال - امسح الصف\n"], "3": ["3-المخزون", "الصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب,ملاحظة\nزيت 1 لتر,320,40,48,100,مثال - امسح الصف\nسكر 1 كيلو,150,22,27,100,مثال - امسح الصف\nأرز 5 كيلو,260,105,120,30,مثال - امسح الصف\nشاي 100 كيس,40,50,60,50,مثال - امسح الصف\n"], "4": ["4-المبيعات", "التاريخ,المنتج,العميل,الكمية,سعر البيع,تكلفة الوحدة,ملاحظة\n2026-10-03,زيت 1 لتر,معرض النيل,120,45,38,مثال - امسح الصف\n2026-10-17,زيت 1 لتر,متجر الأمل,100,45,38,مثال - امسح الصف\n2026-10-05,سكر 1 كيلو,معرض النيل,200,27,22,مثال - امسح الصف\n2026-10-20,سكر 1 كيلو,مجموعة الأهرام,180,27,22,مثال - امسح الصف\n2026-10-08,أرز 5 كيلو,متجر الأمل,60,120,105,مثال - امسح الصف\n2026-10-12,شاي 100 كيس,معرض النيل,80,60,50,مثال - امسح الصف\n2026-11-04,زيت 1 لتر,معرض النيل,90,48,38,مثال - امسح الصف\n2026-11-15,زيت 1 لتر,متجر الأمل,60,48,38,مثال - امسح الصف\n2026-11-06,سكر 1 كيلو,معرض النيل,210,27,22,مثال - امسح الصف\n2026-11-18,سكر 1 كيلو,مجموعة الأهرام,190,27,22,مثال - امسح الصف\n2026-11-10,أرز 5 كيلو,متجر الأمل,20,120,105,مثال - امسح الصف\n2026-11-12,شاي 100 كيس,معرض النيل,100,60,50,مثال - امسح الصف\n"], "5": ["5-المشتريات", "التاريخ,المورد,المنتج,الكمية,تكلفة الوحدة,ملاحظة\n2026-10-02,مورد الدلتا,زيت 1 لتر,300,38,مثال - امسح الصف\n2026-10-02,مورد الدلتا,سكر 1 كيلو,500,22,مثال - امسح الصف\n2026-10-06,مورد القاهرة,أرز 5 كيلو,100,105,مثال - امسح الصف\n2026-11-02,مورد الدلتا,زيت 1 لتر,250,41,مثال - امسح الصف\n2026-11-02,مورد الدلتا,سكر 1 كيلو,450,22,مثال - امسح الصف\n2026-11-05,مورد القاهرة,شاي 100 كيس,150,50,مثال - امسح الصف\n"]};
 
-/* ===== المبيعات والمشتريات وعروض الموردين: بيدخلها صاحب الحساب وبتتخزن على الجهاز ده بس ===== */
+/* ===== المبيعات والمشتريات: بيدخلها صاحب الحساب وبتتخزن على الجهاز ده بس ===== */
 const SPECS = {
   sales: [['d', /(تاريخ|date)/i, 'date'], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['c', /(العميل|عميل|customer|client)/i, 'str'], ['q', /(الكمية|كمية|qty|quantity)/i, 'num', 1], ['u', /(سعر البيع|سعر الوحدة|السعر|price)/i, 'num', 1], ['k', /(تكلفة|cost)/i, 'num']],
   purchases: [['d', /(تاريخ|date)/i, 'date'], ['s', /(المورد|مورد|supplier|vendor)/i, 'str', 1], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['q', /(الكمية|كمية|qty|quantity)/i, 'num'], ['u', /(تكلفة|سعر|cost|price)/i, 'num', 1]],
-  offers: [['s', /(المورد|مورد|supplier|vendor)/i, 'str', 1], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['u', /(سعر|price|cost)/i, 'num', 1], ['d', /(تاريخ|date)/i, 'date']]
 };
-const KIND_AR = {sales: 'المبيعات', purchases: 'المشتريات', offers: 'عروض الموردين'};
+const KIND_AR = {sales: 'المبيعات', purchases: 'المشتريات'};
 function extraKey(){ return 'tdq_extra:' + (companyId || ''); }
 function getExtra(){
   let j = {}; try { j = JSON.parse(localStorage.getItem(extraKey()) || '{}'); } catch (e) {}
   const sales = (j.sales || []).map(x => x.name !== undefined ? {d: '', p: x.name, c: '', q: x.qty, u: x.price, k: x.cost} : x);
-  const offers = (j.offers || []).map(x => x.supplier !== undefined ? {s: x.supplier, p: x.product, u: x.price, d: ''} : x);
-  return {sales: sales, purchases: j.purchases || [], offers: offers};
+  return {sales: sales, purchases: j.purchases || []};
 }
 function setExtra(x){ try { localStorage.setItem(extraKey(), JSON.stringify(x)); return true; } catch (e) { return false; } }
 function parseCsvText(t){ return String(t || '').replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => l.split(/\t|,|;|،/).map(c => c.trim())); }
@@ -2304,7 +2303,7 @@ function parseTable(rows, kind){
 }
 function showExtraStatus(){
   const e = getExtra(), el = $('extraStatus'); if (!el) return;
-  el.textContent = 'المحفوظ على الجهاز ده: مبيعات ' + e.sales.length + ' سطر | مشتريات ' + e.purchases.length + ' سطر | عروض موردين ' + e.offers.length + ' سطر';
+  el.textContent = 'المحفوظ على الجهاز ده: مبيعات ' + e.sales.length + ' سطر | مشتريات ' + e.purchases.length + ' سطر';
 }
 function commitExtra(kind, res){
   const m = $('extraMsg'); const ex = getExtra();
@@ -2325,11 +2324,11 @@ async function loadExtraWorkbook(inp){
     if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded');
     if (f.size > 5000000) throw new Error('الملف كبير');
     const wb = XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true}); const found = [];
-    [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i], ['offers', /عروض|offers|quotes/i]].forEach(([k, re]) => {
+    [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i]].forEach(([k, re]) => {
       const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}); if (commitExtra(k, parseTable(rows, k))) found.push(KIND_AR[k]);
     });
-    if (!found.length) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'ما لقيتش شيتات باسم: مبيعات، مشتريات، عروض.'; }
+    if (!found.length) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'ما لقيتش شيتات باسم: مبيعات، مشتريات.'; }
     else { m.className = 'text-[11px] font-bold text-emerald-300'; m.textContent = 'اتحفظ: ' + found.join('، ') + '. اسأل المساعد دلوقتي.'; }
   } catch (e) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'مقدرتش أقرأ الملف: ' + e.message; }
   inp.value = '';
@@ -2338,7 +2337,6 @@ function fillExtraBoxes(){
   const ex = getExtra(), set = (id, v) => { const el = $(id); if (el) el.value = v; };
   set('extraSalesTxt', ex.sales.map(x => [x.d, x.p, x.c, x.q, x.u, x.k === null ? '' : x.k].join(',')).join('\n'));
   set('extraPurTxt', ex.purchases.map(x => [x.d, x.s, x.p, x.q === null ? '' : x.q, x.u].join(',')).join('\n'));
-  set('extraOffersTxt', ex.offers.map(x => [x.s, x.p, x.u, x.d].join(',')).join('\n'));
   showExtraStatus();
 }
 
@@ -2359,7 +2357,7 @@ function hashStr(t){ let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 +
 const CORE_SHEETS = [['tx', /حركات|transactions/i, 'حركات الفلوس'], ['obl', /مستحقات|obligations/i, 'المستحقات'], ['inv', /مخزون|inventory/i, 'المخزون']];
 function fsProcess(wb){
   const done = [];
-  [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i], ['offers', /عروض|offers|quotes/i]].forEach(([k, re]) => {
+  [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i]].forEach(([k, re]) => {
     const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
     const res = parseTable(XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}), k);
     if (!res.err) { const ex = getExtra(); ex[k] = res.out; setExtra(ex); done.push(KIND_AR[k] + ' ' + res.out.length); } else done.push(KIND_AR[k] + ': ' + res.err);
@@ -2425,15 +2423,15 @@ async function fsStop(keepMsg){
 let odLinked = false, odBusy = false;
 function odSay(t, cls){ const e = $('odStatus'); if (e) { e.className = 'text-[11px] ' + (cls || 'text-slate-200'); e.textContent = t; } }
 function odButtons(){ const l = odLinked; const n = $('odNow'), o = $('odOff'), f = $('fsBox'); if (n) n.classList.toggle('hidden', !l); if (o) o.classList.toggle('hidden', !l); if (f) f.classList.toggle('hidden', l); }
-const OD_ERR = {BAD_LINK: 'الرابط ده مش رابط OneDrive أو Google Sheets صالح (لازم يبدأ بـ https://1drv.ms أو onedrive.live.com أو sharepoint.com أو docs.google.com/spreadsheets).', NOT_ACCESSIBLE: 'مقدرتش أفتح الملف. اتأكد إن الرابط "أي شخص معاه الرابط" بصلاحية عرض، وإن الملف Excel على OneDrive أو Google Sheet حقيقي (مش ملف Excel مرفوع على Drive من غير تحويل).', TOO_BIG: 'الملف كبير (أقصى حجم 10 ميجا).', NO_SHEETS: 'ما لقيتش شيتات اسمها المبيعات أو المشتريات أو عروض الموردين في الملف.', DB_ERROR: 'حصلت مشكلة في الحفظ. جرّب تاني.', FORBIDDEN: 'مش مسموح لحسابك بالشركة دي.', UNAUTHORIZED: 'سجّل دخول تاني.', SERVER: 'خطأ مؤقت في الخدمة. جرّب بعد شوية.'};
+const OD_ERR = {BAD_LINK: 'الرابط ده مش رابط OneDrive أو Google Sheets صالح (لازم يبدأ بـ https://1drv.ms أو onedrive.live.com أو sharepoint.com أو docs.google.com/spreadsheets).', NOT_ACCESSIBLE: 'مقدرتش أفتح الملف. اتأكد إن الرابط "أي شخص معاه الرابط" بصلاحية عرض، وإن الملف Excel على OneDrive أو Google Sheet حقيقي (مش ملف Excel مرفوع على Drive من غير تحويل).', TOO_BIG: 'الملف كبير (أقصى حجم 10 ميجا).', NO_SHEETS: 'ما لقيتش شيتات اسمها المبيعات أو المشتريات في الملف.', DB_ERROR: 'حصلت مشكلة في الحفظ. جرّب تاني.', FORBIDDEN: 'مش مسموح لحسابك بالشركة دي.', UNAUTHORIZED: 'سجّل دخول تاني.', SERVER: 'خطأ مؤقت في الخدمة. جرّب بعد شوية.'};
 async function odCall(body){
   const {data:{session}} = await sb.auth.getSession(); if (!session) throw new Error('UNAUTHORIZED');
-  body.company_id = companyId;
-  const r = await fetch(SB_URL + '/functions/v1/sync-excel-link', {method:'POST', headers:{Authorization:'Bearer ' + session.access_token, apikey: SB_KEY, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  body.company_id = companyId; body.action = 'extra_' + body.action;
+  const r = await fetch(SB_URL + '/functions/v1/sync-sheets', {method:'POST', headers:{Authorization:'Bearer ' + session.access_token, apikey: SB_KEY, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
   let j = {}; try { j = await r.json(); } catch (e) {}
   if (!r.ok) throw new Error(j.error || 'SERVER'); return j;
 }
-function odSummary(c){ c = c || {}; return 'مبيعات ' + (c.sales || 0) + ' | مشتريات ' + (c.purchases || 0) + ' | عروض موردين ' + (c.offers || 0); }
+function odSummary(c){ c = c || {}; return 'مبيعات ' + (c.sales || 0) + ' | مشتريات ' + (c.purchases || 0); }
 async function odFetchAll(table, cols){
   const out = []; for (let from = 0; from < 20000; from += 1000) {
     const {data, error} = await sb.from(table).select(cols).eq('company_id', companyId).order('id', {ascending: true}).range(from, from + 999);
@@ -2445,17 +2443,16 @@ async function pullServerExtra(){
   const {data: lk, error: e0} = await sb.from('sheet_links').select('last_status,last_synced_at,last_counts').eq('company_id', companyId).maybeSingle();
   if (e0 || !lk) { odLinked = false; odButtons(); return false; }
   odLinked = true; odButtons();
-  const [sa, pu, of] = await Promise.all([odFetchAll('sales', 'sale_date,product,customer,qty,unit_price,unit_cost'), odFetchAll('purchases', 'purchase_date,supplier,product,qty,unit_cost'), odFetchAll('supplier_offers', 'supplier,product,unit_price,offer_date')]);
+  const [sa, pu] = await Promise.all([odFetchAll('sales', 'sale_date,product,customer,qty,unit_price,unit_cost'), odFetchAll('purchases', 'purchase_date,supplier,product,qty,unit_cost')]);
   const num = v => (v === null || v === undefined) ? null : Number(v);
   setExtra({
     sales: sa.map(r => ({d: r.sale_date || '', p: r.product, c: r.customer || '', q: num(r.qty) || 0, u: num(r.unit_price) || 0, k: num(r.unit_cost)})),
     purchases: pu.map(r => ({d: r.purchase_date || '', s: r.supplier, p: r.product, q: num(r.qty), u: num(r.unit_cost) || 0})),
-    offers: of.map(r => ({s: r.supplier, p: r.product, u: num(r.unit_price) || 0, d: r.offer_date || ''}))
   });
   showExtraStatus();
   const t = lk.last_synced_at ? new Date(lk.last_synced_at).toLocaleString('ar-EG') : '';
   if (lk.last_status && lk.last_status !== 'ok' && lk.last_status !== 'new') odSay('آخر تحديث فشل: ' + (OD_ERR[lk.last_status] || lk.last_status) + ' الأرقام المعروضة هي آخر نسخة ناجحة.', 'text-amber-300');
-  else odSay('مربوط بالملف. آخر تحديث ' + t + '. ' + odSummary({sales: sa.length, purchases: pu.length, offers: of.length}));
+  else odSay('مربوط بالملف. آخر تحديث ' + t + '. ' + odSummary({sales: sa.length, purchases: pu.length}));
   return true;
 }
 async function odRun(body, busyMsg){
@@ -2504,7 +2501,6 @@ function buildDemoSales(){
 }
 let _demoSales = null;
 function getSales(){ if (typeof DEMO !== 'undefined' && DEMO) { if (!_demoSales) _demoSales = buildDemoSales(); return _demoSales; } return getExtra().sales; }
-const DEMO_OFFERS = [['مورد جديد (عرض تجريبي) أ', 'زجاجة 500 مل', 17], ['مورد جديد (عرض تجريبي) ب', 'علبة هدايا', 26], ['مورد جديد (عرض تجريبي) ج', 'كرتونة تغليف', 22.5]];
 
 /* ---- المحرك: تجميع حسب المنتج مع الأسباب ---- */
 function normName(v){ return String(v || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
@@ -2592,19 +2588,7 @@ function supplierAnswer(){
       if (!demo) L.push('(للتفاصيل بالمنتج ارفع جدول المشتريات.)'); }
   }
   L.push('');
-  let offers, costOf, qtyOf;
-  if (demo) { const A = aggProducts(); offers = DEMO_OFFERS.map(o => ({s: o[0], p: o[1], u: o[2]})); costOf = n => { const p = A && A.P.find(x => nameMatch(x.name, n)); return p ? {c: p.unitCost, from: 'تكلفتك الحالية'} : null; }; qtyOf = n => { const p = A && A.P.find(x => nameMatch(x.name, n)); return p ? p.cur.qty : 0; }; }
-  else { offers = ex.offers; const A = aggProducts();
-    costOf = n => { const lp = lastPurchaseCost(n); if (lp) return {c: lp.cost, from: 'آخر شراء من ' + lp.supplier}; const iv = invFor(n); return iv ? {c: iv.cost, from: 'تكلفة المخزون'} : null; };
-    qtyOf = n => { const p = A && A.P.find(x => nameMatch(x.name, n)); return p ? p.cur.qty : 0; }; }
-  L.push('--- موردين جدد (عروض أسعار، منفصلين تماماً عن الحاليين):');
-  if (!offers.length) L.push('مفيش عروض متسجلة. أنا معنديش أسعار سوق ومش هخمّن. ضيف عروض الأسعار اللي جاتلك في جدول "عروض الموردين" وأنا أقارنها بتكلفتك الحالية.');
-  else offers.forEach(o => { const cc = costOf(o.p), isCur = curNames.indexOf(normName(o.s)) >= 0; let t = '[جديد] ' + o.s + (isCur ? ' (مورد حالي بسعر جديد)' : '') + ' | ' + o.p + ': ' + fmt(o.u) + ' ج.م للوحدة' + (o.d ? ' (عرض ' + o.d + ')' : '');
-    if (!cc || !cc.c || !isFinite(cc.c)) t += ' (مفيش تكلفة حالية للمنتج ده أقارن بيها)';
-    else { const d = Math.round((o.u - cc.c) / cc.c * 100); t += ' | ' + cc.from + ': ' + (Math.round(cc.c * 10) / 10) + ' ← ' + (d < 0 ? 'أرخص ' + Math.abs(d) + '%' : (d > 0 ? 'أغلى ' + d + '%' : 'نفس السعر'));
-      const q = qtyOf(o.p); if (d < 0 && q > 0) t += '، توفير تقريبي ' + fmt((cc.c - o.u) * q) + ' ج.م في الشهر بكمية الشهر ده'; }
-    L.push(t); });
-  L.push('الفرق: "حالي" معناه اتعاملت معاه فعلاً وأرقامه من مشترياتك. "جديد" عرض سعر لسه ما اتجربش، وأسعاره اللي أدخلتها أنت' + (demo ? ' (هنا أرقام تجريبية)' : '') + '، ومن غير ما أعرف جودته ولا مواعيد توريده ولا شروط دفعه.');
+  L.push('الأرقام دي من جدول مشترياتك' + (demo ? ' (هنا أرقام تجريبية)' : '') + '، يعني موردينك الحاليين بس.');
   L.push('حدود الإجابة: مفيش أسعار سوق عندي ومش بدور على الإنترنت. قارن الجودة والتوريد والدفع قبل ما تغيّر أي مورد.');
   return L.join('\n');
 }
