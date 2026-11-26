@@ -536,16 +536,68 @@
         <h2 class="font-extrabold text-base">المساعد المالي الذكي</h2>
         <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">تحليل فوري</span>
       </div>
-      <p class="text-xs text-slate-300 leading-relaxed">اسأل عن أرقامك، مثلاً: ليه الحرق عالي؟ أو أكبر بند مصروفات؟ (بيشوف الإجماليات الشهرية حسب التصنيف بس، مش أوصاف الحركات. الخدمة مجانية من Google، وممكن Google تستخدم الأسئلة لتحسين منتجاتها.)</p>
+      <p class="text-xs text-slate-300 leading-relaxed">اسأل عن أرقامك، مثلاً: ليه الحرق عالي؟ أو أكبر بند مصروفات؟ (بيشوف الإجماليات الشهرية حسب التصنيف بس، مش أوصاف الحركات. الخدمة مجانية من Google، وممكن Google تستخدم الأسئلة لتحسين منتجاتها.) أسئلة المنتجات والعملاء والموردين بتتحسب جوه متصفحك من بياناتك ومش بتتبعت لأي خدمة.</p>
       <div id="demoAskChips" class="hidden flex flex-wrap gap-2">
         <button type="button" onclick="demoAsk('أكبر بند مصروفات؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أكبر بند مصروفات؟</button>
         <button type="button" onclick="demoAsk('ليه صافي الربح 68,000؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">ليه صافي الربح 68,000؟</button>
         <button type="button" onclick="demoAsk('أقدر أسدد الالتزامات؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أقدر أسدد الالتزامات؟</button>
         <button type="button" onclick="demoAsk('إزاي أزود الربح؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">إزاي أزود الربح؟</button>
+        <button type="button" onclick="demoAsk('أكتر منتجات بتتباع؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أكتر منتجات بتتباع؟</button>
+        <button type="button" onclick="demoAsk('أقل منتجات مبيعاً؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أقل منتجات مبيعاً؟</button>
+        <button type="button" onclick="demoAsk('أفضل العملاء؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أفضل العملاء؟</button>
+        <button type="button" onclick="demoAsk('أفضل موردين أشتري منهم؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أفضل موردين أشتري منهم؟</button>
+        <button type="button" onclick="demoAsk('أكتر حاجة فيها هدر؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أكتر حاجة فيها هدر؟</button>
+        <button type="button" onclick="demoAsk('أكتر حاجة مكسباني؟')" class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition">أكتر حاجة مكسباني؟</button>
       </div>
       <div class="flex gap-2">
         <input id="q" maxlength="300" placeholder="اكتب سؤالك" class="flex-1 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none">
         <button id="askBtn" onclick="ask()" class="bg-indigo-500 hover:bg-indigo-400 px-5 rounded-xl font-bold text-sm shrink-0">اسأل</button>
+      </div>
+      <div id="extraPanel" class="hidden rounded-xl bg-white/5 border border-white/15 p-3 space-y-3">
+        <div class="text-xs font-bold">بيانات المبيعات والمشتريات وعروض الموردين (للمساعد الذكي)</div>
+        <div class="text-[11px] text-slate-300 leading-relaxed">المخزون والحركات والمستحقات بترفعهم من "رفع ملف" فوق. الثلاث جداول دول بتتخزن على الجهاز ده بس ومش بتتبعت لأي خدمة. أسماء المنتجات والموردين والعملاء لازم تتكتب بنفس الشكل في كل الجداول. الصفوف اللي مكتوب فيها "مثال" بتتجاهل.</div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <label class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer">رفع ملف Excel الكامل (المبيعات + المشتريات + العروض)<input type="file" accept=".xlsx,.xls" class="hidden" onchange="loadExtraWorkbook(this)"></label>
+          <select id="tplSel" class="rounded-lg px-2 py-1.5 text-xs text-slate-900"><option value="1">1-حركات الفلوس</option><option value="2">2-المستحقات</option><option value="3">3-المخزون</option><option value="4" selected>4-المبيعات</option><option value="5">5-المشتريات</option><option value="6">6-عروض الموردين</option></select>
+          <button type="button" onclick="tplDownload()" class="underline text-[11px]">تنزيل القالب</button>
+        </div>
+        <div id="odBox" class="rounded-lg border border-emerald-400/40 p-2.5 space-y-2">
+          <div class="text-xs font-bold">ربط ملف من OneDrive (Excel) أو Google Sheets (بيشتغل من الموبايل)</div>
+          <div class="text-[11px] text-slate-300 leading-relaxed">اختار واحد: ملف Excel على OneDrive، أو Google Sheet. في الاتنين الشيتات تكون اسمها 4-المبيعات و5-المشتريات و6-عروض الموردين. اضغط مشاركة ثم "أي شخص معاه الرابط" بصلاحية "عرض فقط" (Viewer) وانسخ الرابط والصقه هنا. أي حفظ للملف من الموبايل بيوصل المنصة خلال دقيقتين تقريباً. <b>تنبيه خصوصية:</b> أي شخص معاه الرابط يقدر يفتح الملف كله، فخلّي الملف ده فيه الشيتات الثلاثة دول بس (من غير حركات الفلوس)، ولو الرابط اتسرب اقفل المشاركة من OneDrive (إدارة الوصول) أو من Google Sheets (مشاركة ثم تقييد الوصول). الرابط بيتخزن عندنا ومحدش من برّه شركتك بيشوفه.</div>
+          <input id="odUrl" type="url" inputmode="url" dir="ltr" placeholder="https://1drv.ms/... أو https://docs.google.com/spreadsheets/d/..." class="w-full rounded-lg px-2 py-1.5 text-xs text-slate-900">
+          <div class="flex flex-wrap gap-2 items-center">
+            <button id="odSave" type="button" onclick="odSave()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ الرابط وتحديث دلوقتي</button>
+            <button id="odNow" type="button" onclick="odSyncNow()" class="hidden bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">تحديث دلوقتي</button>
+            <button id="odOff" type="button" onclick="odUnlink()" class="hidden underline text-[11px]">فصل الرابط</button>
+          </div>
+          <div id="odStatus" class="text-[11px] text-slate-200"></div>
+        </div>
+        <div id="fsBox" class="rounded-lg border border-white/15 p-2.5 space-y-2">
+          <div class="text-xs font-bold">متابعة ملف Excel تلقائياً (كمبيوتر: Chrome أو Edge)</div>
+          <div class="text-[11px] text-slate-300 leading-relaxed">اختار الملف مرة واحدة، وأي تعديل تحفظه في Excel (Ctrl+S) بيظهر هنا خلال ثواني من غير رفع. صفحة المنصة لازم تفضل مفتوحة. الملف بيتقرا على جهازك ومش بيتبعت لأي حد.</div>
+          <div class="flex flex-wrap gap-2 items-center">
+            <button id="fsPick" type="button" onclick="fsPick()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-bold text-xs">اختار ملف Excel وتابعه</button>
+            <button id="fsResume" type="button" onclick="fsResume()" class="hidden bg-amber-500 hover:bg-amber-400 text-slate-900 px-3 py-1.5 rounded-lg font-bold text-xs">استئناف المتابعة</button>
+            <button id="fsStop" type="button" onclick="fsStop()" class="hidden underline text-[11px]">إيقاف المتابعة</button>
+          </div>
+          <div id="fsStatus" class="text-[11px] text-slate-200"></div>
+          <div id="fsCore" class="hidden text-[11px] space-y-1.5"></div>
+        </div>
+        <div id="extraStatus" class="text-[11px] text-slate-200"></div>
+        <details class="text-[11px]"><summary class="cursor-pointer text-slate-300">رفع أو لصق كل جدول لوحده (CSV)</summary>
+          <div class="space-y-2 mt-2">
+            <div class="font-bold">المبيعات: التاريخ, المنتج, العميل, الكمية, سعر البيع, تكلفة الوحدة</div>
+            <textarea id="extraSalesTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
+            <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('sales')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ المبيعات</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('sales', this)"></label></div>
+            <div class="font-bold">المشتريات: التاريخ, المورد, المنتج, الكمية, تكلفة الوحدة</div>
+            <textarea id="extraPurTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
+            <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('purchases')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ المشتريات</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('purchases', this)"></label></div>
+            <div class="font-bold">عروض موردين جدد: المورد, المنتج, سعر الوحدة, التاريخ</div>
+            <textarea id="extraOffersTxt" rows="3" dir="rtl" class="w-full rounded-lg px-3 py-2 text-xs text-slate-900 outline-none"></textarea>
+            <div class="flex gap-2 items-center"><button type="button" onclick="saveExtra('offers')" class="bg-indigo-500 hover:bg-indigo-400 px-3 py-1.5 rounded-lg font-bold text-xs">حفظ العروض</button><label class="underline cursor-pointer">رفع CSV<input type="file" accept=".csv,.txt" class="hidden" onchange="loadExtraFile('offers', this)"></label></div>
+          </div>
+        </details>
+        <div id="extraMsg" class="text-[11px] font-bold"></div>
       </div>
       <div id="answer" class="text-sm leading-relaxed whitespace-pre-wrap"></div>
     </div>
@@ -924,6 +976,7 @@ function problem(el, raw){
 async function ask(){
   if (DEMO) { demoAsk($('q').value); return; }
   const q = $('q').value.trim(), out = $('answer'); if (!q) return;
+  const la = localAsk(q); if (la) { out.className = 'text-sm leading-relaxed whitespace-pre-wrap'; out.textContent = la; return; }
   out.textContent = 'جاري التفكير...'; $('askBtn').disabled = true;
   try {
     const {data:{session}} = await sb.auth.getSession();
@@ -1340,6 +1393,7 @@ function autoCat(desc, isIncome){
   for (const [cat, inc, re] of RULES) if (inc === isIncome && re.test(d)) return cat;
   return isIncome ? 'Other Income' : 'Other';
 }
+const REV_AR = Object.fromEntries(Object.entries(AR).map(([k, v]) => [v, k]));
 function normRow(r, m, order){
   const g = i => (i < 0 ? '' : r[i]);
   const date = toDate(g(m.date), order), desc = String(g(m.desc) === undefined ? '' : g(m.desc)).trim();
@@ -1352,7 +1406,7 @@ function normRow(r, m, order){
   const tv = String(g(m.type) === undefined ? '' : g(m.type)).trim();
   const type = /expense|مصروف|مدين|سحب/i.test(tv) ? 'Expense' : (/income|إيراد|ايراد|دائن|إيداع|ايداع/i.test(tv) ? 'Income' : '');
   if (!date || !desc || !isFinite(amount)) return null;
-  return {date: date, desc: desc, amount: Math.round(amount * 100) / 100, type: type, cat: String(g(m.cat) === undefined ? '' : g(m.cat)).trim() || autoCat(desc, type === 'Income' ? true : (type === 'Expense' ? false : amount > 0)), ref: String(g(m.ref) === undefined ? '' : g(m.ref)).trim()};
+  return {date: date, desc: desc, amount: Math.round(amount * 100) / 100, type: type, cat: (REV_AR[String(g(m.cat) === undefined ? '' : g(m.cat)).trim()] || String(g(m.cat) === undefined ? '' : g(m.cat)).trim()) || autoCat(desc, type === 'Income' ? true : (type === 'Expense' ? false : amount > 0)), ref: String(g(m.ref) === undefined ? '' : g(m.ref)).trim()};
 }
 
 const OBL = {receivable: ['لينا عند', 'bg-emerald-100 text-emerald-700'], payable: ['علينا لـ', 'bg-rose-100 text-rose-700'], tax: ['ضريبة', 'bg-amber-100 text-amber-700'], upcoming: ['التزام جاي', 'bg-orange-100 text-orange-700']};
@@ -1453,7 +1507,7 @@ function invTemplate(){
 function invShowAll(){ invAll = true; renderInventory(); }
 async function loadInventory(){
   const r = await sb.from('inventory_items').select('*').eq('company_id', companyId).limit(5000); if (r.error) throw new Error(r.error.message);
-  invItems = r.data || []; $('invMsg').className = 'text-xs'; $('invMsg').textContent = ''; renderInventory();
+  fillExtraBoxes(); fsInit(); odInit(); invItems = r.data || []; $('invMsg').className = 'text-xs'; $('invMsg').textContent = ''; renderInventory();
 }
 function toggleInvDetails(){
   invDetailsOpen = !invDetailsOpen;
@@ -1554,6 +1608,7 @@ function curMap(){ const m = {}; fieldsNow().forEach(([k]) => { m[k] = Number($(
 function collectRows(){
   const m = curMap(), order = $('dateOrder').value, kind = kindNow(), out = []; let bad = 0;
   mapRows.slice(1).forEach(r => {
+    if (r.some(c => /^\s*مثال/.test(String(c)))) return;
     let n;
     if (kind === 'obl') n = normObl(r, m, order, $('defKind').value);
     else if (kind === 'inv') n = normInv(r, m);
@@ -2095,6 +2150,489 @@ function demoCardNotes(){
     const d = document.createElement('div'); d.className = 'demoNote text-[11px] text-slate-500 mt-1'; d.textContent = t; h.after(d);
   });
 }
+
+/* ===== أسئلة المنتجات والعملاء والموردين: بتتحسب جوه المتصفح من بيانات الحساب، ومش بتتبعت لأي خدمة ===== */
+const DEMO_PRODUCT_SALES = [['منتج جاهز (س)', 62000, 310, 46], ['علبة هدايا', 41000, 820, 41], ['كرتونة تغليف', 33000, 1100, 28], ['زجاجة 500 مل', 27000, 900, 33], ['شنطة ورق', 19000, 1500, 24], ['عبوة 1 لتر', 9800, 410, 30], ['ملصقات منتجات', 7000, 2300, 19], ['قطع غيار', 6300, 85, 17], ['بطاقة تعريف', 4900, 700, 12]];
+function partyName(d){ return String(d || '').replace(/^\s*(مبيعات|مبيعات نقدية|بيع|فاتورة مبيعات|شراء بضاعة|شراء|فاتورة مشتريات|فاتورة|توريد)\s*[-–:]\s*/, '').trim() || 'بدون اسم'; }
+function rankParties(kind){
+  const by = {};
+  allTx.forEach(t => { const a = Number(t.amount); if (!isFinite(a)) return;
+    if (kind === 'cust' ? (a > 0 && t.category === 'Sales Revenue') : (a < 0 && t.category === 'Cost of Goods Sold')) {
+      const k = partyName(t.description); const r = by[k] || (by[k] = {name: k, sum: 0, n: 0, last: ''}); r.sum += Math.abs(a); r.n++; if (t.tx_date > r.last) r.last = t.tx_date; } });
+  return Object.values(by).sort((x, y) => y.sum - x.sum);
+}
+function periodText(){
+  const ds = allTx.map(t => t.tx_date).sort(); if (!ds.length) return '';
+  return 'من ' + ds[0] + ' إلى ' + ds[ds.length - 1];
+}
+
+function catSpend(){
+  const ms = Array.from(new Set(allTx.map(t => t.tx_date.slice(0, 7)))).sort(); if (!ms.length) return null;
+  const cur = ms[ms.length - 1], prev = ms.length > 1 ? ms[ms.length - 2] : null, c = {}, p = {}, rev = {};
+  allTx.forEach(t => { const a = Number(t.amount), m = t.tx_date.slice(0, 7); if (!isFinite(a)) return;
+    if (a > 0) { rev[m] = (rev[m] || 0) + a; return; }
+    const k = AR[t.category] || t.category; if (m === cur) c[k] = (c[k] || 0) - a; else if (m === prev) p[k] = (p[k] || 0) - a; });
+  return {cur, prev, c, p, rev, ms};
+}
+function wasteAsk(){
+  const L = [], d = catSpend(), demo = (typeof DEMO !== 'undefined' && DEMO);
+  if (!d) return 'مفيش بيانات كفاية عندي أحسب منها الهدر.';
+  const fixed = ['رواتب وأجور', AR['Rent & Utilities'], AR['Loans & Installments'], AR['Taxes & Fees'], AR['Cost of Goods Sold']];
+  const rows = Object.keys(d.c).filter(k => fixed.indexOf(k) < 0).map(k => ({k, v: d.c[k], pv: d.p[k] || 0})).sort((a, b) => b.v - a.v);
+  L.push('أكتر بنود ممكن فيها هدر (المصروفات المرنة، غير الرواتب والإيجار والأقساط وتكلفة البضاعة) في شهر ' + d.cur + ':');
+  if (!rows.length) L.push('مفيش مصروفات مرنة مسجلة الشهر ده.');
+  rows.slice(0, 3).forEach((r, i) => { const ch = (d.prev && r.pv > 0) ? (' (' + (r.v >= r.pv ? 'زادت ' : 'قلّت ') + Math.abs(Math.round((r.v - r.pv) / r.pv * 100)) + '% عن ' + d.prev + ')') : ''; L.push((i + 1) + '. ' + r.k + ': ' + fmt(r.v) + ' ج.م' + ch); });
+  const rv = d.rev[d.cur] || 0, cg = d.c[AR['Cost of Goods Sold']] || 0;
+  if (rv > 0 && cg > 0) L.push('تكلفة البضاعة ' + Math.round(cg / rv * 100) + '% من إيرادات الشهر.');
+  if (demo) {
+    const lows = DEMO_PRODUCT_SALES.slice(-3); let tot = 0;
+    lows.forEach(p => { (invItems || []).forEach(x => { if (String(x.item).indexOf(p[0]) === 0) tot += Number(x.qty) * Number(x.unit_cost); }); });
+    if (tot > 0) L.push('مخزون راكد محتمل: أقل 3 منتجات مبيعاً (' + lows.map(p => p[0]).join('، ') + ') ماسكين مخزون بحوالي ' + fmt(tot) + ' ج.م.');
+  }
+  L.push('حدود الإجابة: ده ترتيب حسب أرقام المصروفات المسجلة، ومعناه إن البند ده يستحق مراجعتك، مش إن فيه هدر مؤكد. مقدرش أعرف تالف أو سرقة أو سوء استخدام من الأرقام بس.');
+  return L.join('\n');
+}
+function profitAsk(){
+  const L = [], demo = (typeof DEMO !== 'undefined' && DEMO), d = catSpend();
+  if (demo) {
+    L.push('أكتر المنتجات مكسباً الشهر ده (إجمالي الربح بعد تكلفة البضاعة):');
+    DEMO_PRODUCT_SALES.map(p => ({n: p[0], g: Math.round(p[1] * p[3] / 100), m: p[3]})).sort((a, b) => b.g - a.g).slice(0, 3).forEach((x, i) => L.push((i + 1) + '. ' + x.n + ': ' + fmt(x.g) + ' ج.م (هامش ' + x.m + '%)'));
+    const best = DEMO_PRODUCT_SALES.slice().sort((a, b) => b[3] - a[3])[0], worst = DEMO_PRODUCT_SALES.slice().sort((a, b) => a[3] - b[3])[0];
+    L.push('أعلى هامش: ' + best[0] + ' (' + best[3] + '%)، وأضعف هامش: ' + worst[0] + ' (' + worst[3] + '%).');
+  }
+  if (d) {
+    const pr = d.ms.map(m => ({m, v: allTx.filter(t => t.tx_date.startsWith(m)).reduce((a, t) => a + Number(t.amount), 0), r: d.rev[m] || 0}));
+    const best = pr.slice().sort((a, b) => b.v - a.v)[0];
+    const cur = pr[pr.length - 1];
+    L.push((demo ? 'على مستوى الشركة: ' : 'أعلى شهر صافي في بياناتك: ') + 'شهر ' + best.m + ' بصافي ' + fmt(best.v) + ' ج.م' + (cur.r > 0 ? (best.m === cur.m ? '، وهو الشهر الحالي' : '، والشهر الحالي ' + cur.m) + ' وهامشه ' + Math.round(cur.v / cur.r * 100) + '%.' : '.'));
+    const cs = rankParties('cust');
+    if (cs.length) { const tot = cs.reduce((a, x) => a + x.sum, 0); L.push('أكبر مصدر إيراد: ' + cs[0].name + ' (' + fmt(cs[0].sum) + ' ج.م، ' + Math.round(cs[0].sum / tot * 100) + '% من المبيعات).'); }
+  } else L.push('مفيش بيانات كفاية عندي أحسب منها الربح.');
+  if (demo) L.push('حدود الإجابة: أرقام الأرباح لكل منتج تجريبية لتوضيح الفكرة.');
+  else L.push('حدود الإجابة: الشيتات مفيهاش تكلفة كل منتج أو كل عميل لوحده، فمقدرش أقولك أنهي منتج أو عميل أكتر مكسباً بدقة. ده تحليل على مستوى الشركة والشهور. لو ضفت اسم المنتج وتكلفته في الشيت أقدر أحسبه.');
+  return L.join('\n');
+}
+function localAsk0(q){
+  q = String(q || '');
+  const isLow = /(اقل|أقل|اضعف|أضعف|راكد|مش بتتباع|ما بتتباعش)/.test(q) && /(منتج|منتجات|صنف|اصناف|أصناف|بضاعة|مبيعا|بتتباع)/.test(q);
+  const isProd = /(منتج|منتجات|صنف|اصناف|أصناف|بتتباع|مبيعا|مبيعاً|الاكثر مبيع|الأكثر مبيع)/.test(q) && /(اكتر|أكتر|اكثر|أكثر|افضل|أفضل|اعلى|أعلى|بتتباع|مبيعا|مبيعاً)/.test(q);
+  const isSup = /(مورد|موردين|موردي|اشتري منه|اجيب منه|أجيب منه|أشتري منه)/.test(q);
+  const isCust = /(شركات|شركة|عملاء|عميل|زباين|زبون)/.test(q) && /(افضل|أفضل|اكتر|أكتر|اكثر|أكثر|اعلى|أعلى|كبار|كبير)/.test(q);
+  const isWaste = /(هدر|اهدار|إهدار|فاقد|تبذير|بيضيع|بتضيع|خسارة|خساره|مصاريف زيادة)/.test(q);
+  const isProfit = /(مكسب|مكسباني|اربح|أربح|الاكثر ربح|الأكثر ربح|ربحية|ربحا|ربحاً)/.test(q) && /(اكتر|أكتر|اكثر|أكثر|اعلى|أعلى|افضل|أفضل|ايه|إيه|حاجه|حاجة|منتج|عميل|بند)/.test(q) && !/(ليه|زود|زيادة)/.test(q);
+  if (isWaste) return wasteAsk();
+  if (isProfit && !isLow && !isProd) return profitAsk();
+  if (!(isLow || isProd || isSup || isCust)) return null;
+  const L = [];
+  if (isLow || isProd) {
+    if (typeof DEMO !== 'undefined' && DEMO) {
+      const tot = DEMO_PRODUCT_SALES.reduce((a, p) => a + p[1], 0);
+      if (isLow) { L.push('أقل المنتجات مبيعاً الشهر ده:'); DEMO_PRODUCT_SALES.slice(-3).reverse().forEach((p, i) => L.push((i + 1) + '. ' + p[0] + ': ' + fmt(p[1]) + ' ج.م (' + fmt(p[2]) + ' وحدة)'));
+        L.push('ممكن تقلل كميات شرائها أو تعمل عليها عرض، وتراجع تسعيرها.'); }
+      else { L.push('أكتر المنتجات مبيعاً الشهر ده:'); DEMO_PRODUCT_SALES.slice(0, 5).forEach((p, i) => L.push((i + 1) + '. ' + p[0] + ': ' + fmt(p[1]) + ' ج.م (' + Math.round(p[1] / tot * 100) + '% من المبيعات، ' + fmt(p[2]) + ' وحدة)'));
+        L.push('أول 5 منتجات بيعملوا ' + Math.round(DEMO_PRODUCT_SALES.slice(0, 5).reduce((a, p) => a + p[1], 0) / tot * 100) + '% من مبيعات الشهر.'); }
+      L.push('حدود الإجابة: دي أرقام مبيعات تجريبية لتوضيح الفكرة، وفي حسابك الفعلي الأرقام من شيتاتك.');
+    } else {
+      const inv = (typeof invItems !== 'undefined' && invItems) ? invItems.filter(x => Number(x.qty) * Number(x.unit_cost) > 0) : [];
+      L.push('الشيتات المربوطة بتسجل الحركات المالية والمخزون الحالي، ومفيهاش كميات مبيعات لكل منتج، فمقدرش أحدد الأكثر أو الأقل مبيعاً بدقة.');
+      if (inv.length) { const top = inv.slice().sort((a, b) => Number(b.qty) * Number(b.unit_cost) - Number(a.qty) * Number(a.unit_cost)).slice(0, 5);
+        L.push('أقرب حاجة عندي من بياناتك: أكتر الأصناف قيمة في المخزون (ده مخزون مش مبيعات):');
+        top.forEach((x, i) => L.push((i + 1) + '. ' + x.item + ': ' + fmt(Number(x.qty) * Number(x.unit_cost)) + ' ج.م (' + fmt(x.qty) + ' وحدة)')); }
+      L.push('عشان أجاوب عن المنتجات بدقة، ضيف في الشيت وصف أو اسم المنتج في كل عملية بيع.');
+    }
+  }
+  if (isSup) {
+    const r = rankParties('sup');
+    if (!r.length) L.push('مفيش حركات شراء بضاعة (تكلفة البضاعة) في بياناتك أقدر أحسب منها الموردين.');
+    else { const tot = r.reduce((a, x) => a + x.sum, 0); L.push('أكتر الموردين اللي اشتريت منهم (' + periodText() + '):');
+      r.slice(0, 5).forEach((x, i) => L.push((i + 1) + '. ' + x.name + ': ' + fmt(x.sum) + ' ج.م (' + Math.round(x.sum / tot * 100) + '% من المشتريات، ' + (x.n === 1 ? 'عملية واحدة' : x.n + ' عمليات') + '، آخرها ' + x.last + ')'));
+      if (r.length > 5) L.push('وفي ' + (r.length - 5) + ' موردين تانيين أقل.');
+      if (r[0].sum / tot > 0.6) L.push('تنبيه: ' + Math.round(r[0].sum / tot * 100) + '% من مشترياتك عند مورد واحد، وده خطر لو تأخر أو رفع السعر.'); }
+    L.push('حدود الإجابة: بترتب الموردين من تاريخ مشترياتك أنت بس، ومعنديش أسعار السوق ولا بيانات موردين خارج شيتاتك، فمقدرش أرشحلك مورد جديد. قارن عروض الأسعار قبل ما تتعاقد.');
+  }
+  if (isCust) {
+    const r = rankParties('cust');
+    if (!r.length) L.push('مفيش حركات مبيعات في بياناتك أقدر أحسب منها العملاء.');
+    else { const tot = r.reduce((a, x) => a + x.sum, 0); L.push('أفضل العملاء/الشركات حسب قيمة مشترياتهم منك (' + periodText() + '):');
+      r.slice(0, 5).forEach((x, i) => L.push((i + 1) + '. ' + x.name + ': ' + fmt(x.sum) + ' ج.م (' + Math.round(x.sum / tot * 100) + '% من المبيعات، ' + (x.n === 1 ? 'عملية واحدة' : x.n + ' عمليات') + '، آخرها ' + x.last + ')'));
+      if (r[0].sum / tot > 0.4) L.push('تنبيه: ' + Math.round(r[0].sum / tot * 100) + '% من مبيعاتك من عميل واحد.'); }
+    L.push('حدود الإجابة: الترتيب من وصف العمليات المسجلة في شيتاتك، ومش بيحسب التحصيل ولا التأخير.');
+  }
+  return L.join('\n');
+}
+
+const TPL = {"1": ["1-حركات الفلوس", "التاريخ,البيان,المبلغ,التصنيف,ملاحظة\n2026-11-01,رواتب الشهر,-38000,رواتب وأجور,مثال - امسح الصف\n2026-11-02,إيجار المقر,-18000,إيجار ومرافق,مثال - امسح الصف\n2026-11-02,شراء بضاعة - مورد الدلتا,-10000,تكلفة البضاعة (COGS),مثال - امسح الصف\n2026-11-04,مبيعات - معرض النيل,4320,مبيعات وإيرادات,مثال - امسح الصف\n2026-11-08,حملة إعلانات,-3000,تسويق,مثال - امسح الصف\n2026-11-10,مصاريف تشغيل متنوعة,-2500,مصاريف تشغيلية,مثال - امسح الصف\n"], "2": ["2-المستحقات", "الجهة,المبلغ,تاريخ الاستحقاق,النوع,الحالة,ملاحظة\nمعرض النيل,15000,2026-12-05,لينا,مفتوح,مثال - امسح الصف\nمورد الدلتا,9000,2026-12-10,علينا,مفتوح,مثال - امسح الصف\nمصلحة الضرائب,4000,2026-12-15,ضريبة,مفتوح,مثال - امسح الصف\n"], "3": ["3-المخزون", "الصنف,الكمية,تكلفة الوحدة,سعر البيع,حد الطلب,ملاحظة\nزيت 1 لتر,320,40,48,100,مثال - امسح الصف\nسكر 1 كيلو,150,22,27,100,مثال - امسح الصف\nأرز 5 كيلو,260,105,120,30,مثال - امسح الصف\nشاي 100 كيس,40,50,60,50,مثال - امسح الصف\n"], "4": ["4-المبيعات", "التاريخ,المنتج,العميل,الكمية,سعر البيع,تكلفة الوحدة,ملاحظة\n2026-10-03,زيت 1 لتر,معرض النيل,120,45,38,مثال - امسح الصف\n2026-10-17,زيت 1 لتر,متجر الأمل,100,45,38,مثال - امسح الصف\n2026-10-05,سكر 1 كيلو,معرض النيل,200,27,22,مثال - امسح الصف\n2026-10-20,سكر 1 كيلو,مجموعة الأهرام,180,27,22,مثال - امسح الصف\n2026-10-08,أرز 5 كيلو,متجر الأمل,60,120,105,مثال - امسح الصف\n2026-10-12,شاي 100 كيس,معرض النيل,80,60,50,مثال - امسح الصف\n2026-11-04,زيت 1 لتر,معرض النيل,90,48,38,مثال - امسح الصف\n2026-11-15,زيت 1 لتر,متجر الأمل,60,48,38,مثال - امسح الصف\n2026-11-06,سكر 1 كيلو,معرض النيل,210,27,22,مثال - امسح الصف\n2026-11-18,سكر 1 كيلو,مجموعة الأهرام,190,27,22,مثال - امسح الصف\n2026-11-10,أرز 5 كيلو,متجر الأمل,20,120,105,مثال - امسح الصف\n2026-11-12,شاي 100 كيس,معرض النيل,100,60,50,مثال - امسح الصف\n"], "5": ["5-المشتريات", "التاريخ,المورد,المنتج,الكمية,تكلفة الوحدة,ملاحظة\n2026-10-02,مورد الدلتا,زيت 1 لتر,300,38,مثال - امسح الصف\n2026-10-02,مورد الدلتا,سكر 1 كيلو,500,22,مثال - امسح الصف\n2026-10-06,مورد القاهرة,أرز 5 كيلو,100,105,مثال - امسح الصف\n2026-11-02,مورد الدلتا,زيت 1 لتر,250,41,مثال - امسح الصف\n2026-11-02,مورد الدلتا,سكر 1 كيلو,450,22,مثال - امسح الصف\n2026-11-05,مورد القاهرة,شاي 100 كيس,150,50,مثال - امسح الصف\n"], "6": ["6-عروض الموردين", "المورد,المنتج,سعر الوحدة,التاريخ,ملاحظة\nمورد الشرق,زيت 1 لتر,37,2026-11-20,مثال - امسح الصف\nمورد النيل,سكر 1 كيلو,23,2026-11-20,مثال - امسح الصف\n"]};
+
+/* ===== المبيعات والمشتريات وعروض الموردين: بيدخلها صاحب الحساب وبتتخزن على الجهاز ده بس ===== */
+const SPECS = {
+  sales: [['d', /(تاريخ|date)/i, 'date'], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['c', /(العميل|عميل|customer|client)/i, 'str'], ['q', /(الكمية|كمية|qty|quantity)/i, 'num', 1], ['u', /(سعر البيع|سعر الوحدة|السعر|price)/i, 'num', 1], ['k', /(تكلفة|cost)/i, 'num']],
+  purchases: [['d', /(تاريخ|date)/i, 'date'], ['s', /(المورد|مورد|supplier|vendor)/i, 'str', 1], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['q', /(الكمية|كمية|qty|quantity)/i, 'num'], ['u', /(تكلفة|سعر|cost|price)/i, 'num', 1]],
+  offers: [['s', /(المورد|مورد|supplier|vendor)/i, 'str', 1], ['p', /(المنتج|الصنف|product|item)/i, 'str', 1], ['u', /(سعر|price|cost)/i, 'num', 1], ['d', /(تاريخ|date)/i, 'date']]
+};
+const KIND_AR = {sales: 'المبيعات', purchases: 'المشتريات', offers: 'عروض الموردين'};
+function extraKey(){ return 'tdq_extra:' + (companyId || ''); }
+function getExtra(){
+  let j = {}; try { j = JSON.parse(localStorage.getItem(extraKey()) || '{}'); } catch (e) {}
+  const sales = (j.sales || []).map(x => x.name !== undefined ? {d: '', p: x.name, c: '', q: x.qty, u: x.price, k: x.cost} : x);
+  const offers = (j.offers || []).map(x => x.supplier !== undefined ? {s: x.supplier, p: x.product, u: x.price, d: ''} : x);
+  return {sales: sales, purchases: j.purchases || [], offers: offers};
+}
+function setExtra(x){ try { localStorage.setItem(extraKey(), JSON.stringify(x)); return true; } catch (e) { return false; } }
+function parseCsvText(t){ return String(t || '').replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => l.split(/\t|,|;|،/).map(c => c.trim())); }
+function parseTable(rows, kind){
+  const spec = SPECS[kind]; rows = rows.filter(r => r.some(c => String(c).trim() !== '')); if (!rows.length) return {out: [], err: 'الجدول فاضي'};
+  const first = rows[0].map(c => String(c === undefined || c === null ? '' : c)), used = {}, idx = {};
+  const looksHeader = first.some(c => spec.some(f => f[1].test(c))) && first.every(c => !isFinite(toNum(c)) || c === '');
+  let start = 0;
+  if (looksHeader) {
+    start = 1; const miss = [];
+    spec.forEach(f => { let i = first.findIndex((c, j) => !used[j] && f[1].test(c)); if (i >= 0) { used[i] = 1; idx[f[0]] = i; } else if (f[3]) miss.push(f[0]); });
+    if (miss.length) { const nm = {d: 'التاريخ', p: 'المنتج', c: 'العميل', q: 'الكمية', u: 'السعر', k: 'التكلفة', s: 'المورد'}; return {out: [], err: 'ناقص عمود: ' + miss.map(m => nm[m]).join('، ')}; }
+  } else spec.forEach((f, i) => { idx[f[0]] = i; });
+  const out = [];
+  rows.slice(start).forEach(r => {
+    if (r.some(c => /^\s*مثال/.test(String(c)))) return;
+    const o = {}; let ok = true;
+    spec.forEach(f => { const v = idx[f[0]] === undefined ? '' : r[idx[f[0]]]; const t = String(v === undefined || v === null ? '' : v).trim();
+      if (f[2] === 'num') { const n = t === '' ? NaN : toNum(v); if (isFinite(n) && n >= 0) o[f[0]] = n; else { o[f[0]] = null; if (f[3]) ok = false; } }
+      else if (f[2] === 'date') o[f[0]] = t === '' ? '' : toDate(v, 'dmy');
+      else { o[f[0]] = t.slice(0, 80); if (f[3] && !t) ok = false; } });
+    if (kind === 'sales' || kind === 'purchases') { if (o.q === null) o.q = kind === 'sales' ? 0 : 1; }
+    if (ok) out.push(o);
+  });
+  return {out: out.slice(0, 5000), err: out.length ? '' : 'ما لقيتش أسطر صالحة'};
+}
+function showExtraStatus(){
+  const e = getExtra(), el = $('extraStatus'); if (!el) return;
+  el.textContent = 'المحفوظ على الجهاز ده: مبيعات ' + e.sales.length + ' سطر | مشتريات ' + e.purchases.length + ' سطر | عروض موردين ' + e.offers.length + ' سطر';
+}
+function commitExtra(kind, res){
+  const m = $('extraMsg'); const ex = getExtra();
+  if (res.err) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = KIND_AR[kind] + ': ' + res.err; return false; }
+  ex[kind] = res.out; const ok = setExtra(ex);
+  m.className = 'text-[11px] font-bold ' + (ok ? 'text-emerald-300' : 'text-amber-300');
+  m.textContent = ok ? ('اتحفظ ' + KIND_AR[kind] + ': ' + res.out.length + ' سطر. اسأل المساعد دلوقتي.') : 'المتصفح رفض الحفظ (المساحة ممتلئة).';
+  showExtraStatus(); return ok;
+}
+function saveExtra(kind){ const box = $(kind === 'sales' ? 'extraSalesTxt' : (kind === 'purchases' ? 'extraPurTxt' : 'extraOffersTxt')); commitExtra(kind, parseTable(parseCsvText(box.value), kind)); }
+function loadExtraFile(kind, inp){
+  const f = inp.files && inp.files[0]; if (!f) return; if (f.size > 800000) { $('extraMsg').textContent = 'الملف كبير، أقصى حجم 800 كيلوبايت.'; return; }
+  const r = new FileReader(); r.onload = () => { const box = $(kind === 'sales' ? 'extraSalesTxt' : (kind === 'purchases' ? 'extraPurTxt' : 'extraOffersTxt')); box.value = String(r.result || '').replace(/^\uFEFF/, ''); saveExtra(kind); }; r.readAsText(f, 'utf-8'); inp.value = '';
+}
+async function loadExtraWorkbook(inp){
+  const f = inp.files && inp.files[0]; if (!f) return; const m = $('extraMsg');
+  try {
+    if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded');
+    if (f.size > 5000000) throw new Error('الملف كبير');
+    const wb = XLSX.read(await f.arrayBuffer(), {type: 'array', cellDates: true}); const found = [];
+    [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i], ['offers', /عروض|offers|quotes/i]].forEach(([k, re]) => {
+      const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}); if (commitExtra(k, parseTable(rows, k))) found.push(KIND_AR[k]);
+    });
+    if (!found.length) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'ما لقيتش شيتات باسم: مبيعات، مشتريات، عروض.'; }
+    else { m.className = 'text-[11px] font-bold text-emerald-300'; m.textContent = 'اتحفظ: ' + found.join('، ') + '. اسأل المساعد دلوقتي.'; }
+  } catch (e) { m.className = 'text-[11px] font-bold text-amber-300'; m.textContent = 'مقدرتش أقرأ الملف: ' + e.message; }
+  inp.value = '';
+}
+function fillExtraBoxes(){
+  const ex = getExtra(), set = (id, v) => { const el = $(id); if (el) el.value = v; };
+  set('extraSalesTxt', ex.sales.map(x => [x.d, x.p, x.c, x.q, x.u, x.k === null ? '' : x.k].join(',')).join('\n'));
+  set('extraPurTxt', ex.purchases.map(x => [x.d, x.s, x.p, x.q === null ? '' : x.q, x.u].join(',')).join('\n'));
+  set('extraOffersTxt', ex.offers.map(x => [x.s, x.p, x.u, x.d].join(',')).join('\n'));
+  showExtraStatus();
+}
+
+/* ===== متابعة ملف Excel على الجهاز (File System Access API) ===== */
+const FS_OK = (typeof window !== 'undefined') && ('showOpenFilePicker' in window);
+let fsHandle = null, fsLast = '', fsBusy = false, fsTimer = null, fsCoreRows = {}, fsInitFor = null;
+function idbOpen(){ return new Promise((res, rej) => { const r = indexedDB.open('tdq-fs', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+async function idbGet(k){ const d = await idbOpen(); return new Promise((res, rej) => { const q = d.transaction('h').objectStore('h').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+async function idbSet(k, v){ const d = await idbOpen(); return new Promise((res, rej) => { const t = d.transaction('h', 'readwrite'); if (v === null) t.objectStore('h').delete(k); else t.objectStore('h').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
+function fsSay(t, cls){ const el = $('fsStatus'); if (el) { el.className = 'text-[11px] ' + (cls || 'text-slate-200'); el.textContent = t; } }
+function fsButtons(state){ // state: none | running | paused
+  const g = id => $(id); if (!g('fsPick')) return;
+  g('fsPick').classList.toggle('hidden', !FS_OK || state !== 'none');
+  g('fsResume').classList.toggle('hidden', state !== 'paused');
+  g('fsStop').classList.toggle('hidden', state === 'none');
+}
+function hashStr(t){ let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return String(h); }
+const CORE_SHEETS = [['tx', /حركات|transactions/i, 'حركات الفلوس'], ['obl', /مستحقات|obligations/i, 'المستحقات'], ['inv', /مخزون|inventory/i, 'المخزون']];
+function fsProcess(wb){
+  const done = [];
+  [['sales', /مبيعات|sales/i], ['purchases', /مشتريات|purchases/i], ['offers', /عروض|offers|quotes/i]].forEach(([k, re]) => {
+    const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
+    const res = parseTable(XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}), k);
+    if (!res.err) { const ex = getExtra(); ex[k] = res.out; setExtra(ex); done.push(KIND_AR[k] + ' ' + res.out.length); } else done.push(KIND_AR[k] + ': ' + res.err);
+  });
+  const box = $('fsCore'); let changed = [];
+  CORE_SHEETS.forEach(([k, re, label]) => {
+    const nm = wb.SheetNames.find(n => re.test(n)); if (!nm) return;
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header: 1, raw: true, defval: ''}).filter(r => r.some(c => String(c).trim() !== '') && !r.some(c => /^\s*مثال/.test(String(c))));
+    if (rows.length < 2) return; fsCoreRows[k] = rows;
+    const h = hashStr(JSON.stringify(rows, (kk, v) => v instanceof Date ? v.toISOString() : v)), key = 'tdq_corehash:' + (companyId || '') + ':' + k;
+    if (localStorage.getItem(key) !== h) changed.push([k, label, h, key]);
+  });
+  if (box) {
+    box.textContent = '';
+    if (changed.length) { box.classList.remove('hidden');
+      const t = document.createElement('div'); t.className = 'font-bold text-amber-300'; t.textContent = 'في شيتات اتغيرت وبتتحفظ في الحسابات بعد تأكيدك:'; box.appendChild(t);
+      changed.forEach(([k, label, h, key]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'bg-amber-500 hover:bg-amber-400 text-slate-900 px-3 py-1.5 rounded-lg font-bold text-xs ml-2'; b.textContent = 'حدّث ' + label; b.onclick = () => { fsApplyCore(k); try { localStorage.setItem(key, h); } catch (e) {} b.remove(); if (!box.querySelector('button')) box.classList.add('hidden'); }; box.appendChild(b); }); }
+    else box.classList.add('hidden');
+  }
+  return done;
+}
+function fsApplyCore(k){
+  const rows = fsCoreRows[k]; if (!rows) return;
+  mapRows = rows; mapSource = null; $('mapGo').textContent = 'رفع'; $('fileKind').value = k; openMapper();
+  const m = $('mapper'); if (m && m.scrollIntoView) m.scrollIntoView({block: 'center'});
+  const msg = $('msg'); if (msg) { msg.className = 'text-sm font-bold text-slate-500'; msg.textContent = 'راجع الأعمدة واضغط "رفع" لتأكيد تحديث ' + KIND_NAMES[k] + '.'; }
+}
+async function fsRead(force){
+  if (!fsHandle || fsBusy) return; fsBusy = true;
+  try {
+    const file = await fsHandle.getFile(), sig = file.lastModified + ':' + file.size;
+    if (!force && sig === fsLast) { fsBusy = false; return; }
+    if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded');
+    if (file.size > 20000000) throw new Error('الملف كبير');
+    const wb = XLSX.read(await file.arrayBuffer(), {type: 'array', cellDates: true});
+    fsLast = sig; const done = fsProcess(wb), t = new Date().toLocaleTimeString('ar-EG');
+    fsSay('بيتابع: ' + fsHandle.name + ' | آخر قراءة ' + t + ' | ' + done.join('، '), 'text-emerald-300'); showExtraStatus();
+  } catch (e) {
+    if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) { fsPause('محتاج إذنك تاني عشان يكمل متابعة الملف.'); }
+    else if (e && (e.name === 'NotFoundError')) { fsSay('الملف اتنقل أو اتمسح. اختار الملف تاني.', 'text-amber-300'); fsStop(true); }
+    else fsSay('الملف مقفول أو بيتحفظ دلوقتي، هحاول تاني تلقائياً. (' + (e && e.message ? e.message : e) + ')', 'text-amber-300');
+  }
+  fsBusy = false;
+}
+function fsStart(){ clearInterval(fsTimer); fsButtons('running'); fsRead(true); fsTimer = setInterval(() => { if (document.visibilityState === 'visible') fsRead(false); }, 3000); }
+function fsPause(msg){ clearInterval(fsTimer); fsButtons('paused'); fsSay(msg, 'text-amber-300'); }
+async function fsPick(){
+  if (!FS_OK) return;
+  try {
+    const [h] = await window.showOpenFilePicker({types: [{description: 'Excel', accept: {'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']}}], multiple: false});
+    fsHandle = h; fsLast = ''; await idbSet('h:' + (companyId || ''), h); fsStart();
+  } catch (e) { if (!e || e.name !== 'AbortError') fsSay('مقدرتش أفتح الملف: ' + (e && e.message ? e.message : e), 'text-amber-300'); }
+}
+async function fsResume(){
+  try { if (fsHandle && (await fsHandle.requestPermission({mode: 'read'})) === 'granted') fsStart(); else fsSay('لازم توافق على الإذن عشان المتابعة تشتغل.', 'text-amber-300'); } catch (e) { fsSay('مقدرتش آخد الإذن: ' + e.message, 'text-amber-300'); }
+}
+async function fsStop(keepMsg){
+  clearInterval(fsTimer); fsHandle = null; fsLast = ''; try { await idbSet('h:' + (companyId || ''), null); } catch (e) {}
+  fsButtons('none'); if (!keepMsg) fsSay('المتابعة وقفت. الأرقام المحفوظة فضلت زي ما هي.');
+}
+
+/* ---- OneDrive server sync (v13) ---- */
+let odLinked = false, odBusy = false;
+function odSay(t, cls){ const e = $('odStatus'); if (e) { e.className = 'text-[11px] ' + (cls || 'text-slate-200'); e.textContent = t; } }
+function odButtons(){ const l = odLinked; const n = $('odNow'), o = $('odOff'), f = $('fsBox'); if (n) n.classList.toggle('hidden', !l); if (o) o.classList.toggle('hidden', !l); if (f) f.classList.toggle('hidden', l); }
+const OD_ERR = {BAD_LINK: 'الرابط ده مش رابط OneDrive أو Google Sheets صالح (لازم يبدأ بـ https://1drv.ms أو onedrive.live.com أو sharepoint.com أو docs.google.com/spreadsheets).', NOT_ACCESSIBLE: 'مقدرتش أفتح الملف. اتأكد إن الرابط "أي شخص معاه الرابط" بصلاحية عرض، وإن الملف Excel على OneDrive أو Google Sheet حقيقي (مش ملف Excel مرفوع على Drive من غير تحويل).', TOO_BIG: 'الملف كبير (أقصى حجم 10 ميجا).', NO_SHEETS: 'ما لقيتش شيتات اسمها المبيعات أو المشتريات أو عروض الموردين في الملف.', DB_ERROR: 'حصلت مشكلة في الحفظ. جرّب تاني.', FORBIDDEN: 'مش مسموح لحسابك بالشركة دي.', UNAUTHORIZED: 'سجّل دخول تاني.', SERVER: 'خطأ مؤقت في الخدمة. جرّب بعد شوية.'};
+async function odCall(body){
+  const {data:{session}} = await sb.auth.getSession(); if (!session) throw new Error('UNAUTHORIZED');
+  body.company_id = companyId;
+  const r = await fetch(SB_URL + '/functions/v1/sync-excel-link', {method:'POST', headers:{Authorization:'Bearer ' + session.access_token, apikey: SB_KEY, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error(j.error || 'SERVER'); return j;
+}
+function odSummary(c){ c = c || {}; return 'مبيعات ' + (c.sales || 0) + ' | مشتريات ' + (c.purchases || 0) + ' | عروض موردين ' + (c.offers || 0); }
+async function odFetchAll(table, cols){
+  const out = []; for (let from = 0; from < 20000; from += 1000) {
+    const {data, error} = await sb.from(table).select(cols).eq('company_id', companyId).order('id', {ascending: true}).range(from, from + 999);
+    if (error) throw error; out.push.apply(out, data || []); if (!data || data.length < 1000) break;
+  } return out;
+}
+async function pullServerExtra(){
+  if (DEMO || !companyId) return false;
+  const {data: lk, error: e0} = await sb.from('sheet_links').select('last_status,last_synced_at,last_counts').eq('company_id', companyId).maybeSingle();
+  if (e0 || !lk) { odLinked = false; odButtons(); return false; }
+  odLinked = true; odButtons();
+  const [sa, pu, of] = await Promise.all([odFetchAll('sales', 'sale_date,product,customer,qty,unit_price,unit_cost'), odFetchAll('purchases', 'purchase_date,supplier,product,qty,unit_cost'), odFetchAll('supplier_offers', 'supplier,product,unit_price,offer_date')]);
+  const num = v => (v === null || v === undefined) ? null : Number(v);
+  setExtra({
+    sales: sa.map(r => ({d: r.sale_date || '', p: r.product, c: r.customer || '', q: num(r.qty) || 0, u: num(r.unit_price) || 0, k: num(r.unit_cost)})),
+    purchases: pu.map(r => ({d: r.purchase_date || '', s: r.supplier, p: r.product, q: num(r.qty), u: num(r.unit_cost) || 0})),
+    offers: of.map(r => ({s: r.supplier, p: r.product, u: num(r.unit_price) || 0, d: r.offer_date || ''}))
+  });
+  showExtraStatus();
+  const t = lk.last_synced_at ? new Date(lk.last_synced_at).toLocaleString('ar-EG') : '';
+  if (lk.last_status && lk.last_status !== 'ok' && lk.last_status !== 'new') odSay('آخر تحديث فشل: ' + (OD_ERR[lk.last_status] || lk.last_status) + ' الأرقام المعروضة هي آخر نسخة ناجحة.', 'text-amber-300');
+  else odSay('مربوط بالملف. آخر تحديث ' + t + '. ' + odSummary({sales: sa.length, purchases: pu.length, offers: of.length}));
+  return true;
+}
+async function odRun(body, busyMsg){
+  if (odBusy) return; odBusy = true; odSay(busyMsg);
+  try {
+    const j = await odCall(body);
+    if (j.status === 'error') throw new Error(j.code || 'SERVER');
+    await pullServerExtra();
+    if (body.action === 'set_link') { odSay('اتربط واتحدّث. ' + odSummary(j.counts)); }
+    const bad = j.errors ? Object.keys(j.errors) : []; if (bad.length) odSay($('odStatus').textContent + ' (مشكلة في شيت: ' + bad.map(k => KIND_AR[k]).join('، ') + ' - اتأكد من أسماء الأعمدة)', 'text-amber-300');
+  } catch (e) { odSay(OD_ERR[e.message] || 'تعذر الاتصال. جرّب تاني.', 'text-amber-300'); }
+  finally { odBusy = false; }
+}
+function odSave(){ if (DEMO) { demoNotice(); return; } const u = $('odUrl').value.trim(); if (!u) { odSay('الصق رابط OneDrive الأول.', 'text-amber-300'); return; } odRun({action: 'set_link', url: u}, 'جاري قراءة الملف...').then(() => { if (odLinked) $('odUrl').value = ''; }); }
+function odSyncNow(){ odRun({action: 'sync', force: true}, 'جاري التحديث...'); }
+async function odUnlink(){ if (!confirm('تفصل الرابط؟ البيانات المحفوظة هتفضل زي ما هي.')) return; try { await odCall({action: 'unlink'}); odLinked = false; odButtons(); odSay('الرابط اتفصل.'); } catch (e) { odSay(OD_ERR[e.message] || 'تعذر الفصل.', 'text-amber-300'); } }
+async function odInit(){
+  if (DEMO || !companyId || odBusy) return;
+  try { const was = odLinked; const has = await pullServerExtra(); if (has) { odBusy = true; try { const j = await odCall({action: 'sync'}); if (j.status === 'ok') await pullServerExtra(); } finally { odBusy = false; } } } catch (e) { odBusy = false; }
+}
+async function fsInit(){
+  if (!$('fsBox') || fsInitFor === companyId) return; fsInitFor = companyId;
+  if (!FS_OK) { fsButtons('none'); $('fsPick').classList.add('hidden'); fsSay('المتابعة التلقائية للملفات مش مدعومة في المتصفح ده (زي الموبايل وسفاري). على الكمبيوتر استخدم Chrome أو Edge. دلوقتي ارفع الملف بإيدك من الزر اللي فوق.', 'text-amber-300'); return; }
+  try { const h = await idbGet('h:' + (companyId || '')); if (!h) { fsButtons('none'); return; } fsHandle = h;
+    if ((await h.queryPermission({mode: 'read'})) === 'granted') fsStart(); else fsPause('كان بيتابع ' + h.name + '. اضغط "استئناف المتابعة" لإكمال التحديث التلقائي.'); } catch (e) { fsButtons('none'); }
+}
+function tplDownload(){
+  const t = TPL[$('tplSel').value]; if (!t) return;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + t[1].replace(/^\uFEFF/, '')], {type: 'text/csv;charset=utf-8'})); a.download = t[0] + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---- بيانات العرض التجريبي للمنتجات (وهمية) ---- */
+function buildDemoSales(){
+  const now = new Date(), tdy = now.getDate(), mk = (b) => { const d = new Date(now.getFullYear(), now.getMonth() - b, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); };
+  const custs = ['شركة النور للتجارة', 'مجموعة الأهرام', 'معرض النيل', 'متجر الأمل', 'مصنع الدلتا', 'شركة الواحة'];
+  const prevQ = [0.85, 1.0, 1.0, 1.05, 1.0, 1.0, 1.25, 1.5, 1.25], prevU = [1, 1, 1, 1, 1, 1, 0.9, 1, 0.9];
+  const out = [];
+  DEMO_PRODUCT_SALES.forEach((p, i) => {
+    const u = p[1] / p[2], k = u * (100 - p[3]) / 100, one = (p[0] === 'قطع غيار');
+    [[0, 1, 1], [1, prevQ[i], prevU[i]]].forEach(([b, fq, fu]) => {
+      const q = Math.round(p[2] * fq), uu = fu === 1 ? u : Math.round(u * fu * 100) / 100, cs = one ? [custs[(i + 2) % 6]] : [custs[i % 6], custs[(i + 2) % 6]];
+      cs.forEach((c, j) => { const qq = cs.length === 1 ? q : (j === 0 ? Math.round(q * 0.7) : q - Math.round(q * 0.7)); out.push({d: mk(b) + '-' + pad(b === 0 ? Math.max(1, Math.min(5 + j * 9, tdy, 28)) : 5 + j * 9), p: p[0], c: c, q: qq, u: uu, k: k}); });
+    });
+  });
+  return out;
+}
+let _demoSales = null;
+function getSales(){ if (typeof DEMO !== 'undefined' && DEMO) { if (!_demoSales) _demoSales = buildDemoSales(); return _demoSales; } return getExtra().sales; }
+const DEMO_OFFERS = [['مورد جديد (عرض تجريبي) أ', 'زجاجة 500 مل', 17], ['مورد جديد (عرض تجريبي) ب', 'علبة هدايا', 26], ['مورد جديد (عرض تجريبي) ج', 'كرتونة تغليف', 22.5]];
+
+/* ---- المحرك: تجميع حسب المنتج مع الأسباب ---- */
+function normName(v){ return String(v || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+function nameMatch(a, b){ a = normName(a); b = normName(b); if (!a || !b) return false; return a === b || (a.length >= 3 && b.indexOf(a) >= 0) || (b.length >= 3 && a.indexOf(b) >= 0); }
+function invFor(name){ if (typeof DEMO !== 'undefined' && DEMO) return null; const L = (typeof invItems !== 'undefined' && invItems) ? invItems.filter(x => nameMatch(x.item, name)) : []; if (!L.length) return null;
+  return {qty: L.reduce((a, x) => a + Number(x.qty), 0), min: L.reduce((a, x) => a + (x.min_qty === null || x.min_qty === undefined ? 0 : Number(x.min_qty)), 0), cost: Number(L[0].unit_cost), val: L.reduce((a, x) => a + Number(x.qty) * Number(x.unit_cost), 0)}; }
+function lastPurchaseCost(name){ const L = getExtra().purchases.filter(x => nameMatch(x.p, name) && x.u !== null).sort((a, b) => String(a.d).localeCompare(String(b.d))); return L.length ? {cost: L[L.length - 1].u, supplier: L[L.length - 1].s, all: L} : null; }
+function aggProducts(){
+  const S = getSales(); if (!S.length) return null;
+  const ms = Array.from(new Set(S.map(x => String(x.d || '').slice(0, 7)).filter(Boolean))).sort(), cur = ms.length ? ms[ms.length - 1] : '', prev = ms.length > 1 ? ms[ms.length - 2] : '';
+  const by = {};
+  S.forEach(x => { const m = String(x.d || '').slice(0, 7), k = normName(x.p), P = by[k] || (by[k] = {name: x.p, cur: {rev: 0, qty: 0, cost: 0, cq: 0, cust: {}}, prev: {rev: 0, qty: 0}});
+    const tgt = (!cur || m === cur) ? P.cur : (m === prev ? P.prev : null); if (!tgt) return;
+    tgt.rev += x.q * x.u; tgt.qty += x.q; if (tgt === P.cur) { if (x.k !== null && x.k !== undefined) { tgt.cost += x.q * x.k; tgt.cq += x.q; } if (x.c) tgt.cust[x.c] = (tgt.cust[x.c] || 0) + x.q * x.u; } });
+  const P = Object.values(by).map(p => {
+    const c = p.cur; let uc = c.cq > 0 ? c.cost / c.cq : null, src = 'sheet';
+    if (uc === null) { const lp = lastPurchaseCost(p.name); if (lp) uc = lp.cost; else { const iv = invFor(p.name); uc = iv ? iv.cost : null; } }
+    const cq = c.cq > 0 ? c.cq : c.qty;
+    const profit = uc === null ? null : c.rev - c.qty * uc, margin = (uc === null || c.rev <= 0) ? null : Math.round(profit / c.rev * 100);
+    return Object.assign(p, {unitCost: uc, profit: profit, margin: margin, avgPrice: c.qty > 0 ? c.rev / c.qty : 0, prevPrice: p.prev.qty > 0 ? p.prev.rev / p.prev.qty : 0, inv: invFor(p.name), nCust: Object.keys(c.cust).length});
+  });
+  return {P: P, cur: cur, prev: prev};
+}
+function reasonsFor(p, A, top){
+  const R = [], c = p.cur, pv = p.prev;
+  if (A.prev) {
+    if (pv.rev > 0 && c.rev === 0) R.push('ما اتباعش الشهر ده خالص');
+    else if (pv.rev > 0) { const ch = Math.round((c.rev - pv.rev) / pv.rev * 100);
+      if (ch <= -15) R.push('المبيعات نزلت ' + Math.abs(ch) + '% عن ' + A.prev); else if (ch >= 15) R.push('المبيعات زادت ' + ch + '% عن ' + A.prev); }
+    if (pv.qty > 0 && p.prevPrice > 0 && p.avgPrice > 0) { const pc = Math.round((p.avgPrice - p.prevPrice) / p.prevPrice * 100), qc = Math.round((c.qty - pv.qty) / pv.qty * 100);
+      if (pc >= 5 && qc <= -10) R.push('السعر زاد ' + pc + '% والكمية نزلت ' + Math.abs(qc) + '%'); }
+  }
+  if (p.margin !== null) { if (p.margin < 15) R.push('هامشه ضعيف (' + p.margin + '%)'); else if (p.margin >= 35) R.push('هامشه عالي (' + p.margin + '%)'); }
+  if (p.inv) { if (p.inv.qty <= 0 || (p.inv.min > 0 && p.inv.qty <= p.inv.min)) R.push('المخزون خلص أو تحت حد الطلب (ممكن بيع ضايع)');
+    else if (c.qty > 0) { const mo = p.inv.qty / c.qty; if (mo > 4) R.push('المخزون يكفي ' + (Math.round(mo * 10) / 10) + ' شهر (زيادة عن اللازم)'); else if (top && mo < 1) R.push('المخزون يكفي أقل من شهر، جهّز طلبية'); } }
+  if (p.nCust === 1) R.push('بيتباع لعميل واحد بس'); else if (top && p.nCust >= 3) R.push('بيتباع لـ ' + p.nCust + ' عملاء');
+  const lp = lastPurchaseCost(p.name); if (lp && lp.all.length > 1) { const prior = lp.all.slice(0, -1).reduce((a, x) => a + x.u, 0) / (lp.all.length - 1); if (lp.cost > prior * 1.05) R.push('سعر شرائه زاد ' + Math.round((lp.cost - prior) / prior * 100) + '% عن المتوسط'); }
+  return R.slice(0, 3);
+}
+const PROD_LIMIT = 'حدود الإجابة: الأسباب تفسير محتمل من أرقام المبيعات والمخزون والمشتريات اللي عندي، مش حكم أكيد. معنديش أسباب من برة الداتا زي المنافسين أو الموسم أو جودة المنتج.';
+function productAnswer(kind){
+  const A = aggProducts(); if (!A || !A.P.length) return undefined;
+  const demo = (typeof DEMO !== 'undefined' && DEMO), per = A.cur ? ('شهر ' + A.cur) : 'كل الفترة';
+  const L = [], ln = (p, i, top) => { const r = reasonsFor(p, A, top); return (i + 1) + '. ' + p.name + ': ' + fmt(p.cur.rev) + ' ج.م (' + fmt(p.cur.qty) + ' وحدة)' + (p.profit !== null ? '، ربح ' + fmt(p.profit) + (p.margin !== null ? ' (هامش ' + p.margin + '%)' : '') : '') + '\n   السبب: ' + (r.length ? r.join('، ') : 'مفيش سبب واضح من الأرقام'); };
+  if (kind === 'low') { L.push('أقل المنتجات مبيعاً (' + per + '):'); A.P.slice().sort((a, b) => a.cur.rev - b.cur.rev).slice(0, 3).forEach((p, i) => L.push(ln(p, i, false))); }
+  else if (kind === 'prod') { const tot = A.P.reduce((a, p) => a + p.cur.rev, 0); L.push('أكتر المنتجات مبيعاً (' + per + '):'); A.P.slice().sort((a, b) => b.cur.rev - a.cur.rev).slice(0, 5).forEach((p, i) => L.push(ln(p, i, true) + ' | ' + Math.round(p.cur.rev / tot * 100) + '% من المبيعات')); }
+  else { const pf = A.P.filter(p => p.profit !== null);
+    if (!pf.length) L.push('عندي المبيعات من غير تكلفة الوحدة، فمقدرش أحسب الربح. ضيف عمود تكلفة الوحدة أو ارفع المخزون.');
+    else { L.push('أكتر المنتجات مكسباً (' + per + '):'); pf.slice().sort((a, b) => b.profit - a.profit).slice(0, 3).forEach((p, i) => L.push(ln(p, i, true)));
+      const wm = pf.filter(p => p.margin !== null).sort((a, b) => a.margin - b.margin)[0]; if (wm) L.push('أضعف هامش: ' + wm.name + ' (' + wm.margin + '%).'); } }
+  if (!A.prev && A.cur) L.push('ملاحظة: مفيش غير شهر واحد من المبيعات، فمقدرش أقارن بالشهر اللي فات.');
+  if (!A.cur) L.push('ملاحظة: المبيعات من غير تواريخ، فمقدرش أقارن شهور.');
+  L.push(demo ? 'حدود الإجابة: بيانات المنتجات تجريبية. ' + PROD_LIMIT.replace('حدود الإجابة: ', '') : PROD_LIMIT);
+  return L.join('\n');
+}
+function customerAnswerFromSales(){
+  const S = getSales(); if (!S.length || !S.some(x => x.c)) return undefined;
+  const by = {}; S.forEach(x => { if (!x.c) return; const r = by[x.c] || (by[x.c] = {name: x.c, sum: 0, n: 0, last: '', prods: {}}); const v = x.q * x.u; r.sum += v; r.n++; if (x.d > r.last) r.last = x.d; r.prods[x.p] = (r.prods[x.p] || 0) + v; });
+  const R = Object.values(by).sort((a, b) => b.sum - a.sum), tot = R.reduce((a, x) => a + x.sum, 0), L = ['أفضل العملاء حسب قيمة المبيعات (من جدول المبيعات):'];
+  R.slice(0, 5).forEach((x, i) => { const tp = Object.keys(x.prods).sort((a, b) => x.prods[b] - x.prods[a])[0]; L.push((i + 1) + '. ' + x.name + ': ' + fmt(x.sum) + ' ج.م (' + Math.round(x.sum / tot * 100) + '% من المبيعات، ' + (x.n === 1 ? 'عملية واحدة' : x.n + ' عمليات') + '، أكتر ما بيشتري: ' + tp + (x.last ? '، آخر شراء ' + x.last : '') + ')'); });
+  if (R[0].sum / tot > 0.4) L.push('تنبيه: ' + Math.round(R[0].sum / tot * 100) + '% من مبيعاتك من عميل واحد.');
+  L.push('حدود الإجابة: بيحسب من المبيعات المسجلة، ومش بيحسب التحصيل ولا التأخير في الدفع (ده في المستحقات).');
+  return L.join('\n');
+}
+function supplierAnswer(){
+  const demo = (typeof DEMO !== 'undefined' && DEMO), L = [], ex = getExtra(), hasPur = !demo && ex.purchases.length > 0;
+  const curNames = [];
+  L.push('الموردين اللي بتشتغل معاهم حالياً (من مشترياتك الفعلية):');
+  if (hasPur) {
+    const by = {}; ex.purchases.forEach(x => { const r = by[x.s] || (by[x.s] = {name: x.s, sum: 0, n: 0, last: '', prods: {}}); const v = (x.q === null ? 1 : x.q) * x.u; r.sum += v; r.n++; if (x.d > r.last) r.last = x.d; r.prods[x.p] = (r.prods[x.p] || 0) + v; });
+    const R = Object.values(by).sort((a, b) => b.sum - a.sum), tot = R.reduce((a, x) => a + x.sum, 0);
+    R.slice(0, 5).forEach(x => { curNames.push(normName(x.name)); const tp = Object.keys(x.prods).sort((a, b) => x.prods[b] - x.prods[a]).slice(0, 3).join('، ');
+      L.push('[حالي] ' + x.name + ': ' + fmt(x.sum) + ' ج.م (' + Math.round(x.sum / tot * 100) + '% من المشتريات، ' + (x.n === 1 ? 'عملية واحدة' : x.n + ' عمليات') + (x.last ? '، آخرها ' + x.last : '') + ') | بيوردلك: ' + tp); });
+    R.slice(5).forEach(x => curNames.push(normName(x.name)));
+    if (R[0].sum / tot > 0.6) L.push('تنبيه: ' + Math.round(R[0].sum / tot * 100) + '% من مشترياتك عند مورد واحد، وده خطر لو تأخر أو رفع السعر.');
+    const rising = []; const seen = {}; ex.purchases.forEach(x => { seen[normName(x.p)] = x.p; });
+    Object.keys(seen).forEach(k => { const lp = lastPurchaseCost(seen[k]); if (lp && lp.all.length > 1) { const prior = lp.all.slice(0, -1).reduce((a, x) => a + x.u, 0) / (lp.all.length - 1); if (lp.cost > prior * 1.05) rising.push(seen[k] + ' (+' + Math.round((lp.cost - prior) / prior * 100) + '%)'); } });
+    if (rising.length) L.push('منتجات سعر شرائها زاد: ' + rising.join('، '));
+  } else {
+    const r = rankParties('sup');
+    if (!r.length) L.push('مفيش حركات شراء بضاعة (تكلفة البضاعة) في بياناتك.');
+    else { const tot = r.reduce((a, x) => a + x.sum, 0);
+      r.slice(0, 5).forEach(x => { curNames.push(normName(x.name)); L.push('[حالي] ' + x.name + ': ' + fmt(x.sum) + ' ج.م (' + Math.round(x.sum / tot * 100) + '% من المشتريات، ' + (x.n === 1 ? 'عملية واحدة' : x.n + ' عمليات') + '، آخرها ' + x.last + ')'); });
+      if (r[0].sum / tot > 0.6) L.push('تنبيه: ' + Math.round(r[0].sum / tot * 100) + '% من مشترياتك عند مورد واحد، وده خطر لو تأخر أو رفع السعر.');
+      if (!demo) L.push('(للتفاصيل بالمنتج ارفع جدول المشتريات.)'); }
+  }
+  L.push('');
+  let offers, costOf, qtyOf;
+  if (demo) { const A = aggProducts(); offers = DEMO_OFFERS.map(o => ({s: o[0], p: o[1], u: o[2]})); costOf = n => { const p = A && A.P.find(x => nameMatch(x.name, n)); return p ? {c: p.unitCost, from: 'تكلفتك الحالية'} : null; }; qtyOf = n => { const p = A && A.P.find(x => nameMatch(x.name, n)); return p ? p.cur.qty : 0; }; }
+  else { offers = ex.offers; const A = aggProducts();
+    costOf = n => { const lp = lastPurchaseCost(n); if (lp) return {c: lp.cost, from: 'آخر شراء من ' + lp.supplier}; const iv = invFor(n); return iv ? {c: iv.cost, from: 'تكلفة المخزون'} : null; };
+    qtyOf = n => { const p = A && A.P.find(x => nameMatch(x.name, n)); return p ? p.cur.qty : 0; }; }
+  L.push('--- موردين جدد (عروض أسعار، منفصلين تماماً عن الحاليين):');
+  if (!offers.length) L.push('مفيش عروض متسجلة. أنا معنديش أسعار سوق ومش هخمّن. ضيف عروض الأسعار اللي جاتلك في جدول "عروض الموردين" وأنا أقارنها بتكلفتك الحالية.');
+  else offers.forEach(o => { const cc = costOf(o.p), isCur = curNames.indexOf(normName(o.s)) >= 0; let t = '[جديد] ' + o.s + (isCur ? ' (مورد حالي بسعر جديد)' : '') + ' | ' + o.p + ': ' + fmt(o.u) + ' ج.م للوحدة' + (o.d ? ' (عرض ' + o.d + ')' : '');
+    if (!cc || !cc.c || !isFinite(cc.c)) t += ' (مفيش تكلفة حالية للمنتج ده أقارن بيها)';
+    else { const d = Math.round((o.u - cc.c) / cc.c * 100); t += ' | ' + cc.from + ': ' + (Math.round(cc.c * 10) / 10) + ' ← ' + (d < 0 ? 'أرخص ' + Math.abs(d) + '%' : (d > 0 ? 'أغلى ' + d + '%' : 'نفس السعر'));
+      const q = qtyOf(o.p); if (d < 0 && q > 0) t += '، توفير تقريبي ' + fmt((cc.c - o.u) * q) + ' ج.م في الشهر بكمية الشهر ده'; }
+    L.push(t); });
+  L.push('الفرق: "حالي" معناه اتعاملت معاه فعلاً وأرقامه من مشترياتك. "جديد" عرض سعر لسه ما اتجربش، وأسعاره اللي أدخلتها أنت' + (demo ? ' (هنا أرقام تجريبية)' : '') + '، ومن غير ما أعرف جودته ولا مواعيد توريده ولا شروط دفعه.');
+  L.push('حدود الإجابة: مفيش أسعار سوق عندي ومش بدور على الإنترنت. قارن الجودة والتوريد والدفع قبل ما تغيّر أي مورد.');
+  return L.join('\n');
+}
+function slowStockLines(){
+  const A = aggProducts(); if (!A) return '';
+  const R = A.P.filter(p => p.inv && p.cur.qty > 0 && p.inv.qty / p.cur.qty > 4).sort((a, b) => b.inv.val - a.inv.val).slice(0, 3);
+  const Z = A.P.filter(p => p.inv && p.cur.qty === 0 && p.inv.val > 0).slice(0, 2);
+  const L = []; R.concat(Z).forEach(p => L.push('- ' + p.name + ': مخزون ' + fmt(p.inv.val) + ' ج.م ' + (p.cur.qty === 0 ? 'ومفيش مبيعات الشهر ده' : 'بيكفي ' + (Math.round(p.inv.qty / p.cur.qty * 10) / 10) + ' شهر')));
+  return L.length ? 'مخزون راكد (فلوس واقفة، من المبيعات والمخزون):\n' + L.join('\n') : '';
+}
+function localAsk(q){
+  q = String(q || ''); const demo = (typeof DEMO !== 'undefined' && DEMO);
+  if (/(هدر|اهدار|إهدار|فاقد|تبذير|بيضيع|بتضيع|خسارة|خساره|مصاريف زيادة)/.test(q)) { const base = localAsk0(q); if (demo) return base; const x = slowStockLines(); return x ? base + '\n' + x : base; }
+  if (/(مورد|موردين|موردي|اشتري منه|اجيب منه|أجيب منه|أشتري منه)/.test(q)) return supplierAnswer();
+  const prodW = /(منتج|منتجات|صنف|اصناف|أصناف|بتتباع|مبيعا|مبيعاً)/.test(q);
+  const low = /(اقل|أقل|اضعف|أضعف|راكد|مش بتتباع|ما بتتباعش)/.test(q) && prodW;
+  const top = prodW && /(اكتر|أكتر|اكثر|أكثر|افضل|أفضل|اعلى|أعلى|بتتباع|مبيعا|مبيعاً)/.test(q);
+  const prof = /(مكسب|مكسباني|اربح|أربح|ربحية)/.test(q) && !/(ليه|زود|زيادة)/.test(q);
+  const cust = /(شركات|شركة|عملاء|عميل|زباين|زبون)/.test(q) && /(افضل|أفضل|اكتر|أكتر|اكثر|أكثر|اعلى|أعلى|كبار|كبير)/.test(q);
+  if (low) { const a = productAnswer('low'); return a !== undefined ? a : noSalesMsg(); }
+  if (top) { const a = productAnswer('prod'); return a !== undefined ? a : noSalesMsg(); }
+  if (cust && !demo) { const a = customerAnswerFromSales(); if (a) return a; }
+  if (prof && !/(عميل|عملاء|شركة|شركات)/.test(q)) { const a = productAnswer('profit'); if (a) { if (demo) return a + '\n\nعلى مستوى الشركة: صافي ربح الشهر 68,000 ج.م وهامشه 32%.'; const base = localAsk0(q).split('\n').slice(0, -1).join('\n'); return a + (base ? '\n\n' + base : ''); } }
+  return localAsk0(q);
+}
+function noSalesMsg(){
+  return 'معنديش جدول مبيعات المنتجات، فمقدرش أحدد الأكتر أو الأقل مبيعاً ولا أسبابه بدقة. حمّل قالب "4-المبيعات" من اللوحة اللي تحت المساعد، املاه (التاريخ، المنتج، العميل، الكمية، سعر البيع، تكلفة الوحدة) وارفعه، وارفع المخزون كمان عشان أحسب أسباب المخزون.';
+}
 function demoAsk(q){
   q = String(q || '').trim(); const out = $('answer'); if (!q) return;
   $('q').value = q; out.className = 'text-sm leading-relaxed whitespace-pre-wrap'; out.textContent = 'جاري التفكير...';
@@ -2105,13 +2643,14 @@ function demoAsk(q){
     [/التزام|سدد|مستحق|ضريب/, 'أيوه تقدر. النقدية 250,000 ج.م، والمطلوب منك 65,500 (موردين 45,000 + ضرائب 12,000 + التزام جاي 8,500). هيفضل معاك 184,500 قبل ما تحصّل 185,000 مستحقة ليك، منها 60,000 متأخرة.'],
     [/ربح|زود|زيادة|تحسين|وفر/, 'أسرع حاجتين: (1) حصّل الـ 60,000 ج.م المتأخرة عند شركة النور. (2) لو قلّلت تكلفة البضاعة 5% هتوفر حوالي 2,700 ج.م في الشهر من غير ما تأثر على المبيعات.']
   ];
-  let ans = null; for (const [re, t] of A) { if (re.test(q)) { ans = t; break; } }
+  let ans = localAsk(q); if (!ans) for (const [re, t] of A) { if (re.test(q)) { ans = t; break; } }
   if (!ans) ans = 'ده عرض تجريبي، والمساعد بيرد على أسئلة جاهزة. جرّب واحد من الأسئلة اللي فوق. في حسابك الفعلي بيجاوب على أي سؤال عن أرقام شركتك.';
   setTimeout(() => { out.textContent = '(إجابة تجريبية) ' + ans; }, 700);
 }
 function setDemoUi(on){
   document.querySelectorAll('.demoOnly').forEach(e => e.classList.toggle('hidden', !on));
   const ch = $('demoAskChips'); if (ch) ch.classList.toggle('hidden', !on);
+  const xp = $('extraPanel'); if (xp) { xp.classList.toggle('hidden', on); if (!on) fillExtraBoxes(); }
   $('demoBanner').classList.toggle('hidden', !on);
   const wipe = $('wipeBtn'); if (wipe) wipe.classList.toggle('hidden', on);
   const out = document.querySelector('button[onclick="signOut()"]'); if (out) out.classList.toggle('hidden', on);
